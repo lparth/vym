@@ -371,12 +371,13 @@ bool VymModelWrapper::loadBranchReplace(QString fileName, BranchWrapper *bw)
     return r;
 }
 
-bool VymModelWrapper::loadDataInsert(QString fileName)
+bool VymModelWrapper::loadDataInsert(QString fileName, int pos, BranchWrapper *bw)
 {
     if (QDir::isRelativePath(fileName))
         fileName = QDir::currentPath() + "/" + fileName;
 
-    bool r = model->addMapInsert(fileName);  // FIXME-2 No selectedBranch passed as arg like in replace above?
+    BranchItem * bi = bw ? bw->branchItem() : nullptr;
+    bool r = model->addMapInsert(fileName, pos, bi);
     mainWindow->setScriptResult(r);
     return r;
 }

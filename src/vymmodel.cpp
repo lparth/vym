@@ -3818,7 +3818,7 @@ bool VymModel::createXLink(XLink *xlink)
     QString rc = QString("map.loadDataInsert(\"REDO_PATH\");");
     QString com = QString("Add XLink from \"%1\" to \"%2\"")
         .arg(getObjectName(begin), getObjectName(end));
-    saveState(uc, rc, com, xlink->beginXLinkItem());
+    saveState(uc, rc, com, nullptr, xlink->beginXLinkItem());
 
     return true;
 }

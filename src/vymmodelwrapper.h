@@ -45,7 +45,7 @@ class VymModelWrapper : public QObject {
     int getRotationSubtree();   // FIXME-3 move to BranchWrapper
     QString getSelectionString();//FIXME-3 copy to BranchWrapper?
     bool loadBranchReplace(QString filename, BranchWrapper *bw);
-    bool loadDataInsert(QString filename);
+    bool loadDataInsert(QString filename, int pos = -1, BranchWrapper *bw = nullptr);
     void moveSlideDown(int n);
     void moveSlideDown();
     void moveSlideUp(int n);
