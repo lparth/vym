@@ -5,6 +5,7 @@
 #include <iostream>
 using namespace std;
 
+class QDate;
 class QString;
 class QPoint;
 class QPointF;
@@ -20,6 +21,7 @@ QString toS(const QPoint &p);
 QString toS(const QPointF &p, int d = 1);
 QString toS(const QRectF &r, int d = 1);
 QString toS(const Vector &p);
+QString toS(const QDate &d);
 
 QString pluralize(const QString &, qsizetype count);
 

@@ -323,7 +323,7 @@ QString VymModel::saveToDir(const QString &tmpdir, const QString &prefix,
     QString design;
 
     if (!saveSel) {
-        mapAttr += xml.attribute("date", getDate()) + "\n";
+        mapAttr += xml.attribute("date", toS(QDate::currentDate())) + "\n";
 
         if (!author.isEmpty())
             mapAttr += xml.attribute("author", author) + "\n";
@@ -2160,11 +2160,6 @@ void VymModel::setMapVersion(const QString &s)
 QString VymModel::mapVersion()
 {
     return mapVersionInt;
-}
-
-QString VymModel::getDate() // FIXME-2 Missing command? Should be in vym, not model
-{
-    return QDate::currentDate().toString("yyyy-MM-dd");
 }
 
 int VymModel::branchCount()

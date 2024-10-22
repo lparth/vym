@@ -327,7 +327,6 @@ class VymModel : public TreeModel {
     QString getComment();
     void setMapVersion(const QString &);
     QString mapVersion();
-    QString getDate();
     int branchCount();
     int centerCount();
 

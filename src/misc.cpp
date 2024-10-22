@@ -1,10 +1,12 @@
 #include "misc.h"
 
+
 #include "geometry.h"
 
 #include <math.h>
 #include <stdlib.h>
 
+#include <QDate>
 #include <QDebug>
 #include <QDialog>
 #include <QRegularExpression>
@@ -97,6 +99,11 @@ QString toS(const QRectF &r, int d)
 QString toS(const Vector &p)
 {
     return QString("(%1, %2)").arg(p.x()).arg(p.y());
+}
+
+QString toS(const QDate &d)
+{
+    return d.toString("yyyy-MM-dd");
 }
 
 QString pluralize(const QString &s, qsizetype count)

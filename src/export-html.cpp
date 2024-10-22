@@ -7,6 +7,7 @@
 #include "heading-container.h"
 #include "image-container.h"
 #include "mainwindow.h"
+#include "misc.h"
 #include "task.h"
 #include "vymmodel.h"
 #include "warningdialog.h"
@@ -415,7 +416,7 @@ void ExportHTML::doExport(bool useDialog)
         <td class=\"vym-footerL\">" +
               filePath + "</td> \n\
             <td class=\"vym-footerC\">" +
-              model->getDate() + "</td> \n\
+              toS(QDate::currentDate()) + "</td> \n\
             <td class=\"vym-footerR\"> <a href='" +
               vymHome + "'>vym " + vymVersion + "</a></td> \n\
             </tr> \n \
