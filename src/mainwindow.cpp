@@ -1858,6 +1858,7 @@ void Main::setupEditActions()
     connect(a, SIGNAL(triggered()), this, SLOT(editAddBranchAbove()));
     a->setEnabled(false);
     actionListBranches.append(a);
+    editMenu->addAction(a);
     actionAddBranchAbove = a;
 
     a = new QAction(tr("Add branch above", "Edit menu"), this);
@@ -1867,7 +1868,6 @@ void Main::setupEditActions()
     addAction(a);
     connect(a, SIGNAL(triggered()), this, SLOT(editAddBranchAbove()));
     actionListBranches.append(a);
-    editMenu->addAction(a);
 
     // Add branch below
     a = new QAction(tr("Add branch below", "Edit menu"), this);
@@ -1886,6 +1886,7 @@ void Main::setupEditActions()
     addAction(a);
     connect(a, SIGNAL(triggered()), this, SLOT(editAddBranchBelow()));
     actionListBranches.append(a);
+    editMenu->addAction(a);
     actionAddBranchBelow = a;
 
     a = new QAction(QPixmap(":/up.png"), tr("Move branch up", "Edit menu"),
@@ -1895,7 +1896,8 @@ void Main::setupEditActions()
     mapEditorActions.append(a);
     taskEditorActions.append(a);
     restrictedMapActions.append(a);
-    actionListBranchesAndImages.append(a);
+    actionListBranches.append(a);
+    actionListImages.append(a);
     editMenu->addAction(a);
     switchboard.addSwitch("mapEditMoveBranchUp", shortcutScope, a, tag);
     connect(a, SIGNAL(triggered()), this, SLOT(editMoveUp()));
@@ -1908,7 +1910,8 @@ void Main::setupEditActions()
     mapEditorActions.append(a);
     taskEditorActions.append(a);
     restrictedMapActions.append(a);
-    actionListBranchesAndImages.append(a);
+    actionListBranches.append(a);
+    actionListImages.append(a);
     editMenu->addAction(a);
     switchboard.addSwitch("mapEditMoveBranchDown", shortcutScope, a, tag);
     connect(a, SIGNAL(triggered()), this, SLOT(editMoveDown()));
@@ -1992,7 +1995,8 @@ void Main::setupEditActions()
     switchboard.addSwitch("mapGrowSelection", shortcutScope, a, tag);
     connect(a, SIGNAL(triggered()), this, SLOT(editGrowSelectionSize()));
     editMenu->addAction(a);
-    actionListBranchesAndImages.append(a);
+    actionListBranches.append(a);
+    actionListImages.append(a);
     actionGrowSelectionSize = a;
 
     a = new QAction(tr("Shrink selection", "Edit menu"), this);
@@ -2000,7 +2004,8 @@ void Main::setupEditActions()
     switchboard.addSwitch("mapShrinkSelection", shortcutScope, a, tag);
     connect(a, SIGNAL(triggered()), this, SLOT(editShrinkSelectionSize()));
     editMenu->addAction(a);
-    actionListBranchesAndImages.append(a);
+    actionListBranches.append(a);
+    actionListImages.append(a);
     actionShrinkSelectionSize = a;
 
     a = new QAction(tr("Reset selection size", "Edit menu"), this);
@@ -2008,7 +2013,8 @@ void Main::setupEditActions()
     switchboard.addSwitch("mapResetSelectionSize", shortcutScope, a, tag);
     connect(a, SIGNAL(triggered()), this, SLOT(editResetSelectionSize()));
     editMenu->addAction(a);
-    actionListBranchesAndImages.append(a);
+    actionListBranches.append(a);
+    actionListImages.append(a);
     actionResetSelectionSize = a;
 
     editMenu->addSeparator();
@@ -2217,7 +2223,8 @@ void Main::setupEditActions()
     addAction(a);
     switchboard.addSwitch("mapToggleHideExport", shortcutScope, a, tag);
     connect(a, SIGNAL(triggered()), this, SLOT(editToggleHideExport()));
-    actionListBranchesAndImages.append(a);
+    actionListBranches.append(a);
+    actionListImages.append(a);
     actionToggleHideExport = a;
 
     tag = tr("Tasks", "Shortcuts");
@@ -2458,7 +2465,8 @@ void Main::setupSelectActions()
     selectMenu->addAction(a);
     switchboard.addSwitch("mapGotoTarget", shortcutScope, a, tag);
     connect(a, SIGNAL(triggered()), this, SLOT(editGoToTarget()));
-    actionListBranchesAndImages.append(a);
+    actionListBranches.append(a);
+    actionListImages.append(a);
     actionGoToTarget = a;
 
     a = new QAction(QPixmap(":/flag-target.svg"),
@@ -2619,7 +2627,8 @@ void Main::setupFormatActions()
         tr("Hide link if object is not selected", "Branch attribute"), this);
     a->setCheckable(true);
     connect(a, SIGNAL(triggered()), this, SLOT(formatHideLinkUnselected()));
-    actionListBranchesAndImages.append(a);
+    actionListBranches.append(a);
+    actionListImages.append(a);
     actionFormatHideLinkUnselected = a;
 
     a = new QAction(tr("&Use color of heading for link", "Branch attribute"),
@@ -6843,8 +6852,6 @@ void Main::updateActions()
         // Disable other actions for now
         foreach (QAction *a, actionListBranches)
             a->setEnabled(false);
-        foreach (QAction *a, actionListBranchesAndImages)
-            a->setEnabled(false);
         foreach (QAction *a, actionListImages)
             a->setEnabled(false);
         foreach (QAction *a, actionListItems)
@@ -6942,20 +6949,17 @@ void Main::updateActions()
 
         if (seltis.count() > 0) { // Tree Item selected
             if (selti) actionToggleTarget->setChecked(selti->isTarget());
-            actionDelete->setEnabled(true);         // FIXME-2x should be in actionList*
-            actionDeleteAlt->setEnabled(true);      // FIXME-2x should be in actionList*
-            actionDeleteChildren->setEnabled(true); // FIXME-2x should be in actionList*
+                foreach (QAction *a, actionListImages)
+                    a->setEnabled(true);
 
             if (selti && selti->getType() == TreeItem::Image) {
-                actionFormatHideLinkUnselected->setChecked( // FIXME-2x should be in actionList*
+                actionFormatHideLinkUnselected->setChecked(
                     ((MapItem *)selti)->getHideLinkUnselected());
                 actionFormatHideLinkUnselected->setEnabled(true);
             }
 
             if (selbis.count() > 0) { // Branch Item selected
                 foreach (QAction *a, actionListBranches)
-                    a->setEnabled(true);
-                foreach (QAction *a, actionListBranchesAndImages)
                     a->setEnabled(true);
 
                 actionHeading2URL->setEnabled(true);
@@ -7075,8 +7079,6 @@ void Main::updateActions()
                 // Image selected
                 foreach (QAction *a, actionListImages)
                     a->setEnabled(true);
-                foreach (QAction *a, actionListBranchesAndImages)
-                    a->setEnabled(true);
 
                 standardFlagsMaster->setEnabled(false);
                 userFlagsMaster->setEnabled(false);
@@ -7124,11 +7126,6 @@ void Main::updateActions()
         }
 
         // Check (at least for some) multiple selection
-        if (seltis.count() > 0) {
-            actionDelete->setEnabled(true);
-            actionDeleteAlt->setEnabled(true);
-        }
-
         if (selbis.count() > 0)
         {
             actionFormatColorBranch->setEnabled(true);

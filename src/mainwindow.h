@@ -437,7 +437,6 @@ class Main : public QMainWindow {
                                       //! restore session
     QList<QAction *> actionListBranches;
     QList<QAction *> actionListImages;
-    QList<QAction *> actionListBranchesAndImages;
     QList<QAction *> actionListItems;
 
     int xLinkMenuWidth;

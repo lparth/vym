@@ -63,7 +63,7 @@ void TreeEditor::init()
     addAction(a);
     connect(a, SIGNAL(triggered()), this, SLOT(startEdit()));
 
-    // Clone actions defined in MainWindow  // FIXME-2 PageUp/Down not working in TreeEditor
+    // Clone actions defined in MainWindow  // FIXME-3 PageUp/Down not working in TreeEditor
     foreach (QAction *qa, mainWindow->mapEditorActions) {
         a = new QAction(this);
         a->setShortcut(qa->shortcut());

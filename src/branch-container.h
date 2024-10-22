@@ -208,7 +208,7 @@ class BranchContainer : public BranchContainerBase, public SelectableContainer {
     bool originalFloating;                      //! Save, if floating before linked temporary
     QPointF originalParentPos;                  // used in ME to determine orientation during move: scene coord of orig, parent
 
-  public:   // FIXME-2 v_anim public only for experimenting  
+  public:   // FIXME-3 v_anim public only for experimenting  
     QPointF v_anim;                     // Animation vector. Added to current pos in each animation step
     QGraphicsLineItem v;
 };
