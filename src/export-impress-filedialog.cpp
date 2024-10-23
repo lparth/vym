@@ -1,18 +1,18 @@
-#include "exportoofiledialog.h"
+#include "export-impress-filedialog.h"
 
 extern QDir vymBaseDir;
 
-ExportOOFileDialog::ExportOOFileDialog() : QFileDialog() { init(); }
+ExportImpressFileDialog::ExportImpressFileDialog() : QFileDialog() { init(); }
 
-ExportOOFileDialog::ExportOOFileDialog(QWidget *parent, const QString &caption)
+ExportImpressFileDialog::ExportImpressFileDialog(QWidget *parent, const QString &caption)
     : QFileDialog(parent, caption)
 {
     init();
 }
 
-bool ExportOOFileDialog::foundConfig() { return !filters.isEmpty(); }
+bool ExportImpressFileDialog::foundConfig() { return !filters.isEmpty(); }
 
-QString ExportOOFileDialog::selectedConfig()
+QString ExportImpressFileDialog::selectedConfig()
 {
     QStringList::Iterator itpath = configPaths.begin();
     QStringList::Iterator itf = filters.begin();
@@ -22,19 +22,19 @@ QString ExportOOFileDialog::selectedConfig()
         itpath++;
         itf++;
     }
-    qWarning("ExportOOFileDialog::selectedConfig  No filter found!");
+    qWarning("ExportImpressFileDialog::selectedConfig  No filter found!");
     return "";
 }
 
-void ExportOOFileDialog::newConfigPath(const QString &s) { lastFilter = s; }
+void ExportImpressFileDialog::newConfigPath(const QString &s) { lastFilter = s; }
 
-void ExportOOFileDialog::show()
+void ExportImpressFileDialog::show()
 {
     setNameFilters(filters);
     QFileDialog::show();
 }
 
-void ExportOOFileDialog::init()
+void ExportImpressFileDialog::init()
 {
     setFileMode(QFileDialog::AnyFile);
     QDir d = vymBaseDir;
@@ -50,13 +50,13 @@ void ExportOOFileDialog::init()
             SLOT(newConfigPath(const QString &)));
 }
 
-void ExportOOFileDialog::addFilter(const QString &f)
+void ExportImpressFileDialog::addFilter(const QString &f)
 {
     lastFilter = f;
     filters.append(f);
 }
 
-void ExportOOFileDialog::scanExportConfigs(QDir dir)
+void ExportImpressFileDialog::scanExportConfigs(QDir dir)
 {
     // Scan existing export configurations
     SimpleSettings set;

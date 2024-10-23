@@ -32,7 +32,7 @@ void ExportCSV::doExport()
     QString out;
 
     // Write header
-    out += "\"Note\"\n";
+    // out += "\"Note\"\n";
 
     // Main loop over all branches
     QString s;

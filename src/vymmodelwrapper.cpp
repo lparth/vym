@@ -197,7 +197,7 @@ bool VymModelWrapper::exportMap(QJSValueList args)
 	    return r;
         }
         QString templ = args[2].toString();
-        model->exportImpress(filePath, templ);
+        model->exportImpress(filePath, templ, false);
     } else if (format == "LaTeX") {
         model->exportLaTeX(filePath, false);
     } else if (format == "Markdown") {

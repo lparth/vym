@@ -649,7 +649,7 @@ class VymModel : public TreeModel {
                     bool useDialog = true);
 
     /*! Export as OpenOfficeOrg presentation */
-    void exportImpress(const QString &, const QString &);
+    void exportImpress(QString fn = "", QString configFile = "", bool useDialog = true);
 
     /*! Export agent might set export last command AFTER export
      *  e.g. CreateConfluencePage might turn into UpdateConfluencePage */

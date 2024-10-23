@@ -1,5 +1,5 @@
-#ifndef EXPORTOOFILEDIALOG
-#define EXPORTOOFILEDIALOG
+#ifndef EXPORTIMPRESSFILEDIALOG
+#define EXPORTIMPRESSFILEDIALOG
 
 #include <QFileDialog>
 #include <QStringList>
@@ -12,12 +12,12 @@ This is an overloaded QFileDialog, which allows to select templates by setting a
 type.
 */
 
-class ExportOOFileDialog : public QFileDialog {
+class ExportImpressFileDialog : public QFileDialog {
     Q_OBJECT
   public:
-    ExportOOFileDialog();
+    ExportImpressFileDialog();
 
-    ExportOOFileDialog(QWidget *parent, const QString &caption = QString());
+    ExportImpressFileDialog(QWidget *parent, const QString &caption = QString());
     bool foundConfig();
     QString selectedConfig();
     void show();

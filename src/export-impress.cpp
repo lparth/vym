@@ -10,7 +10,7 @@
 extern QString vymName;
 extern Main *mainWindow;
 
-ExportOO::ExportOO()
+ExportImpress::ExportImpress()
 {
     exportName = "Impress";
     filter = "LibreOffice Impress (*.odp);;All (* *.*)";
@@ -19,9 +19,9 @@ ExportOO::ExportOO()
     useSections = false;
 }
 
-ExportOO::~ExportOO() {}
+ExportImpress::~ExportImpress() {}
 
-QString ExportOO::buildList(TreeItem *current)
+QString ExportImpress::buildList(TreeItem *current)
 {
     QString r;
 
@@ -54,7 +54,7 @@ QString ExportOO::buildList(TreeItem *current)
     return r;
 }
 
-void ExportOO::exportPresentation()
+void ExportImpress::exportPresentation()
 {
     QString allPages;
 
@@ -166,7 +166,7 @@ void ExportOO::exportPresentation()
     completeExport(args);
 }
 
-bool ExportOO::setConfigFile(const QString &cf)
+bool ExportImpress::setConfigFile(const QString &cf)
 {
     configFile = cf;
     int i = cf.lastIndexOf("/");

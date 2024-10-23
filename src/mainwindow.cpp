@@ -1654,7 +1654,7 @@ void Main::setupFileActions()
     fileExportMenu->addAction(a);
     actionListFiles.append(a);
 
-    a = new QAction("LibreOffice...", this);
+    a = new QAction("LibreOffice Impress...", this);
     connect(a, SIGNAL(triggered()), this, SLOT(fileExportImpress()));
     fileExportMenu->addAction(a);
     actionListFiles.append(a);
@@ -2424,10 +2424,11 @@ void Main::setupEditActions()
 
     a = new QAction(tr("Add image...", "Edit menu"), this);
     a->setShortcutContext(Qt::WindowShortcut);
-    a->setShortcut(Qt::Key_I | Qt::SHIFT);  //FIXME-2 add to actionListBranches?
+    a->setShortcut(Qt::Key_I | Qt::SHIFT);
     addAction(a);
     switchboard.addSwitch("mapLoadImage", shortcutScope, a, tag);
     connect(a, SIGNAL(triggered()), this, SLOT(editLoadImage()));
+    actionListBranches.append(a);
     actionLoadImage = a;
 
     a = new QAction(
@@ -4807,23 +4808,11 @@ void Main::fileExportConfluence()
         m->exportConfluence();
 }
 
-#include "export-csv.h"
-void Main::fileExportCSV() // FIXME-2 not scriptable yet, move to model
+void Main::fileExportCSV()
 {
     VymModel *m = currentModel();
-    if (m) {
-        ExportCSV ex;
-        ex.setModel(m);
-        ex.addFilter("CSV (*.csv)");
-        ex.setDirPath(lastExportDir.absolutePath());
-        ex.setWindowTitle(vymName + " -" + tr("Export as CSV") + " " +
-                          tr("(still experimental)"));
-        if (ex.execDialog()) {
-            m->setExportMode(true);
-            ex.doExport();
-            m->setExportMode(false);
-        }
-    }
+    if (m)
+        m->exportCSV();
 }
 
 void Main::fileExportFirefoxBookmarks()
@@ -4847,34 +4836,11 @@ void Main::fileExportImage()
         m->exportImage();
 }
 
-#include "exportoofiledialog.h"
-void Main::fileExportImpress() // FIXME-2 check if scriptable, move to model
+void Main::fileExportImpress()
 {
-    ExportOOFileDialog fd;
-    // TODO add preview in dialog
-    fd.setWindowTitle(vymName + " - " + tr("Export to") + " LibreOffice");
-    fd.setDirectory(QDir().current());
-    fd.setAcceptMode(QFileDialog::AcceptSave);
-    fd.setFileMode(QFileDialog::AnyFile);
-    if (fd.foundConfig()) {
-        if (fd.exec() == QDialog::Accepted) {
-            if (!fd.selectedFiles().isEmpty()) {
-                QString fn = fd.selectedFiles().first();
-                if (!fn.contains(".odp"))
-                    fn += ".odp";
-
-                // lastExportDir = fn.left(fn.findRev ("/"));
-                VymModel *m = currentModel();
-                if (m)
-                    m->exportImpress(fn, fd.selectedConfig());
-            }
-        }
-    }
-    else {
-        QMessageBox::warning(
-            0, tr("Warning"),
-            tr("Couldn't find configuration for export to LibreOffice\n"));
-    }
+    VymModel *m = currentModel();
+    if (m)
+        m->exportImpress();
 }
 
 void Main::fileExportLaTeX()

@@ -31,6 +31,7 @@
 #include "export-firefox.h"
 #include "export-html.h"
 #include "export-impress.h"
+#include "export-impress-filedialog.h"
 #include "export-latex.h"
 #include "export-markdown.h"
 #include "export-orgmode.h"
@@ -802,7 +803,7 @@ void VymModel::saveMap(const File::SaveMode &savemode)
 
     QString mapStringData;
     if (savemode == File::CompleteMap || selModel->selection().isEmpty()) {
-        // Save complete map    // FIXME-2 prefix still needed? all treeItems from all models have unique number in filename already...
+        // Save complete map    // FIXME-3 prefix still needed? all treeItems from all models have unique number in filename already...
         if (zipped)
             // Use defined name for map within zipfile to avoid problems
             // with zip library and umlauts (see #98)
@@ -2248,8 +2249,9 @@ void VymModel::setHeadingPlainText(const QString &s, TreeItem *ti)
     }
 }
 
-QString VymModel::headingText(TreeItem *ti) // FIXME-2 still needed?
+QString VymModel::headingText(TreeItem *ti)
 {
+    // Mainly used for debugging, also works with nullptr
     if (ti)
         return ti->headingPlain();
     else
@@ -5945,15 +5947,44 @@ void VymModel::exportConfluence(bool createPage, const QString &pageURL,
     ex.doExport(useDialog);
 }
 
-void VymModel::exportImpress(const QString &fn, const QString &cf)
+void VymModel::exportImpress(QString fname, QString configFile, bool useDialog)
 {
-    ExportOO ex;
-    ex.setFilePath(fn);
+    if (fname == "")
+        fname = mapName + ".odp";
+
+    if (useDialog) {
+        ExportImpressFileDialog fd;
+        fd.setWindowTitle(vymName + " - " + tr("Export to") + " LibreOffice Impress");
+        fd.setDirectory(lastExportDir);
+        fd.setAcceptMode(QFileDialog::AcceptSave);
+        fd.setFileMode(QFileDialog::AnyFile);
+        if (fd.foundConfig()) {
+            if (fd.exec() == QDialog::Accepted) {
+                configFile = fd.selectedConfig();
+                if (!fd.selectedFiles().isEmpty()) {
+                    QString fname = fd.selectedFiles().first();
+                    if (!fname.contains(".odp"))
+                        fname += ".odp";
+                }
+            }
+        }
+        else {
+            QMessageBox::warning(
+                0, tr("Warning"),
+                tr("Couldn't find configuration for export to LibreOffice Impress\n"));
+            return;
+        }
+    }
+
+
+    ExportImpress ex;
+    ex.setFilePath(fname);
+
     ex.setModel(this);
     ex.setLastCommand(
         settings.localValue(filePath, "/export/last/command", "").toString());
 
-    if (ex.setConfigFile(cf)) {
+    if (ex.setConfigFile(configFile)) {
         QString lastCommand =
             settings.localValue(filePath, "/export/last/command", "")
                 .toString();
@@ -5967,6 +5998,8 @@ void VymModel::exportImpress(const QString &fn, const QString &cf)
                 .toString();
         if (lastCommand != command)
             setChanged();
+
+        //lastExportDir = fname.left(fname.findRev ("/"));
     }
 }
 
