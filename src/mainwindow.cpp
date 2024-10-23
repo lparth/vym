@@ -3379,13 +3379,13 @@ void Main::setupSettingsActions()
                         "...",
                     this);
     connect(a, SIGNAL(triggered()), this, SLOT(settingsPDF()));
-    settingsMenu->addAction(a);
+    // FIXME-3 No longer needed settingsMenu->addAction(a);
 
     a = new QAction(
         tr("Set application to open external links", "Settings action") + "...",
         this);
     connect(a, SIGNAL(triggered()), this, SLOT(settingsURL()));
-    settingsMenu->addAction(a);
+    // FIXME-3 No longer needed settingsMenu->addAction(a);
 
     a = new QAction(tr("Confluence Credentials", "Settings action") + "...",
                     this);
@@ -5017,7 +5017,7 @@ void Main::editCut()
         m->cut();
 }
 
-bool Main::openURL(const QString &url)
+bool Main::openURL(const QString &url)  // FIXME-3 settings for URL and PDF are not really any longer used, only fallback below
 {
     if (url.isEmpty())
         return false;
@@ -6241,28 +6241,28 @@ void Main::downloadFinished() // only used for drop events in mapeditor and
     agent->deleteLater();
 }
 
-bool Main::settingsPDF()    // FIXME-2 Use filedialog
+void Main::settingsPDF()
 {
     // Default browser is set in constructor
-    bool ok;
-    QString text = QInputDialog::getText(
-        this, "VYM", tr("Set application to open PDF files") + ":",
-        QLineEdit::Normal, settings.value("/system/readerPDF").toString(), &ok);
-    if (ok)
-        settings.setValue("/system/readerPDF", text);
-    return ok;
+    QString s = QFileDialog::getOpenFileName(
+        this,
+        tr("Set application to open PDF files"),
+        settings.value("/system/readerPDF").toString());
+
+    if (!s.isEmpty())
+        settings.setValue("/system/readerPDF", s);
 }
 
-bool Main::settingsURL()    // FIXME-2 Use filedialog
+void Main::settingsURL()
 {
     // Default browser is set in constructor
-    bool ok;
-    QString text = QInputDialog::getText(
-        this, "VYM", tr("Set application to open an URL") + ":",
-        QLineEdit::Normal, settings.value("/system/readerURL").toString(), &ok);
-    if (ok)
-        settings.setValue("/system/readerURL", text);
-    return ok;
+    QString s = QFileDialog::getOpenFileName(
+        this,
+        tr("Set application to open external links"),
+        settings.value("/system/readerURL").toString());
+
+    if (!s.isEmpty())
+        settings.setValue("/system/readerURL", s);
 }
 
 void Main::settingsMacroPath()

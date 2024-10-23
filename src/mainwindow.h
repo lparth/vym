@@ -293,8 +293,8 @@ class Main : public QMainWindow {
     void networkStartServer();
     void networkConnect();
     void downloadFinished();
-    bool settingsPDF();
-    bool settingsURL();
+    void settingsPDF();
+    void settingsURL();
     void settingsMacroPath();
     void settingsUndoLevels();
     void settingsDefaultMapPath();

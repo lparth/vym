@@ -288,6 +288,7 @@ int main(int argc, char *argv[])
     else
     // ok, let's find my way on my own
     {
+
 #if defined(Q_OS_MACX)
         // Executable is in vym.app/Contents/MacOS, so go up first:
         vymBaseDir.setPath(QCoreApplication::applicationDirPath());
