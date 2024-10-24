@@ -4406,7 +4406,6 @@ bool VymModel::relinkImages(QList <ImageItem*> images, TreeItem *dst_ti, int num
         emit(layoutAboutToBeChanged());
 
         BranchItem *pi = (BranchItem *)(ii->parent());
-        QString oldParString = getSelectString(pi);
         // Remove at current position
         int n = ii->childNum();
         beginRemoveRows(index(pi), n, n);
@@ -4430,10 +4429,11 @@ bool VymModel::relinkImages(QList <ImageItem*> images, TreeItem *dst_ti, int num
         emit(layoutChanged());
 
         ii->updateContainerStackingOrder();
-        // FIXME-2 relinkImages: What about updating links of images (later)?
-        // FIXME-2 relinkImages: What about updating design (later)?
-        // FIXME-2 in ImageWrapper: num_new missing
-        // FIXME-2 does not save positions
+        // FIXME-2 relinkImages issues:
+        // - What about updating links of images (later)?
+        // - What about updating design (later)?
+        // - in ImageWrapper: num_new missing
+        // - does not save positions
 
         QString iv = setImageVar(ii);
         QString uc = setBranchVar(pi) + iv + "i.relinkToBranch(b);";
@@ -4449,7 +4449,7 @@ bool VymModel::relinkImages(QList <ImageItem*> images, TreeItem *dst_ti, int num
         saveStateEndScript();
 
     // Restore selection, which was lost when removing rows
-    select(selectedItems);  // FIXME-2 replace this with reselect()? lastSelection is stored...
+    select(selectedItems);
 
     return true;
 }
