@@ -163,7 +163,7 @@ void VymReader::readMapDesign()
     }
 }
 
-void VymReader::readMapDesignElement()  // FIXME-2 parse the elements, either in VymModel or directly (generic) in MapDesign
+void VymReader::readMapDesignElement()
 {
     Q_ASSERT(xml.isStartElement() && xml.name() == QLatin1String("md"));
 
@@ -174,7 +174,10 @@ void VymReader::readMapDesignElement()  // FIXME-2 parse the elements, either in
     QString v = xml.attributes().value("val").toString();
     QString d = xml.attributes().value("d").toString();
     if (!v.isEmpty()) {
-        model->mapDesign()->setElement(k, v, d);    // FIXME-2 Check return val for error
+        if (!model->mapDesign()->setElement(k, v, d)) {
+            xml.raiseError(QString("MapDesign: Failed to set key %1 to %2").arg(k, v));
+            return;
+        }
     }
 
     if (xml.readNextStartElement())
