@@ -82,7 +82,7 @@ VymView::VymView(VymModel *m)
 
     connect(model,
             SIGNAL(dataChanged(const QModelIndex &, const QModelIndex &)),
-            mainWindow, SLOT(updateHeadingEditor()));   // FIXME-2 introduced new to update BG color when frameBrush changes
+            mainWindow, SLOT(updateHeadingEditor()));
 
     connect(model, SIGNAL(updateQueries(VymModel *)), mainWindow,
             SLOT(updateQueries(VymModel *)));
@@ -180,7 +180,7 @@ void VymView::updateColors()
     */
     mainWindow->updateHeadingEditor();
 
-    // Link colors in TreeEditor // FIXME-2  palette only works, if no stylesheet is written!
+    // Link colors in TreeEditor // FIXME-3  palette only works, if no stylesheet is written!
     /* 
     */
     QPalette palette = treeEditor->palette();
