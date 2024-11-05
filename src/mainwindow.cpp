@@ -1804,11 +1804,11 @@ void Main::setupEditActions()
     a->setShortcutContext(Qt::WindowShortcut);
     switchboard.addSwitch("mapDelete", shortcutScope, a, tag);
     addAction(a);
+    connect(a, SIGNAL(triggered()), this, SLOT(editDeleteSelection()));
     editMenu->addAction(a);
     actionListItems.append(a);
     actionDelete = a;
 
-    connect(a, SIGNAL(triggered()), this, SLOT(editDeleteSelection()));
     a = new QAction(tr("Delete Selection", "Edit menu"), this);
     a->setShortcut(Qt::Key_D);
     a->setShortcutContext(Qt::WindowShortcut);
@@ -5115,7 +5115,7 @@ void Main::editURL()
     }
 }
 
-void Main::editLocalURL()
+void Main::editLocalURL()   // FIXME-3 add editLocalDir to also accept directories, not only files
 {
     VymModel *m = currentModel();
     if (m) {
@@ -6914,9 +6914,14 @@ void Main::updateActions()
 
 
         if (seltis.count() > 0) { // Tree Item selected
-            if (selti) actionToggleTarget->setChecked(selti->isTarget());
-                foreach (QAction *a, actionListImages)
-                    a->setEnabled(true);
+            if (selti) 
+                actionToggleTarget->setChecked(selti->isTarget());
+
+            foreach (QAction *a, actionListItems)
+                a->setEnabled(true);
+
+            foreach (QAction *a, actionListImages)
+                a->setEnabled(true);
 
             if (selti && selti->getType() == TreeItem::Image) {
                 actionFormatHideLinkUnselected->setChecked(
@@ -7057,9 +7062,6 @@ void Main::updateActions()
                 actionToggleHideExport->setChecked(selti->hideInExport());
 
                 actionToggleTarget->setEnabled(true);
-
-                actionDelete->setEnabled(true);
-                actionDeleteAlt->setEnabled(true);
 
                 // Allow pasting image onto image
                 const QClipboard *clipboard = QApplication::clipboard();
