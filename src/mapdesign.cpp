@@ -192,6 +192,7 @@ void MapDesign::init()
 
     // Layout of children images 
     imagesContainerLayouts << Container::GridColumns;
+    imagesPositionsInt << ImagesPositionHint::VerticalAboveBranches;
 
     // Layout children branches above/below heading or side by side?
     branchesContainerAndOrnamentsVerticalInt << false;
@@ -367,6 +368,11 @@ Container::Layout MapDesign::imagesContainerLayout(int depth)
 bool MapDesign::branchesContainerAndOrnamentsVertical(int depth)
 {
     return branchesContainerAndOrnamentsVerticalInt.tryAt(depth);
+}
+
+MapDesign::ImagesPositionHint MapDesign::imagesPosition(int depth)
+{
+    return imagesPositionsInt.tryAt(depth);
 }
 
 LinkObj::ColorHint MapDesign::linkColorHint()

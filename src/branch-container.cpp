@@ -234,6 +234,14 @@ qreal BranchContainer::getScrollOpacity()
     return scrollOpacity;
 }
 
+void BranchContainer::updateBranchesContainerParent()
+{
+    if (listContainer)
+        listContainer->addContainer(branchesContainer);
+    else
+        innerContainer->addContainer(branchesContainer);
+}
+
 void BranchContainer::addToBranchesContainer(BranchContainer *bc)
 {
     // Overloaded for real BranchContainers compared to MinimalBranchContainer
@@ -249,10 +257,7 @@ void BranchContainer::addToBranchesContainer(BranchContainer *bc)
         branchesContainer->setVerticalAlignment(branchesContainerVerticalAlignmentInt);
         branchesContainer->setHorizontalAlignment(branchesContainerHorizontalAlignmentInt);
 
-        if (listContainer)
-            listContainer->addContainer(branchesContainer);
-        else
-            innerContainer->addContainer(branchesContainer);
+        updateBranchesContainerParent();
 
         branchesContainer->addContainer(bc);
         updateChildrenStructure();
@@ -342,7 +347,7 @@ void BranchContainer::updateTransformations()
     }
 }
 
-void BranchContainer::updateChildrenStructure() // FIXME-2 check if still a problem:
+void BranchContainer::updateChildrenStructure() // FIXME-2 check if list layout still a problem:
 // When a map with list layout is loaded and 
 // layout is switched to e.g. Vertical, the links 
 // are not drawn. Has to be saved/loaded first
@@ -392,7 +397,8 @@ void BranchContainer::updateChildrenStructure() // FIXME-2 check if still a prob
     //    - No outerContainer
     //    - innerContainer is Horizontal
     //    - branchesContainer is not FloatingBounded
-    //    - imagesContainer is FloatingFree
+    //    - if imagesContainer is not floating:
+    //      - Check imagesPosition(), where images should be relative to children branches
     //
     // b) Only branches are FloatingBounded
     //    - No outerContainer
@@ -417,904 +423,946 @@ void BranchContainer::updateChildrenStructure() // FIXME-2 check if still a prob
     // qDebug() << "BC::updateChildrenStructure() of " << info();
 
     if (branchesContainerLayoutInt != FloatingBounded && imagesContainerLayoutInt != FloatingBounded) {
-        // a) No FloatingBounded images or branches // FIXME-2 MapDesign to define where imagesContainer is in relation to branchesCOntainer (left/right/above/below)
+        // a) No FloatingBounded images or branches
         deleteOuterContainer();
         if (listContainer)
             innerContainer->setLayout(Vertical);
         else {
             if (branchesContainerAndOrnamentsVerticalInt)
                 innerContainer->setLayout(Vertical);
-            else
+            else {
                 innerContainer->setLayout(Horizontal);
-        }
-    } else if (branchesContainerLayoutInt == FloatingBounded && imagesContainerLayoutInt != FloatingBounded) {
-        // b) Only branches are FloatingBounded
-        deleteOuterContainer();
-        innerContainer->setLayout(BoundingFloats);
-    } else if (branchesContainerLayoutInt == FloatingBounded && imagesContainerLayoutInt == FloatingBounded) {
-        // c) images and branches are FloatingBounded
-        deleteOuterContainer();
-        innerContainer->setLayout(BoundingFloats);
-    } else if (branchesContainerLayoutInt != FloatingBounded && imagesContainerLayoutInt == FloatingBounded) {
-        // d) Only images are FloatingBounded
-        createOuterContainer();
-        if (listContainer)
-            innerContainer->setLayout(Vertical);
-        else
-            innerContainer->setLayout(Horizontal);
-    } else {
-        // e) remaining cases
-        deleteOuterContainer();
-        innerContainer->setLayout(FloatingBounded);
-    }
+                if (imagesContainer && branchesContainer
+                        && branchesContainerLayoutInt != FloatingFree
+                        && imagesContainerLayoutInt != FloatingFree) {
+                    // Align images relative to branches subtree by using imagesAndBranchesContainer
 
-    updateTransformations();
-
-    // Update structure of outerContainer
-    if (outerContainer) {
-        // outerContainer should be child of outerFrame, if this is used
-        if (outerFrame)
-            outerFrame->addContainer(outerContainer);
-        else
-            outerContainer->setParentItem(this);
-        outerContainer->addContainer(innerContainer);
-        if (imagesContainer)
-            outerContainer->addContainer(imagesContainer);
-    }
-
-    // Structure for bullet point list layouts
-    BranchContainer *pbc = parentBranchContainer();
-    if (pbc && pbc->branchesContainerLayoutInt == List) {
-        // Parent has list layout
-        if (!bulletPointContainer) {
-            //qDebug() << "... Creating bulletPointContainer";
-            bulletPointContainer = new HeadingContainer;    // FIXME-3 create new type or re-use LinkObj and set type 
-            // See also https://www.w3schools.com/charsets/ref_utf_punctuation.asp
-            VymText vt(" • ");
-            //vt.setColor(branchItem->headingColor());
-            bulletPointContainer->setHeading(vt);
-            bulletPointContainer->setColor(branchItem->headingColor());
-            if (ornamentsContainer)
-                ornamentsContainer->addContainer(bulletPointContainer, Z_BULLETPOINT);
-        }
-    } else {
-        // Parent has no list layout
-        if (bulletPointContainer) {
-            delete bulletPointContainer;
-            bulletPointContainer = nullptr;
+                    bool imagesFirst = true;                        // FIXME-3 get from MapDesign
+                    Container::Layout ibcl = Container::Vertical;   // FIXME-3 get from MapDesign
+                    if (!imagesAndBranchesContainer) {
+                        imagesAndBranchesContainer = new Container;
+                        imagesAndBranchesContainer->containerType = Container::ImagesAndBranchesContainer;
+                        innerContainer->addContainer(imagesAndBranchesContainer, Z_IMAGE);
+                        imagesAndBranchesContainer->addContainer(imagesContainer);
+                        imagesAndBranchesContainer->addContainer(branchesContainer);
+                    }
+                    imagesAndBranchesContainer->setLayout(ibcl);
+                    if (imagesFirst) // FIXME-3 Check for imagesPosition relative to branches, hardcoded for now
+                        imagesContainer->stackBefore(branchesContainer);
+                    else
+                        branchesContainer->stackBefore(imagesContainer);
+                } else {
+                    // No imagesAndBranchesContainer required
+                    //
+                    // TODO Remove imagesAndBranchesCont, relink imagesCont and branchesCont
+                    if (imagesAndBranchesContainer) {
+                        updateImagesContainerParent();
+                    updateBranchesContainerParent();
+                    delete imagesAndBranchesContainer;
+                    imagesAndBranchesContainer = nullptr;
+                }
+            }
         }
     }
+} else if (branchesContainerLayoutInt == FloatingBounded && imagesContainerLayoutInt != FloatingBounded) {
+    // b) Only branches are FloatingBounded
+    deleteOuterContainer();
+    innerContainer->setLayout(BoundingFloats);
+} else if (branchesContainerLayoutInt == FloatingBounded && imagesContainerLayoutInt == FloatingBounded) {
+    // c) images and branches are FloatingBounded
+    deleteOuterContainer();
+    innerContainer->setLayout(BoundingFloats);
+} else if (branchesContainerLayoutInt != FloatingBounded && imagesContainerLayoutInt == FloatingBounded) {
+    // d) Only images are FloatingBounded
+    createOuterContainer();
+    if (listContainer)
+        innerContainer->setLayout(Vertical);
+    else
+        innerContainer->setLayout(Horizontal);
+} else {
+    // e) remaining cases
+    deleteOuterContainer();
+    innerContainer->setLayout(FloatingBounded);
+}
 
-    updateImagesContainer();
+updateTransformations();
 
-    if (branchCount() == 0) {
-        // no children branches, remove unused containers
-        if (linkSpaceContainer) {
+// Update structure of outerContainer
+if (outerContainer) {
+    // outerContainer should be child of outerFrame, if this is used
+    if (outerFrame)
+        outerFrame->addContainer(outerContainer);
+    else
+        outerContainer->setParentItem(this);
+    outerContainer->addContainer(innerContainer);
+    if (imagesContainer)
+        outerContainer->addContainer(imagesContainer);
+}
+
+// Structure for bullet point list layouts
+BranchContainer *pbc = parentBranchContainer();
+if (pbc && pbc->branchesContainerLayoutInt == List) {
+    // Parent has list layout
+    if (!bulletPointContainer) {
+        //qDebug() << "... Creating bulletPointContainer";
+        bulletPointContainer = new HeadingContainer;    // FIXME-3 create new type or re-use LinkObj and set type 
+        // See also https://www.w3schools.com/charsets/ref_utf_punctuation.asp
+        VymText vt(" • ");
+        //vt.setColor(branchItem->headingColor());
+        bulletPointContainer->setHeading(vt);
+        bulletPointContainer->setColor(branchItem->headingColor());
+        if (ornamentsContainer)
+            ornamentsContainer->addContainer(bulletPointContainer, Z_BULLETPOINT);
+    }
+} else {
+    // Parent has no list layout
+    if (bulletPointContainer) {
+        delete bulletPointContainer;
+        bulletPointContainer = nullptr;
+    }
+}
+
+updateImagesContainer();
+
+if (branchCount() == 0) {
+    // no children branches, remove unused containers
+    if (linkSpaceContainer) {
+        delete linkSpaceContainer;
+        linkSpaceContainer = nullptr;
+    }
+    if (branchesContainer) {
+        delete branchesContainer;
+        branchesContainer = nullptr;
+    }
+} else {
+    // Space for links depends on layout and scrolled state:
+    if (linkSpaceContainer) {
+        if (hasFloatingBranchesLayout() || !branchItem || branchItem->isScrolled()) {
             delete linkSpaceContainer;
             linkSpaceContainer = nullptr;
         }
-        if (branchesContainer) {
-            delete branchesContainer;
-            branchesContainer = nullptr;
-        }
     } else {
-        // Space for links depends on layout and scrolled state:
-        if (linkSpaceContainer) {
-            if (hasFloatingBranchesLayout() || !branchItem || branchItem->isScrolled()) {
-                delete linkSpaceContainer;
-                linkSpaceContainer = nullptr;
-            }
-        } else {
-            if (!hasFloatingBranchesLayout() && (!branchItem || !branchItem->isScrolled())) {
-                linkSpaceContainer = new HeadingContainer ();
-                linkSpaceContainer->setContainerType(LinkSpace);
-                linkSpaceContainer->zPos = Z_LINKSPACE;
-                linkSpaceContainer->setHeading(VymText("   "));  // FIXME-3 introduce minWidth later in Container instead of a pseudo heading here  see oc.pos
+        if (!hasFloatingBranchesLayout() && (!branchItem || !branchItem->isScrolled())) {
+            linkSpaceContainer = new HeadingContainer ();
+            linkSpaceContainer->setContainerType(LinkSpace);
+            linkSpaceContainer->zPos = Z_LINKSPACE;
+            linkSpaceContainer->setHeading(VymText("   "));  // FIXME-3 introduce minWidth later in Container instead of a pseudo heading here  see oc.pos
 
-                if (listContainer)
-                    listContainer->addContainer(linkSpaceContainer);
-                else
-                    innerContainer->addContainer(linkSpaceContainer);
+            if (listContainer)
+                listContainer->addContainer(linkSpaceContainer);
+            else
+                innerContainer->addContainer(linkSpaceContainer);
 
+            if (!imagesAndBranchesContainer)
                 linkSpaceContainer->stackBefore(branchesContainer);
-            }
         }
     }
+}
+}
+
+void BranchContainer::updateImagesContainerParent()
+{
+if (outerContainer)
+    outerContainer->addContainer(imagesContainer);
+else
+    innerContainer->addContainer(imagesContainer, Z_IMAGE);
 }
 
 void BranchContainer::createImagesContainer()
 {
-    // imagesContainer is created when images are added to branch
-    // The destructor of ImageItem calls 
-    // updateChildrenStructure() in parentBranch()
-    imagesContainer = new Container ();
-    imagesContainer->containerType = ImagesContainer;
-    imagesContainer->setLayout(imagesContainerLayoutInt);
+// imagesContainer is created when images are added to branch
+// The destructor of ImageItem calls 
+// updateChildrenStructure() in parentBranch()
+imagesContainer = new Container ();
+imagesContainer->containerType = ImagesContainer;
+imagesContainer->setLayout(imagesContainerLayoutInt);
 
-    if (outerContainer)
-        outerContainer->addContainer(imagesContainer);
-    else
-        innerContainer->addContainer(imagesContainer);
+updateImagesContainerParent();
 }
 
 void BranchContainer::addToImagesContainer(Container *c)
 {
-    if (!imagesContainer) {
-        createImagesContainer();
-    }
+bool updateStructure = false;
+if (!imagesContainer) {
+    createImagesContainer();
+    updateStructure = true;
+}
 
-    QPointF sp = c->scenePos();
-    imagesContainer->addContainer(c, Z_IMAGE);
+QPointF sp = c->scenePos();
+imagesContainer->addContainer(c, Z_IMAGE);
 
-    c->setPos(imagesContainer->sceneTransform().inverted().map(sp));
+c->setPos(imagesContainer->sceneTransform().inverted().map(sp));
+
+if (updateStructure)
+    updateChildrenStructure();
 }
 
 HeadingContainer* BranchContainer::getHeadingContainer()
 {
-    return headingContainer;
+return headingContainer;
 }
 
 LinkContainer* BranchContainer::getLinkContainer()
 {
-    return linkContainer;
+return linkContainer;
 }
 
 LinkObj* BranchContainer::getLink()
 {
-    return upLink;
+return upLink;
 }
 
 void BranchContainer::linkTo(BranchContainer *pbc)
 {
 
-    if (!pbc) return;
+if (!pbc) return;
 
-    originalParentBranchContainer = nullptr;
+originalParentBranchContainer = nullptr;
 
-    pbc->linkContainer->addLink(upLink);
+pbc->linkContainer->addLink(upLink);
 }
 
 QPointF BranchContainer::getPositionHintNewChild(Container *c)
 {
-    // Should we put new child c on circle around myself?
-    bool useCircle = false;
-    int n = 0;
-    qreal radius;
-    if (c->containerType == Branch && hasFloatingBranchesLayout()) {
-        useCircle = true;
-        radius = 190;
-        n = branchCount();
-    } else if (c->containerType == Image && hasFloatingImagesLayout()) {
-        useCircle = true;
-        radius = 100;
-        n = imageCount();
-    }
+// Should we put new child c on circle around myself?
+bool useCircle = false;
+int n = 0;
+qreal radius;
+if (c->containerType == Branch && hasFloatingBranchesLayout()) {
+    useCircle = true;
+    radius = 190;
+    n = branchCount();
+} else if (c->containerType == Image && hasFloatingImagesLayout()) {
+    useCircle = true;
+    radius = 100;
+    n = imageCount();
+}
 
-    if (useCircle) {
-        // Mapcenter, suggest to put image or mainbranch on circle around center
-        qreal a = 5 * M_PI_4 + M_PI_2 * n + (M_PI_4 / 2) * (n / 4 % 4);
-        return QPointF (radius * cos(a), radius * sin(a));
-    }
+if (useCircle) {
+    // Mapcenter, suggest to put image or mainbranch on circle around center
+    qreal a = 5 * M_PI_4 + M_PI_2 * n + (M_PI_4 / 2) * (n / 4 % 4);
+    return QPointF (radius * cos(a), radius * sin(a));
+}
 
-    QRectF r = headingContainer->rect();
+QRectF r = headingContainer->rect();
 
-    switch (orientation) {
-        case LeftOfParent:
-            return QPointF(r.left() - c->rect().width(), r.center().y());
-            break;
-        case RightOfParent:
-            return QPointF(r.right(), r.center().y());
-            break;
-        default:
-            return QPointF(r.left(), r.center().y());
-            break;
-    }
+switch (orientation) {
+    case LeftOfParent:
+        return QPointF(r.left() - c->rect().width(), r.center().y());
+        break;
+    case RightOfParent:
+        return QPointF(r.right(), r.center().y());
+        break;
+    default:
+        return QPointF(r.left(), r.center().y());
+        break;
+}
 }
 
 void BranchContainer::setUpLinkPosHint(const LinkObj::PosHint &ph)
 {
-    upLinkPosHintInt = ph;
+upLinkPosHintInt = ph;
 }
 
 void BranchContainer::setDownLinkPosHint(const LinkObj::PosHint &ph)
 {
-    downLinkPosHintInt = ph;
+downLinkPosHintInt = ph;
 }
 
 QPointF BranchContainer::downLinkPos()
 {
-    return downLinkPos(orientation);
+return downLinkPos(orientation);
 }
 
 QPointF BranchContainer::downLinkPos(const Orientation &orientationChild)
 {
-    if (branchesContainerAndOrnamentsVerticalInt)
-        return ornamentsContainer->mapToScene(
-                ornamentsContainer->bottomCenter());
+if (branchesContainerAndOrnamentsVerticalInt)
+    return ornamentsContainer->mapToScene(
+            ornamentsContainer->bottomCenter());
 
-    if (frameType(true) != FrameContainer::NoFrame) {
-        if (!parentBranchContainer())
-            // Framed MapCenter: Use center of frame    // FIXME-2 should depend on layout, not depth
-            return ornamentsContainer->mapToScene(
-                    ornamentsContainer->center());
-        else {
-            // Framed branch: Use left or right edge
-            switch (orientationChild) {
-                case RightOfParent:
-                    return ornamentsContainer->mapToScene(
-                            ornamentsContainer->rightCenter());
-                case LeftOfParent:
-                    return ornamentsContainer->mapToScene(
-                            ornamentsContainer->leftCenter());
-                default:    // Shouldn't happen...
-                    return ornamentsContainer->mapToScene(
-                            ornamentsContainer->bottomLeft());
-            }
+if (frameType(true) != FrameContainer::NoFrame) {
+    if (!parentBranchContainer())
+        // Framed MapCenter: Use center of frame    // FIXME-2 should depend on layout, not depth
+        return ornamentsContainer->mapToScene(
+                ornamentsContainer->center());
+    else {
+        // Framed branch: Use left or right edge
+        switch (orientationChild) {
+            case RightOfParent:
+                return ornamentsContainer->mapToScene(
+                        ornamentsContainer->rightCenter());
+            case LeftOfParent:
+                return ornamentsContainer->mapToScene(
+                        ornamentsContainer->leftCenter());
+            default:    // Shouldn't happen...
+                return ornamentsContainer->mapToScene(
+                        ornamentsContainer->bottomLeft());
         }
     }
+}
 
-    // No frame, return bottom left/right corner
-    switch (orientationChild) {
-        case RightOfParent:
-            return ornamentsContainer->mapToScene(
-                    ornamentsContainer->bottomRight());
-        case LeftOfParent:
-            return ornamentsContainer->mapToScene(
-                    ornamentsContainer->bottomLeft());
-        default:
-            return ornamentsContainer->mapToScene(
-                    ornamentsContainer->bottomRight());
-    }
+// No frame, return bottom left/right corner
+switch (orientationChild) {
+    case RightOfParent:
+        return ornamentsContainer->mapToScene(
+                ornamentsContainer->bottomRight());
+    case LeftOfParent:
+        return ornamentsContainer->mapToScene(
+                ornamentsContainer->bottomLeft());
+    default:
+        return ornamentsContainer->mapToScene(
+                ornamentsContainer->bottomRight());
+}
 }
 
 QPointF BranchContainer::upLinkPos(const Orientation &orientationChild)
 {
-    if (branchesContainerAndOrnamentsVerticalInt)
-        return ornamentsContainer->mapToScene(
-                ornamentsContainer->topCenter());
+if (branchesContainerAndOrnamentsVerticalInt)
+    return ornamentsContainer->mapToScene(
+            ornamentsContainer->topCenter());
 
-    if (frameType(true) != FrameContainer::NoFrame ||
-        frameType(false) != FrameContainer::NoFrame) {
-        if (!parentBranchContainer() && movingStateInt != Moving ) {
-            // Framed MapCenter: Use center of frame    // FIXME-3 should depend on layout, not depth
-            return ornamentsContainer->mapToScene(
-                    ornamentsContainer->center());
-        } else {
-            // Framed branch: Use left or right edge
-            switch (orientationChild) {
-                case RightOfParent:
-                    return ornamentsContainer->mapToScene(
-                            ornamentsContainer->leftCenter());
-                case LeftOfParent:
-                    return ornamentsContainer->mapToScene(
-                            ornamentsContainer->rightCenter());
-                default: // mapcenter is moved, use bottomLeft corner
-                    // qWarning() << "BC::upLinkPos a)  framed undefined orientation in " << info();
-                    return ornamentsContainer->mapToScene(
-                            ornamentsContainer->bottomLeft());
-            }
+if (frameType(true) != FrameContainer::NoFrame ||
+    frameType(false) != FrameContainer::NoFrame) {
+    if (!parentBranchContainer() && movingStateInt != Moving ) {
+        // Framed MapCenter: Use center of frame    // FIXME-3 should depend on layout, not depth
+        return ornamentsContainer->mapToScene(
+                ornamentsContainer->center());
+    } else {
+        // Framed branch: Use left or right edge
+        switch (orientationChild) {
+            case RightOfParent:
+                return ornamentsContainer->mapToScene(
+                        ornamentsContainer->leftCenter());
+            case LeftOfParent:
+                return ornamentsContainer->mapToScene(
+                        ornamentsContainer->rightCenter());
+            default: // mapcenter is moved, use bottomLeft corner
+                // qWarning() << "BC::upLinkPos a)  framed undefined orientation in " << info();
+                return ornamentsContainer->mapToScene(
+                        ornamentsContainer->bottomLeft());
         }
     }
+}
 
-    // For branches without frames, return bottom left/right corner
-    switch (orientationChild) {
-        case RightOfParent:
-            return ornamentsContainer->mapToScene(
-                    ornamentsContainer->bottomLeft());
-        case LeftOfParent:
-            return ornamentsContainer->mapToScene(
-                    ornamentsContainer->bottomRight());
-        default:
-            // qWarning() << "BC::upLinkPos b) not framed undefined orientation in " << info() << branchItem->depth();
-            return ornamentsContainer->mapToScene(
-                    ornamentsContainer->bottomLeft());
-    }
+// For branches without frames, return bottom left/right corner
+switch (orientationChild) {
+    case RightOfParent:
+        return ornamentsContainer->mapToScene(
+                ornamentsContainer->bottomLeft());
+    case LeftOfParent:
+        return ornamentsContainer->mapToScene(
+                ornamentsContainer->bottomRight());
+    default:
+        // qWarning() << "BC::upLinkPos b) not framed undefined orientation in " << info() << branchItem->depth();
+        return ornamentsContainer->mapToScene(
+                ornamentsContainer->bottomLeft());
+}
 }
 
 void BranchContainer::updateUpLink()
 {
-    // Sets geometry and color of upLink and bottomline. 
-    // Called from MapEditor e.g. during animation or 
-    // from VymModel, when colors change
+// Sets geometry and color of upLink and bottomline. 
+// Called from MapEditor e.g. during animation or 
+// from VymModel, when colors change
 
-    // MapCenters still might have upLinks: The bottomLine is part of upLink!
+// MapCenters still might have upLinks: The bottomLine is part of upLink!
 
-    if (!isVisible())
-        return;
+if (!isVisible())
+    return;
 
-    QPointF upLinkSelf_sp = upLinkPos(orientation);
-    QPointF downLink_sp = downLinkPos();
+QPointF upLinkSelf_sp = upLinkPos(orientation);
+QPointF downLink_sp = downLinkPos();
 
-    BranchContainer *pbc = nullptr;
+BranchContainer *pbc = nullptr;
 
-    if (tmpLinkedParentContainer) {
-        // I am temporarily linked to tmpLinkedParentContainer
-        pbc = tmpLinkedParentContainer;
-    } else if (originalParentBranchContainer)
-        // I am moving with tmpParent, use original parent for link
-        pbc = originalParentBranchContainer;
-    else
-        // Regular update, e.g. when linkStyle changes
-        pbc = parentBranchContainer();
+if (tmpLinkedParentContainer) {
+    // I am temporarily linked to tmpLinkedParentContainer
+    pbc = tmpLinkedParentContainer;
+} else if (originalParentBranchContainer)
+    // I am moving with tmpParent, use original parent for link
+    pbc = originalParentBranchContainer;
+else
+    // Regular update, e.g. when linkStyle changes
+    pbc = parentBranchContainer();
 
-    BranchItem *tmpParentBI = nullptr;
+BranchItem *tmpParentBI = nullptr;
 
 
-    if (pbc) {
-        tmpParentBI = pbc->getBranchItem();
-        QPointF upLinkParent_sp;
+if (pbc) {
+    tmpParentBI = pbc->getBranchItem();
+    QPointF upLinkParent_sp;
 
-        upLinkParent_sp = pbc->downLinkPos();
-        upLinkParent_sp = pbc->downLinkPos(orientation);
+    upLinkParent_sp = pbc->downLinkPos();
+    upLinkParent_sp = pbc->downLinkPos(orientation);
 
-        QGraphicsItem* upLinkParent = upLink->parentItem();
-        if (!upLinkParent) return;
+    QGraphicsItem* upLinkParent = upLink->parentItem();
+    if (!upLinkParent) return;
 
-        upLink->setUpLinkPosParent(
-                upLinkParent->sceneTransform().inverted().map(upLinkParent_sp));
-        upLink->setUpLinkPosSelf(
-                upLinkParent->sceneTransform().inverted().map(upLinkSelf_sp));
-        upLink->setDownLinkPos(
-                upLinkParent->sceneTransform().inverted().map(downLink_sp));
-    } else {
-        // I am a MapCenter without parent. Add LinkObj to my own LinkContainer,
-        // so that at least positions are updated and bottomLine can be drawn
-        linkContainer->addLink(upLink);
+    upLink->setUpLinkPosParent(
+            upLinkParent->sceneTransform().inverted().map(upLinkParent_sp));
+    upLink->setUpLinkPosSelf(
+            upLinkParent->sceneTransform().inverted().map(upLinkSelf_sp));
+    upLink->setDownLinkPos(
+            upLinkParent->sceneTransform().inverted().map(downLink_sp));
+} else {
+    // I am a MapCenter without parent. Add LinkObj to my own LinkContainer,
+    // so that at least positions are updated and bottomLine can be drawn
+    linkContainer->addLink(upLink);
 
+    upLink->setLinkStyle(LinkObj::NoLink);
+
+    upLink->setUpLinkPosSelf(
+            linkContainer->sceneTransform().inverted().map(upLinkSelf_sp));
+    upLink->setDownLinkPos(
+            linkContainer->sceneTransform().inverted().map(downLink_sp));
+}
+
+
+// Color of link (depends on current parent)
+if (upLink->getLinkColorHint() == LinkObj::HeadingColor)
+    upLink->setLinkColor(branchItem->headingColor());
+else {
+    if (branchItem)
+        upLink->setLinkColor(branchItem->mapDesign()->defaultLinkColor());
+}
+
+// Style of link
+if (tmpParentBI) {
+    if (pbc && pbc->branchesContainerLayoutInt == List)
         upLink->setLinkStyle(LinkObj::NoLink);
-
-        upLink->setUpLinkPosSelf(
-                linkContainer->sceneTransform().inverted().map(upLinkSelf_sp));
-        upLink->setDownLinkPos(
-                linkContainer->sceneTransform().inverted().map(downLink_sp));
-    }
-
-
-    // Color of link (depends on current parent)
-    if (upLink->getLinkColorHint() == LinkObj::HeadingColor)
-        upLink->setLinkColor(branchItem->headingColor());
     else {
-        if (branchItem)
-            upLink->setLinkColor(branchItem->mapDesign()->defaultLinkColor());
+        upLink->setLinkStyle(tmpParentBI->mapDesign()->linkStyle(tmpParentBI->depth()));
     }
+}
 
-    // Style of link
-    if (tmpParentBI) {
-        if (pbc && pbc->branchesContainerLayoutInt == List)
-            upLink->setLinkStyle(LinkObj::NoLink);
-        else {
-            upLink->setLinkStyle(tmpParentBI->mapDesign()->linkStyle(tmpParentBI->depth()));
-        }
-    }
+// Create/delete bottomline, depends on frame and (List-)Layout
+if (frameType(true) != FrameContainer::NoFrame ||
+        branchesContainerAndOrnamentsVerticalInt || 
+        (pbc && pbc->branchesContainerLayoutInt == List)) {
+    if (upLink->hasBottomLine())
+        upLink->deleteBottomLine();
+} else {
+    if (!upLink->hasBottomLine())
+        upLink->createBottomLine();
+}
 
-    // Create/delete bottomline, depends on frame and (List-)Layout
-    if (frameType(true) != FrameContainer::NoFrame ||
-            branchesContainerAndOrnamentsVerticalInt || 
-            (pbc && pbc->branchesContainerLayoutInt == List)) {
-        if (upLink->hasBottomLine())
-            upLink->deleteBottomLine();
-    } else {
-        if (!upLink->hasBottomLine())
-            upLink->createBottomLine();
-    }
-
-    // Finally update geometry
-    upLink->updateLinkGeometry();
+// Finally update geometry
+upLink->updateLinkGeometry();
 }
 
 void BranchContainer::setLayout(const Layout &l)
 {
-    if (containerType != Branch && containerType != TmpParent)
-        qWarning() << "BranchContainer::setLayout (...) called for non-branch: " << info();
-    Container::setLayout(l);
+if (containerType != Branch && containerType != TmpParent)
+    qWarning() << "BranchContainer::setLayout (...) called for non-branch: " << info();
+Container::setLayout(l);
 }
 
 void BranchContainer::setImagesContainerLayout(const Layout &ltype)
 {
-    if (imagesContainerLayoutInt == ltype)
-        return;
+if (imagesContainerLayoutInt == ltype)
+    return;
 
-    imagesContainerLayoutInt = ltype;
+imagesContainerLayoutInt = ltype;
 
-    if (imagesContainer)
-        imagesContainer->setLayout(imagesContainerLayoutInt);
+if (imagesContainer)
+    imagesContainer->setLayout(imagesContainerLayoutInt);
 
-    updateChildrenStructure();
+updateChildrenStructure();
 }
 
 Container::Layout BranchContainer::imagesContainerLayout()
 {
-    return imagesContainerLayoutInt;
+return imagesContainerLayoutInt;
 }
 
 bool BranchContainer::hasFloatingImagesLayout()
 {
-    if (imagesContainer)
-        return imagesContainer->hasFloatingLayout();
+if (imagesContainer)
+    return imagesContainer->hasFloatingLayout();
 
-    if (imagesContainerLayoutInt == FloatingBounded || imagesContainerLayoutInt == FloatingFree)
-        return true;
-    else
-        return false;
+if (imagesContainerLayoutInt == FloatingBounded || imagesContainerLayoutInt == FloatingFree)
+    return true;
+else
+    return false;
 }
 
 void BranchContainer::setBranchesContainerLayout(const Layout &layoutNew)
 {
-    branchesContainerLayoutInt = layoutNew;
+branchesContainerLayoutInt = layoutNew;
 
-    if (branchesContainer)
-        branchesContainer->setLayout(branchesContainerLayoutInt);
-    updateChildrenStructure();
+if (branchesContainer)
+    branchesContainer->setLayout(branchesContainerLayoutInt);
+updateChildrenStructure();
 }
 
 Container::Layout BranchContainer::branchesContainerLayout()
 {
-    return branchesContainerLayoutInt;
+return branchesContainerLayoutInt;
 }
 
 bool BranchContainer::hasFloatingBranchesLayout()
 {
-    if (branchesContainer)
-        return branchesContainer->hasFloatingLayout();
+if (branchesContainer)
+    return branchesContainer->hasFloatingLayout();
 
-    if (branchesContainerLayoutInt == FloatingBounded || branchesContainerLayoutInt == FloatingFree)
-        return true;
-    else
-        return false;
+if (branchesContainerLayoutInt == FloatingBounded || branchesContainerLayoutInt == FloatingFree)
+    return true;
+else
+    return false;
 }
 
 
 
 void BranchContainer::setBranchesContainerHorizontalAlignment(const HorizontalAlignment &a)
 {
-    branchesContainerHorizontalAlignmentInt = a;
-    if (branchesContainer)
-        branchesContainer->setHorizontalAlignment(branchesContainerHorizontalAlignmentInt);
+branchesContainerHorizontalAlignmentInt = a;
+if (branchesContainer)
+    branchesContainer->setHorizontalAlignment(branchesContainerHorizontalAlignmentInt);
 }
 
 void BranchContainer::setBranchesContainerVerticalAlignment(const VerticalAlignment &a)
 {
-    branchesContainerVerticalAlignmentInt = a;
-    if (branchesContainer)
-        branchesContainer->setVerticalAlignment(branchesContainerVerticalAlignmentInt);
+branchesContainerVerticalAlignmentInt = a;
+if (branchesContainer)
+    branchesContainer->setVerticalAlignment(branchesContainerVerticalAlignmentInt);
 }
 
 void BranchContainer::setBranchesContainerBrush(const QBrush &b)    // FIXME-2 not used
 {
-    branchesContainerBrushInt = b;
-    if (branchesContainer)
-        branchesContainer->setBrush(branchesContainerBrushInt);
+branchesContainerBrushInt = b;
+if (branchesContainer)
+    branchesContainer->setBrush(branchesContainerBrushInt);
 }
 
 void BranchContainer::setBranchesContainerAndOrnamentsVertical(bool b)
 {
-    branchesContainerAndOrnamentsVerticalInt = b;
+branchesContainerAndOrnamentsVerticalInt = b;
 }
 
 QRectF BranchContainer::headingRect()
 {
-    // Returns scene coordinates of bounding rectanble
-    return headingContainer->mapToScene(headingContainer->rect()).boundingRect();
+// Returns scene coordinates of bounding rectanble
+return headingContainer->mapToScene(headingContainer->rect()).boundingRect();
 }
 
 QRectF BranchContainer::ornamentsRect()
 {
-    // Returns scene coordinates of bounding rectanble
-    return ornamentsContainer->mapToScene(headingContainer->rect()).boundingRect();
+// Returns scene coordinates of bounding rectanble
+return ornamentsContainer->mapToScene(headingContainer->rect()).boundingRect();
 }
 
 void BranchContainer::setColumnWidthAutoDesign(const bool &b)
 {
-    columnWidthAutoDesignInt = b;
+columnWidthAutoDesignInt = b;
 }
 
 bool BranchContainer::columnWidthAutoDesign()
 {
-    return columnWidthAutoDesignInt;
+return columnWidthAutoDesignInt;
 }
 
 void BranchContainer::setColumnWidth(const int &i)
 {
-    headingContainer->setColumnWidth(i);
-    headingContainer->setHeading(branchItem->heading());
+headingContainer->setColumnWidth(i);
+headingContainer->setHeading(branchItem->heading());
 }
 
 int BranchContainer::columnWidth()
 {
-    return headingContainer->columnWidth();
+return headingContainer->columnWidth();
 }
 
 void BranchContainer::setRotationsAutoDesign(const bool &b, const bool &update)
 {
-    rotationsAutoDesignInt = b;
+rotationsAutoDesignInt = b;
 
-    if (update)
-        updateTransformations();
+if (update)
+    updateTransformations();
 }
 
 bool BranchContainer::rotationsAutoDesign()
 {
-    return rotationsAutoDesignInt;
+return rotationsAutoDesignInt;
 }
 
 void BranchContainer::setRotationHeading(const int &a)
 {
-    rotationHeadingInt = a;
-    updateTransformations();
+rotationHeadingInt = a;
+updateTransformations();
 }
 
 int BranchContainer::rotationHeading()
 {
-    return qRound(rotationHeadingInt);
+return qRound(rotationHeadingInt);
 }
 
 int BranchContainer::rotationHeadingInScene()
 {
-    qreal r = rotationHeadingInt + rotationSubtreeInt;
+qreal r = rotationHeadingInt + rotationSubtreeInt;
 
-    BranchContainer *pbc = parentBranchContainer();
-    while (pbc) {
-        r += pbc->rotationSubtree();
-        pbc = pbc->parentBranchContainer();
-    }
+BranchContainer *pbc = parentBranchContainer();
+while (pbc) {
+    r += pbc->rotationSubtree();
+    pbc = pbc->parentBranchContainer();
+}
 
-    return qRound(r);
+return qRound(r);
 }
 
 void BranchContainer::setScaleAutoDesign(const bool &b, const bool &update)
 {
-    scaleAutoDesignInt = b;
-    if (update)
-        updateTransformations();
+scaleAutoDesignInt = b;
+if (update)
+    updateTransformations();
 }
 
 bool BranchContainer::scaleAutoDesign()
 {
-    return scaleAutoDesignInt;
+return scaleAutoDesignInt;
 }
 
 void BranchContainer::setScaleHeading(const qreal &f)
 {
-    scaleHeadingInt = f;
-    updateTransformations();
+scaleHeadingInt = f;
+updateTransformations();
 }
 
 qreal BranchContainer::scaleHeading()
 {
-    return scaleHeadingInt;
+return scaleHeadingInt;
 }
 
 void BranchContainer::setRotationSubtree(const int &a)
 {
-    rotationSubtreeInt = a;
-    updateTransformations();
+rotationSubtreeInt = a;
+updateTransformations();
 }
 
 int BranchContainer::rotationSubtree()
 {
-    return qRound(rotationSubtreeInt);
+return qRound(rotationSubtreeInt);
 }
 
 void BranchContainer::setScaleSubtree(const qreal &f)
 {
-    scaleSubtreeInt = f;
-    updateTransformations();
+scaleSubtreeInt = f;
+updateTransformations();
 }
 
 qreal BranchContainer::scaleSubtree()
 {
-    return scaleSubtreeInt;
+return scaleSubtreeInt;
 }
 
 void BranchContainer::setColor(const QColor &col)
 {
-    headingContainer->setColor(col);
-    if (bulletPointContainer) // FIXME-3 duplicated code in updateChildrenStructure
-        bulletPointContainer->setColor(col);
+headingContainer->setColor(col);
+if (bulletPointContainer) // FIXME-3 duplicated code in updateChildrenStructure
+    bulletPointContainer->setColor(col);
 }
 
 QUuid BranchContainer::findFlagByPos(const QPointF &p)
 {
-    QUuid uid;
+QUuid uid;
 
-    if (systemFlagRowContainer) {
-        uid = systemFlagRowContainer->findFlagByPos(p);
-        if (!uid.isNull())
-            return uid;
-    }
+if (systemFlagRowContainer) {
+    uid = systemFlagRowContainer->findFlagByPos(p);
+    if (!uid.isNull())
+        return uid;
+}
 
-    if (standardFlagRowContainer)
-        uid = standardFlagRowContainer->findFlagByPos(p);
+if (standardFlagRowContainer)
+    uid = standardFlagRowContainer->findFlagByPos(p);
 
-    return uid;
+return uid;
 }
 
 bool BranchContainer::isInClickBox(const QPointF &p)
 {
-    return ornamentsContainer->rect().contains(ornamentsContainer->mapFromScene(p));
+return ornamentsContainer->rect().contains(ornamentsContainer->mapFromScene(p));
 }
 
 QRectF BranchContainer::getBBoxURLFlag()
 {
-    Flag *f = systemFlagsMaster->findFlagByName("system-url");
-    if (f) {
-        QUuid u = f->getUuid();
-        FlagContainer *fc = systemFlagRowContainer->findFlagContainerByUid(u);
-        if (fc)
-            return fc->mapRectToScene(fc->rect());
-    }
-    return QRectF();
+Flag *f = systemFlagsMaster->findFlagByName("system-url");
+if (f) {
+    QUuid u = f->getUuid();
+    FlagContainer *fc = systemFlagRowContainer->findFlagContainerByUid(u);
+    if (fc)
+        return fc->mapRectToScene(fc->rect());
+}
+return QRectF();
 }
 
 void BranchContainer::select()
 {
-    SelectableContainer::select(
-	    ornamentsContainer,
-	    branchItem->mapDesign()->selectionPen(),
-	    branchItem->mapDesign()->selectionBrush());
+SelectableContainer::select(
+        ornamentsContainer,
+        branchItem->mapDesign()->selectionPen(),
+        branchItem->mapDesign()->selectionBrush());
 }
 
 bool BranchContainer::frameAutoDesign(const bool &useInnerFrame)
 {
-    if (useInnerFrame)
-        return autoDesignInnerFrame;
-    else
-        return autoDesignOuterFrame;
+if (useInnerFrame)
+    return autoDesignInnerFrame;
+else
+    return autoDesignOuterFrame;
 }
 
 void BranchContainer::setFrameAutoDesign(const bool &useInnerFrame, const bool &b)
 {
-    if (useInnerFrame)
-        autoDesignInnerFrame = b;
-    else
-        autoDesignOuterFrame = b;
+if (useInnerFrame)
+    autoDesignInnerFrame = b;
+else
+    autoDesignOuterFrame = b;
 }
 
 FrameContainer::FrameType BranchContainer::frameType(const bool &useInnerFrame)
 {
-    if (useInnerFrame) {
-        if (innerFrame)
-            return innerFrame->frameType();
-        else
-            return FrameContainer::NoFrame;
-    }
-
-    if (outerFrame)
-        return outerFrame->frameType();
+if (useInnerFrame) {
+    if (innerFrame)
+        return innerFrame->frameType();
     else
         return FrameContainer::NoFrame;
 }
 
+if (outerFrame)
+    return outerFrame->frameType();
+else
+    return FrameContainer::NoFrame;
+}
+
 QString BranchContainer::frameTypeString(const bool &useInnerFrame)
 {
-    if (useInnerFrame) {
-        if (innerFrame)
-            return innerFrame->frameTypeString();
-    } else
-        if (outerFrame)
-            return outerFrame->frameTypeString();
+if (useInnerFrame) {
+    if (innerFrame)
+        return innerFrame->frameTypeString();
+} else
+    if (outerFrame)
+        return outerFrame->frameTypeString();
 
-    return "NoFrame";
+return "NoFrame";
 }
 
 void BranchContainer::setFrameType(const bool &useInnerFrame, const FrameContainer::FrameType &ftype)
 {
-    if (useInnerFrame) {
-        // Inner frame around ornamentsContainer
-        if (ftype == FrameContainer::NoFrame) {
-            if (innerFrame) {
-                innerContainer->addContainer(ornamentsContainer, Z_ORNAMENTS);
-                ornamentsContainer->setRotation(innerFrame->rotation());
-                ornamentsContainer->setPos(innerFrame->pos());
-                delete innerFrame;
-                innerFrame = nullptr;
-            }
-        } else {
-            if (!innerFrame) {
-                innerFrame = new FrameContainer;
-                innerFrame->setUsage(FrameContainer::InnerFrame);
-                innerFrame->addContainer(ornamentsContainer, Z_ORNAMENTS);
-                innerFrame->setRotation(ornamentsContainer->rotation());
-                innerFrame->setPos(ornamentsContainer->pos());
-                innerContainer->addContainer(innerFrame, Z_INNER_FRAME);
-                ornamentsContainer->setRotation(0);
-            }
-            innerFrame->setFrameType(ftype);
+if (useInnerFrame) {
+    // Inner frame around ornamentsContainer
+    if (ftype == FrameContainer::NoFrame) {
+        if (innerFrame) {
+            innerContainer->addContainer(ornamentsContainer, Z_ORNAMENTS);
+            ornamentsContainer->setRotation(innerFrame->rotation());
+            ornamentsContainer->setPos(innerFrame->pos());
+            delete innerFrame;
+            innerFrame = nullptr;
         }
     } else {
-        // Outer frame around whole branchContainer including children
-        if (ftype == FrameContainer::NoFrame) {
-            // Remove outerFrame
-            if (outerFrame) {
-                int a = rotationSubtree();
-                Container *c;
-                if (outerContainer)
-                    c = outerContainer;
-                else
-                    c = innerContainer;
-                addContainer(c);
-                delete outerFrame;
-                outerFrame = nullptr;
-                setRotationSubtree(a);
-            }
-        } else {
-            // Set outerFrame
-            if (!outerFrame) {
-                outerFrame = new FrameContainer;
-                outerFrame->setUsage(FrameContainer::OuterFrame);
-                Container *c;
-                if (outerContainer)
-                    c = outerContainer;
-                else
-                    c = innerContainer;
-                outerFrame->addContainer(c);
-                addContainer(outerFrame, Z_OUTER_FRAME);
-            }
-            outerFrame->setFrameType(ftype);
+        if (!innerFrame) {
+            innerFrame = new FrameContainer;
+            innerFrame->setUsage(FrameContainer::InnerFrame);
+            innerFrame->addContainer(ornamentsContainer, Z_ORNAMENTS);
+            innerFrame->setRotation(ornamentsContainer->rotation());
+            innerFrame->setPos(ornamentsContainer->pos());
+            innerContainer->addContainer(innerFrame, Z_INNER_FRAME);
+            ornamentsContainer->setRotation(0);
         }
+        innerFrame->setFrameType(ftype);
     }
-    updateChildrenStructure();
+} else {
+    // Outer frame around whole branchContainer including children
+    if (ftype == FrameContainer::NoFrame) {
+        // Remove outerFrame
+        if (outerFrame) {
+            int a = rotationSubtree();
+            Container *c;
+            if (outerContainer)
+                c = outerContainer;
+            else
+                c = innerContainer;
+            addContainer(c);
+            delete outerFrame;
+            outerFrame = nullptr;
+            setRotationSubtree(a);
+        }
+    } else {
+        // Set outerFrame
+        if (!outerFrame) {
+            outerFrame = new FrameContainer;
+            outerFrame->setUsage(FrameContainer::OuterFrame);
+            Container *c;
+            if (outerContainer)
+                c = outerContainer;
+            else
+                c = innerContainer;
+            outerFrame->addContainer(c);
+            addContainer(outerFrame, Z_OUTER_FRAME);
+        }
+        outerFrame->setFrameType(ftype);
+    }
+}
+updateChildrenStructure();
 }
 
 void BranchContainer::setFrameType(const bool &useInnerFrame, const QString &s)
 {
-    FrameContainer::FrameType ftype = FrameContainer::frameTypeFromString(s);
-    setFrameType(useInnerFrame, ftype);
+FrameContainer::FrameType ftype = FrameContainer::frameTypeFromString(s);
+setFrameType(useInnerFrame, ftype);
 }
 
 int BranchContainer::framePadding(const bool &useInnerFrame)
 {
-    if (useInnerFrame) {
-        if (innerFrame)
-            return innerFrame->framePadding();
-    } else {
-        if (outerFrame)
-            return outerFrame->framePadding();
-    }
+if (useInnerFrame) {
+    if (innerFrame)
+        return innerFrame->framePadding();
+} else {
+    if (outerFrame)
+        return outerFrame->framePadding();
+}
 
-    return 0;
+return 0;
 }
 
 void BranchContainer::setFramePadding(const bool &useInnerFrame, const int &p)
 {
-    if (useInnerFrame) {
-        if (innerFrame)
-            innerFrame->setFramePadding(p);
-    } else {
-        if (outerFrame)
-            outerFrame->setFramePadding(p);
-    }
+if (useInnerFrame) {
+    if (innerFrame)
+        innerFrame->setFramePadding(p);
+} else {
+    if (outerFrame)
+        outerFrame->setFramePadding(p);
+}
 }
 
 int BranchContainer::framePenWidth(const bool &useInnerFrame)
 {
-    if (useInnerFrame) {
-        if (innerFrame)
-            return innerFrame->framePenWidth();
-    } else {
-        if (outerFrame)
-            return outerFrame->framePenWidth();
-    }
+if (useInnerFrame) {
+    if (innerFrame)
+        return innerFrame->framePenWidth();
+} else {
+    if (outerFrame)
+        return outerFrame->framePenWidth();
+}
 
-    return 0;
+return 0;
 }
 
 void BranchContainer::setFramePenWidth(const bool &useInnerFrame, const int &w)
 {
-    if (useInnerFrame) {
-       if (innerFrame)
-           innerFrame->setFramePenWidth(w);
-    } else {
-        if (outerFrame)
-           outerFrame->setFramePenWidth(w);
-    }
+if (useInnerFrame) {
+   if (innerFrame)
+       innerFrame->setFramePenWidth(w);
+} else {
+    if (outerFrame)
+       outerFrame->setFramePenWidth(w);
+}
 }
 
 QColor BranchContainer::framePenColor(const bool &useInnerFrame)
 {
-    if (useInnerFrame) {
-        if (innerFrame)
-            return innerFrame->framePenColor();
-    } else {
-        if (outerFrame)
-            return outerFrame->framePenColor();
-    }
+if (useInnerFrame) {
+    if (innerFrame)
+        return innerFrame->framePenColor();
+} else {
+    if (outerFrame)
+        return outerFrame->framePenColor();
+}
 
-    return QColor();
+return QColor();
 }
 
 void BranchContainer::setFramePenColor(const bool &useInnerFrame, const QColor &c)
 {
-    if (useInnerFrame) {
-        if (innerFrame)
-            innerFrame->setFramePenColor(c);
-    } else {
-        if (outerFrame)
-            outerFrame->setFramePenColor(c);
-    }
+if (useInnerFrame) {
+    if (innerFrame)
+        innerFrame->setFramePenColor(c);
+} else {
+    if (outerFrame)
+        outerFrame->setFramePenColor(c);
+}
 }
 
 QColor BranchContainer::frameBrushColor(const bool &useInnerFrame)
 {
-    if (useInnerFrame) {
-        if (innerFrame)
-            return innerFrame->frameBrushColor();
-    } else {
-        if (outerFrame)
-            return outerFrame->frameBrushColor();
-    }
+if (useInnerFrame) {
+    if (innerFrame)
+        return innerFrame->frameBrushColor();
+} else {
+    if (outerFrame)
+        return outerFrame->frameBrushColor();
+}
 
-    return QColor();
+return QColor();
 }
 
 void BranchContainer::setFrameBrushColor(const bool &useInnerFrame, const QColor &c)
 {
-    if (useInnerFrame) {
-        if (innerFrame)
-            innerFrame->setFrameBrushColor(c);
-    } else {
-        if (outerFrame)
-            outerFrame->setFrameBrushColor(c);
-    }
+if (useInnerFrame) {
+    if (innerFrame)
+        innerFrame->setFrameBrushColor(c);
+} else {
+    if (outerFrame)
+        outerFrame->setFrameBrushColor(c);
+}
 }
 
 QString BranchContainer::saveFrame()
 {
-    QString r;
-    if (innerFrame && innerFrame->frameType() != FrameContainer::NoFrame)
-        r = innerFrame->saveFrame();
+QString r;
+if (innerFrame && innerFrame->frameType() != FrameContainer::NoFrame)
+    r = innerFrame->saveFrame();
 
-    if (outerFrame && outerFrame->frameType() != FrameContainer::NoFrame)
-        r += outerFrame->saveFrame();
-    return r;
+if (outerFrame && outerFrame->frameType() != FrameContainer::NoFrame)
+    r += outerFrame->saveFrame();
+return r;
 }
 
 void BranchContainer::updateVisuals()
 {
-    // Update heading
-    if (!branchItem)
-        return;
+// Update heading
+if (!branchItem)
+    return;
 
-    headingContainer->setHeading(branchItem->heading());
+headingContainer->setHeading(branchItem->heading());
 
-    // Update standard flags active in TreeItem
-    QList<QUuid> TIactiveFlagUids = branchItem->activeFlagUids();
-    if (TIactiveFlagUids.count() == 0) {
-        if (standardFlagRowContainer) {
-            delete standardFlagRowContainer;
-            standardFlagRowContainer = nullptr;
-        }
-    } else {
-        if (!standardFlagRowContainer) {
-            standardFlagRowContainer = new FlagRowContainer;
-            ornamentsContainer->addContainer(standardFlagRowContainer, Z_STANDARD_FLAGS);
-        }
-        standardFlagRowContainer->updateActiveFlagContainers(
-            TIactiveFlagUids, standardFlagsMaster, userFlagsMaster);
+// Update standard flags active in TreeItem
+QList<QUuid> TIactiveFlagUids = branchItem->activeFlagUids();
+if (TIactiveFlagUids.count() == 0) {
+    if (standardFlagRowContainer) {
+        delete standardFlagRowContainer;
+        standardFlagRowContainer = nullptr;
     }
-
-    // Add missing system flags active in TreeItem
-    TIactiveFlagUids = branchItem->activeSystemFlagUids();
-    if (TIactiveFlagUids.count() == 0) {
-        if (systemFlagRowContainer) {
-            delete systemFlagRowContainer;
-            systemFlagRowContainer = nullptr;
-        }
-    } else {
-        if (!systemFlagRowContainer) {
-            systemFlagRowContainer = new FlagRowContainer;
-            ornamentsContainer->addContainer(systemFlagRowContainer, Z_SYSTEM_FLAGS);
-        }
-        systemFlagRowContainer->updateActiveFlagContainers(
-            TIactiveFlagUids, systemFlagsMaster);
+} else {
+    if (!standardFlagRowContainer) {
+        standardFlagRowContainer = new FlagRowContainer;
+        ornamentsContainer->addContainer(standardFlagRowContainer, Z_STANDARD_FLAGS);
     }
+    standardFlagRowContainer->updateActiveFlagContainers(
+        TIactiveFlagUids, standardFlagsMaster, userFlagsMaster);
+}
+
+// Add missing system flags active in TreeItem
+TIactiveFlagUids = branchItem->activeSystemFlagUids();
+if (TIactiveFlagUids.count() == 0) {
+    if (systemFlagRowContainer) {
+        delete systemFlagRowContainer;
+        systemFlagRowContainer = nullptr;
+    }
+} else {
+    if (!systemFlagRowContainer) {
+        systemFlagRowContainer = new FlagRowContainer;
+        ornamentsContainer->addContainer(systemFlagRowContainer, Z_SYSTEM_FLAGS);
+    }
+    systemFlagRowContainer->updateActiveFlagContainers(
+        TIactiveFlagUids, systemFlagsMaster);
+}
 }
 
 void BranchContainer::reposition()
 {
-    // Set orientation based layout or
-    // in the process of being (temporary) relinked
-    BranchContainer *pbc = parentBranchContainer();
+// Set orientation based layout or
+// in the process of being (temporary) relinked
+BranchContainer *pbc = parentBranchContainer();
 
     if (movingStateInt == Moving || movingStateInt == TemporaryLinked)
         // I am currently attached to tmpParentContainer

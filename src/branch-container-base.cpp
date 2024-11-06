@@ -17,6 +17,7 @@ void BranchContainerBase::init()
 
     imagesContainer = nullptr;
     branchesContainer = nullptr;
+    imagesAndBranchesContainer = nullptr;
 
     movingStateInt = NotMoving;
     tmpLinkedParentContainer = nullptr;

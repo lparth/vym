@@ -153,17 +153,17 @@ QString Container::info (const QString &prefix)
 {
     return prefix
         + getName()
-        //+ QString(" z: %1").arg(zPos)
+        + QString(" z: %1").arg(zPos)
         //+ QString(" a: %1").arg(qRound(rotation()))
         //+ QString(" scenePos: %1").arg(toS(scenePos(), 0))
         //+ QString(" pos: %1").arg(toS(pos(), 0))
-        + QString(" rect: %1").arg(toS(rect(), 0))
+        //+ QString(" rect: %1").arg(toS(rect(), 0))
         //+ QString(" sceneRect: %1").arg(toS(mapRectToScene(rect()), 0))
         //+ QString(" vis: %1").arg(isVisible());
         + QString(" Layout: %1").arg(layoutString())
         //+ QString(" horDir: %1").arg(horizontalDirection)
-        + QString(" valign: %1").arg(verticalAlignmentString(verticalAlignmentInt))
-        + QString(" halign: %1").arg(horizontalAlignmentString(horizontalAlignmentInt))
+        //+ QString(" valign: %1").arg(verticalAlignmentString(verticalAlignmentInt))
+        //+ QString(" halign: %1").arg(horizontalAlignmentString(horizontalAlignmentInt))
         //+ QString(" Scale: %1").arg(scale())
         ;
 }
@@ -306,7 +306,6 @@ Container::Layout Container::layoutFromString(const QString &s)
     if (s == "FloatingBounded") return FloatingBounded;
     if (s == "FloatingFree") return FloatingFree;
     if (s == "GridColumns") return GridColumns;
-    if (s == "GridRows") return GridRows;
     if (s == "List") return List;
     return UndefinedLayout;
 }
@@ -335,9 +334,6 @@ QString Container::layoutString(int l)  // Pass layout
             break;
         case GridColumns:
             r = "GridColumns";
-            break;
-        case GridRows:
-            r = "GridRows";
             break;
         case List:
             r = "List";
@@ -603,7 +599,7 @@ void Container::reposition()
             } // BoundingFloats layout
             break;
 
-        case FloatingReservedSpace:
+        case FloatingReservedSpace: // FIXME-3 not used at all... why?
             {
                 // Size is calculated already in MapEditor:
 
@@ -841,9 +837,6 @@ void Container::reposition()
                 }
 
             }
-            break;
-
-        case GridRows:  // FIXME-5 not implemented yet - remove?
             break;
 
         case List:

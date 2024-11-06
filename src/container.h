@@ -11,7 +11,7 @@
 #define Z_ORNAMENTS 30
 #define Z_LINKSPACE 33
 #define Z_BRANCHES 35
-#define Z_IMAGE 35
+#define Z_IMAGE 34
 #define Z_SELECTION 40
 #define Z_BULLETPOINT 50
 #define Z_STANDARD_FLAGS 60
@@ -38,6 +38,7 @@ class Container : public QGraphicsRectItem {
         Heading,
         Image,
         ImagesContainer,
+        ImagesAndBranchesContainer,
         InnerContainer,
         Link,
         LinkSpace,
@@ -55,12 +56,12 @@ class Container : public QGraphicsRectItem {
         Horizontal,
         Vertical,
         BoundingFloats,
-        FloatingReservedSpace,
+        FloatingReservedSpace,  // FIXME-3 not used
         FloatingBounded,
         FloatingFree,
         GridColumns,
-        GridRows,
-        List};
+        List
+    };
 
     enum HorizontalDirection {LeftToRight, RightToLeft};
     enum HorizontalAlignment {HorAlignedLeft, HorAlignedCentered, HorAlignedRight, HorAlignedUndefined};

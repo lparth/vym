@@ -71,6 +71,10 @@ Containers
                 - [Optional: branchesContainer]
             - [Optional: imagesContainer]
             - [Optional: branchesContainer]
+            - [Optional: imagesAndBranchesContainer] if no floating
+                layouts are use:
+                - [Optional: imagesContainer]
+                - [Optional: branchesContainer]
 
 - Only Horizontal layout supports rotated subcontainers so far
   (Vertical layout does not require rotated elements for foreseeable use cases)

@@ -63,6 +63,15 @@ class MapDesign {
         AutoDesign          = 0x0080
     };
 
+    // Defines where imagesContainer in non-floating
+    // layouts are relative to branchesContainer
+    enum ImagesPositionHint {
+        HorizontalInsideBranches,
+        HorizontalOutsideBranches,
+        VerticalAboveBranches,
+        VerticalBelowBranches
+    };
+
     /*
     constexpr RelinkMode operator|(RelinkMode X, RelinkMode Y) {
         return static_cast<RelinkMode>(
@@ -97,12 +106,14 @@ class MapDesign {
 
     Container::Layout imagesContainerLayout(int depth);
     bool branchesContainerAndOrnamentsVertical(int depth);
+    ImagesPositionHint imagesPosition(int depth);
 
   private:
     ConfigList <Container::Layout> branchesContainerLayouts;
     ConfigList <Container::Layout> imagesContainerLayouts;
     ConfigList <bool> branchesContainerAndOrnamentsVerticalInt;
     ConfigList <Container::VerticalAlignment> branchesContainerVerticalAlignmentsInt;
+    ConfigList <ImagesPositionHint> imagesPositionsInt;
 
 // Links
   public:

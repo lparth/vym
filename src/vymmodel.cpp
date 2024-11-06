@@ -2923,17 +2923,17 @@ void VymModel::setScale(const qreal &f, const bool relative)
     setScaleImage(f, relative);
 }
 
-void VymModel::growSelectionSize()
+void VymModel::growSelectionSize()  // FIXME-2 missing saveState
 {
     setScale(0.05, true);
 }
 
-void VymModel::shrinkSelectionSize()
+void VymModel::shrinkSelectionSize()    // FIXME-2 missing saveState
 {
     setScale(- 0.05, true);
 }
 
-void VymModel::resetSelectionSize()
+void VymModel::resetSelectionSize() // FIXME-2 missing saveState. Switch (back?) to autodesign?
 {
     ImageItem *selii = getSelectedImage();
     if (selii)

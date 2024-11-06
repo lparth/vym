@@ -68,6 +68,7 @@ class BranchContainerBase : public Container {
 
     Container *branchesContainer;       // Container with children branches
     Container *imagesContainer;         // Container with children images
+    Container *imagesAndBranchesContainer;  // Container, which contains both of above in special cases
 
     Orientation orientation;
 };

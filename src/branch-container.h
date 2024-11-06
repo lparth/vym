@@ -43,6 +43,9 @@ class BranchContainer : public BranchContainerBase, public SelectableContainer {
   private:
     qreal scrollOpacity;
 
+  private:
+    void updateBranchesContainerParent();
+
   public:
     void addToBranchesContainer(BranchContainer *bc);
 
@@ -54,6 +57,11 @@ class BranchContainer : public BranchContainerBase, public SelectableContainer {
 
   public:
     void updateChildrenStructure();     //! Depending on layouts of children, rearrange structure
+
+  private:
+    void updateImagesContainerParent(); //! Set parent depending on outerContainer
+
+  public:
     void createImagesContainer();
     void addToImagesContainer(Container *c);
 
