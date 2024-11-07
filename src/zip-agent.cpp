@@ -216,3 +216,13 @@ void ZipAgent::startUnzip()
     }
 }
 
+QDir ZipAgent::zipDir()
+{
+    return zipDirInt;
+}
+
+QString ZipAgent::zipName()
+{
+    return zipNameInt;
+}
+

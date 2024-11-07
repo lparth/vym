@@ -21,6 +21,8 @@ class ZipAgent : public QProcess {
     void setBackgroundProcess(bool);
     void startZip();
     void startUnzip();
+    QDir zipDir();
+    QString zipName();
 
   signals:
     void zipFinished();

@@ -843,8 +843,8 @@ void VymModel::saveMap(const File::SaveMode &savemode)
         mainWindow->statusMessage(tr("Couldn't save ").arg(saveFilePath));
     else {
         if (useActionLog) {
-            QString log = QString("Saved %1\n// zipDirInt = %3")
-                .arg(destPath)
+            QString log = QString("Wrote unzipped map \"%1\" into zipDirInt = %2")
+                .arg(mapFileName)
                 .arg(zipDirInt.path());
             logInfo(log, __func__);
         }
@@ -855,6 +855,10 @@ void VymModel::saveMap(const File::SaveMode &savemode)
 
             zipAgent = new ZipAgent(zipDirInt, destPath);
             connect(zipAgent, SIGNAL(zipFinished()), this, SLOT(zipFinished()));
+            QString log = QString("Starting zipAgent to compress \"%1\" in zipDirInt = %2")
+                .arg(mapFileName)
+                .arg(zipDirInt.path());
+            logInfo(log, __func__);
             zipAgent->startZip();
         } else
             mainWindow->statusMessage(tr("Saved %1").arg(saveFilePath));
@@ -878,7 +882,8 @@ void VymModel::zipFinished()
 {
     //qDebug() << "VM::zipFinished exitStatus=" << zipAgent->exitStatus() << " exitCode=" << zipAgent->exitCode();
     // Cleanup
-    logInfo("zip process finished.", __func__);
+    QString log = QString("Finished zipping %1 to %2").arg(zipAgent->zipDir().path(), zipAgent->zipName());
+    logInfo(log, __func__);
 
     zipAgent->deleteLater();
     zipAgent = nullptr;
@@ -7625,16 +7630,16 @@ void VymModel::logInfo(const QString &comment, const QString &caller)
 {
     if (!useActionLog) return;
 
-    QString place = QString("\"%1\"").arg(fileName);
-    if (!caller.isEmpty()) place += "  Called by: " + caller + "()";
 
-    QString log = QString("\n// %1 [Info VymModel] %2\n// MapID: %3 Map: %4").arg(
+    QString log = QString("\n// %1 [Info VymModel::%2] %3\n// MapID: %4 Map: %5\n").arg(
             QDateTime::currentDateTime().toString(Qt::ISODateWithMs),
+            caller,
             comment,
             QString::number(modelIdInt),
-            place);
+            mapName
+    );
 
-    appendStringToFile(actionLogPath, log + "\n// " + comment + "\n");
+    appendStringToFile(actionLogPath, log);
 }
 
 void VymModel::logCommand(const QString &command, const QString &comment, const QString &caller)

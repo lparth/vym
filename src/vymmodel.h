@@ -928,6 +928,7 @@ class VymModel : public TreeModel {
     ////////////////////////////////////////////
     // Logfile related
     ////////////////////////////////////////////
+
     void logInfo(const QString &comment, const QString &caller = "");
     void logCommand(const QString &command, const QString &comment, const QString &caller = QString());
 };
