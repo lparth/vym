@@ -72,7 +72,7 @@ void TreeItem::init()
     itemData << "";
 
     urlInt = QString();
-    urlTypeInt = GeneralUrl;
+    urlTypeInt = NoUrl;
 
     standardFlags.setMasterRow(standardFlagsMaster);
     userFlags.setMasterRow(userFlagsMaster);

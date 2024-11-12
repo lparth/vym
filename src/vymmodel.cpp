@@ -2447,7 +2447,7 @@ bool VymModel::findAll(FindResultModel *rmodel, QString s,
     return hit;
 }
 
-void VymModel::setUrl(QString url, bool updateFromCloud, BranchItem *bi)
+void VymModel::setUrl(QString url, bool updateFromCloud, BranchItem *bi)    // FIXME-2 does not update flag when unsetting Url
 {
     if (!bi) bi = getSelectedBranch();
     if (bi->url() == url)
@@ -2462,26 +2462,33 @@ void VymModel::setUrl(QString url, bool updateFromCloud, BranchItem *bi)
             saveStateBranch(bi, uc, rc,
                 QString("set URL of %1 to %2").arg(getObjectName(bi)).arg(url));
         }
-        if (updateFromCloud) {    // FIXME-3 use oembed.com also for Youtube and other cloud providers
-            // Check for Jira
-            JiraAgent agent;
-            QString query;
-            if (agent.setTicket(url)) {
-                setAttribute(bi, "Jira.key", agent.key());
+        if (!url.isEmpty()) {
+            if (updateFromCloud) {    // FIXME-3 use oembed.com also for Youtube and other cloud providers
+                // Check for Jira
+                JiraAgent agent;
+                QString query;
+                if (agent.setTicket(url)) {
+                    setAttribute(bi, "Jira.key", agent.key());
 
-                // Initially set heading with ticket Id
-                setHeading(agent.key(), bi);
+                    // Initially set heading with ticket Id
+                    setHeading(agent.key(), bi);
 
-                // Then try to update heading from Jira
-                getJiraData(false, bi);
+                    // Then try to update heading from Jira
+                    getJiraData(false, bi);
+                }
+
+                // Check for Confluence
+                if (bi->urlType() != TreeItem::JiraUrl)
+                    setHeadingConfluencePageName();
             }
-
-            updateJiraFlag(bi);
-
-            // Check for Confluence
-            if (bi->urlType() != TreeItem::JiraUrl)
-                setHeadingConfluencePageName();
+        } else {
+            // url == ""
+            AttributeItem *ai = getAttributeByKey("Jira.issueUrl", bi);
+            if (ai)
+                deleteItem(ai);
         }
+        updateJiraFlag(bi); // Implicitly calls setUrlType()
+
 
         emitDataChanged(bi);
         if (!repositionBlocked)
@@ -5236,8 +5243,12 @@ void VymModel::updateJiraFlag(TreeItem *ti)
         ai = getAttributeByKey("Jira.query");
         if (ai)
             ti->setUrlType(TreeItem::JiraUrl);  // FIXME-3 Dedicated flag for query missing
-        else
-            ti->setUrlType(TreeItem::GeneralUrl);
+        else {
+            if (ti->url().isEmpty())
+                ti->setUrlType(TreeItem::NoUrl);
+            else
+                ti->setUrlType(TreeItem::GeneralUrl);
+        }
     }
 
     // Update UrlType
@@ -5246,7 +5257,10 @@ void VymModel::updateJiraFlag(TreeItem *ti)
         ti->deactivateSystemFlagByName("system-url");
     } else {
         ti->deactivateSystemFlagByName("system-jira");
-        ti->activateSystemFlagByName("system-url");
+        if (ti->urlType() == TreeItem::GeneralUrl)
+            ti->activateSystemFlagByName("system-url");
+        else
+            ti->deactivateSystemFlagByName("system-url");
     }
     emitDataChanged(ti);
 }
