@@ -181,7 +181,7 @@ void HistoryWindow::closeEvent(QCloseEvent *ce)
 {
     ce->accept();
     hide();
-    emit(windowClosed());
+    emit windowClosed();
 }
 
 void HistoryWindow::undo() { mainWindow->editUndo(); }

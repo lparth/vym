@@ -192,7 +192,7 @@ SlideItem *SlideModel::addSlide(SlideItem *dst, int n)
     if (!dst)
         dst = rootItem;
 
-    emit(layoutAboutToBeChanged());
+    emit layoutAboutToBeChanged();
 
     QModelIndex parix = index(dst);
     if (n < 0)
@@ -203,7 +203,7 @@ SlideItem *SlideModel::addSlide(SlideItem *dst, int n)
         si = getItem(ix);
     }
     endInsertRows();
-    emit(layoutChanged());
+    emit layoutChanged();
 
     return si;
 }
@@ -221,7 +221,7 @@ void SlideModel::deleteSlide(SlideItem *si)
 bool SlideModel::relinkSlide(SlideItem *si, SlideItem *dst, int pos)
 {
     if (si && dst) {
-        emit(layoutAboutToBeChanged());
+        emit layoutAboutToBeChanged();
         SlideItem *pi = si->parent();
 
         // Remove at current position
@@ -239,7 +239,7 @@ bool SlideModel::relinkSlide(SlideItem *si, SlideItem *dst, int pos)
         dst->insertItem(pos, si);
         endInsertRows();
 
-        emit(layoutChanged());
+        emit layoutChanged();
 
         selModel->select(index(si), QItemSelectionModel::ClearAndSelect);
 

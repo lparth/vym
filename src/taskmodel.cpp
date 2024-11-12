@@ -266,7 +266,7 @@ bool TaskModel::setData(const QModelIndex &index, const QVariant &value,
             VymModel *m = bi->getModel();
             m->setTaskPriorityDelta(value.toInt(), bi);
             recalcPriorities();
-            emit(dataChanged(index, index));
+            emit dataChanged(index, index);
             return true;
         }
         if (index.column() == 8) // set Heading
@@ -274,7 +274,7 @@ bool TaskModel::setData(const QModelIndex &index, const QVariant &value,
             BranchItem *bi = t->getBranch();
             VymModel *m = bi->getModel();
             m->setHeadingPlainText(value.toString(), bi);
-            emit(dataChanged(index, index));
+            emit dataChanged(index, index);
             return true;
         }
     }
@@ -291,7 +291,7 @@ void TaskModel::emitDataChanged(Task *t)
         while (col < columnCount(QModelIndex())) {
             ix = createIndex(row, col, t);
             if (ix.isValid())
-                emit(dataChanged(ix, ix));
+                emit dataChanged(ix, ix);
             col++;
         }
     }
@@ -365,7 +365,7 @@ bool TaskModel::updateAwake(bool force)
 
 void TaskModel::recalcPriorities()
 {
-    emit(layoutAboutToBeChanged());
+    emit layoutAboutToBeChanged();
     int minPrio = 1000000;
     foreach (Task *t, tasks) {
         int p = 0;
@@ -443,7 +443,7 @@ void TaskModel::recalcPriorities()
         t->setPriority(1 - minPrio + t->getPriority());
     }
 
-    emit(layoutChanged());
+    emit layoutChanged();
 }
 
 void TaskModel::setShowParentsLevel(uint i)

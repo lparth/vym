@@ -68,13 +68,13 @@ QString FindWidget::getFindText() { return findcombo->currentText(); }
 void FindWidget::cancelPressed()
 {
     hide();
-    emit(hideFindWidget()); // Restore focus
+    emit hideFindWidget(); // Restore focus
 }
 
 void FindWidget::nextPressed()
 {
-    emit(nextButtonPressed(findcombo->currentText(),
-                           filterNotesButton->isChecked()));
+    emit nextButtonPressed(findcombo->currentText(),
+                           filterNotesButton->isChecked());
 }
 
 void FindWidget::findTextChanged(const QString &) { setStatus(Undefined); }

@@ -650,7 +650,7 @@ void TextEditor::closeEvent(QCloseEvent *ce)
 {
     ce->accept(); // TextEditor can be reopened with show()
     hide();
-    emit(windowClosed());
+    emit windowClosed();
     return;
 }
 
@@ -684,7 +684,7 @@ void TextEditor::editorChanged()
 
     if (!blockChangedSignal) {
         blockTextUpdate = true;
-        emit(textHasChanged(getVymText()));
+        emit textHasChanged(getVymText());
         blockTextUpdate = false;
     }
 
@@ -898,7 +898,7 @@ void TextEditor::toggleFonthint()
         e->setCurrentFont(fixedFont);
         setFont(fixedFont);
     }
-    emit(textHasChanged(getVymText()));
+    emit textHasChanged(getVymText());
 }
 
 void TextEditor::setRichTextMode(bool b)
@@ -917,7 +917,7 @@ void TextEditor::setRichTextMode(bool b)
     } else {
         setPlainText(e->toPlainText());
     }
-    emit(textHasChanged(getVymText()));
+    emit textHasChanged(getVymText());
 }
 
 void TextEditor::toggleRichText()

@@ -2186,7 +2186,7 @@ int VymModel::centerCount() { return rootItem->branchCount(); }
 void VymModel::setSortFilter(const QString &s)
 {
     sortFilter = s;
-    emit(sortFilterChanged(sortFilter));
+    emit sortFilterChanged(sortFilter);
 }
 
 QString VymModel::getSortFilter() { return sortFilter; }
@@ -3727,7 +3727,7 @@ ImageItem *VymModel::createImage(BranchItem *dst)
 
         ImageItem *newii = new ImageItem();
 
-        emit(layoutAboutToBeChanged());
+        emit layoutAboutToBeChanged();
 
         parix = index(dst);
         if (!parix.isValid())
@@ -3737,7 +3737,7 @@ ImageItem *VymModel::createImage(BranchItem *dst)
         dst->appendChild(newii);
         endInsertRows();
 
-        emit(layoutChanged());
+        emit layoutChanged();
 
         dst->addToImagesContainer(newii->createImageContainer());
 
@@ -3780,7 +3780,7 @@ bool VymModel::createXLink(XLink *xlink)
     newli->setXLink(xlink);
     xlink->setBeginXLinkItem(newli);
 
-    emit(layoutAboutToBeChanged());
+    emit layoutAboutToBeChanged();
 
     parix = index(begin);
     n = begin->getRowNumAppend(newli);
@@ -3798,7 +3798,7 @@ bool VymModel::createXLink(XLink *xlink)
     end->appendChild(newli);
     endInsertRows();
 
-    emit(layoutChanged());
+    emit layoutChanged();
 
     xlinks.append(xlink);
     xlink->activate();
@@ -3902,14 +3902,14 @@ AttributeItem *VymModel::setAttribute( // FIXME-2 saveState( missing. For bulk c
         // Create new attribute
         ai = new AttributeItem(key, value);
 
-        emit(layoutAboutToBeChanged());
+        emit layoutAboutToBeChanged();
 
         QModelIndex parix = index(dst);
         int n = dst->getRowNumAppend(ai);
         beginInsertRows(parix, n, n);
         dst->appendChild(ai);
         endInsertRows();
-        emit(layoutChanged());
+        emit layoutChanged();
 
         // Jira attributes
         if (ai->key() == "Jira.issueUrl") {
@@ -4003,13 +4003,13 @@ BranchItem *VymModel::addMapCenterAtPos(QPointF absPos, bool interactive)
     BranchItem *newbi = new BranchItem(rootItem);
     int n = rootItem->getRowNumAppend(newbi);
 
-    emit(layoutAboutToBeChanged());
+    emit layoutAboutToBeChanged();
     beginInsertRows(parix, n, n);
 
     rootItem->appendChild(newbi);
 
     endInsertRows();
-    emit(layoutChanged());
+    emit layoutChanged();
 
     // Create BranchContainer
     BranchContainer *bc = newbi->createBranchContainer(getScene());
@@ -4046,7 +4046,7 @@ BranchItem *VymModel::addNewBranchInt(BranchItem *dst, int pos)
     int n;
     BranchItem *newbi = new BranchItem;
 
-    emit(layoutAboutToBeChanged());
+    emit layoutAboutToBeChanged();
 
     if (pos == -2) {
         n = parbi->getRowNumAppend(newbi);
@@ -4069,7 +4069,7 @@ BranchItem *VymModel::addNewBranchInt(BranchItem *dst, int pos)
         parbi->insertBranch(pos, newbi);
         endInsertRows();
     }
-    emit(layoutChanged());
+    emit layoutChanged();
 
     // Create Container
     BranchContainer *bc = newbi->createBranchContainer(getScene());
@@ -4270,7 +4270,7 @@ bool VymModel::relinkBranches(QList <BranchItem*> branches, BranchItem *dst, int
         int removeRowNum = bi->childNum();
 
         //qDebug() << "  VM::relink removing at n=" << removeRowNum << bi->headingPlain();
-        emit(layoutAboutToBeChanged());
+        emit layoutAboutToBeChanged();
         beginRemoveRows(index(branchpi), removeRowNum, removeRowNum);
         branchpi->removeChild(removeRowNum);
         endRemoveRows();
@@ -4302,7 +4302,7 @@ bool VymModel::relinkBranches(QList <BranchItem*> branches, BranchItem *dst, int
         // reset parObj, fonts, frame, etc in related branch-container or other view-objects
         applyDesign(MapDesign::RelinkedByUser, bi);
 
-        emit(layoutChanged());
+        emit layoutChanged();
 
         // Keep position when detaching
         if (keepPos) {
@@ -4408,7 +4408,7 @@ bool VymModel::relinkImages(QList <ImageItem*> images, TreeItem *dst_ti, int num
                 .arg(dst->headingPlain()));
 
     foreach(ImageItem *ii, images) {
-        emit(layoutAboutToBeChanged());
+        emit layoutAboutToBeChanged();
 
         BranchItem *pi = (BranchItem *)(ii->parent());
         // Remove at current position
@@ -4431,7 +4431,7 @@ bool VymModel::relinkImages(QList <ImageItem*> images, TreeItem *dst_ti, int num
         dst->insertImage(num_new, ii);
         endInsertRows();
 
-        emit(layoutChanged());
+        emit layoutChanged();
 
         ii->updateContainerStackingOrder();
         // FIXME-2 relinkImages issues:
@@ -4613,7 +4613,7 @@ void VymModel::deleteChildren(BranchItem *bi)
         saveState(uc, rc,
                 QString("Remove children of \"%1\"").arg(selbi->headingText()),
                 selbi);
-        emit(layoutAboutToBeChanged());
+        emit layoutAboutToBeChanged();
 
         QModelIndex ix = index(selbi);
         int n = selbi->childCount() - 1;
@@ -4623,7 +4623,7 @@ void VymModel::deleteChildren(BranchItem *bi)
         if (selbi->isScrolled()) unscrollBranch(selbi);
 
         updateJiraFlag(selbi);
-        emit(layoutChanged());
+        emit layoutChanged();
 
         emitDataChanged(selbi);
         reposition();
@@ -4645,7 +4645,7 @@ void VymModel::deleteChildrenBranches(BranchItem *bi)
                     QString("Remove children branches of \"%1\"").arg(selbi->headingText()),
                     selbi);
 
-            emit(layoutAboutToBeChanged());
+            emit layoutAboutToBeChanged();
 
             QModelIndex ix = index(selbi);
             beginRemoveRows(ix, n_first, n_last);
@@ -4654,7 +4654,7 @@ void VymModel::deleteChildrenBranches(BranchItem *bi)
             endRemoveRows();
             if (selbi->isScrolled()) unscrollBranch(selbi);
 
-            emit(layoutChanged());
+            emit layoutChanged();
         }
     }
 
@@ -4673,14 +4673,14 @@ TreeItem *VymModel::deleteItem(TreeItem *ti)
 
         QModelIndex parentIndex = index(pi);
 
-        emit(layoutAboutToBeChanged());
+        emit layoutAboutToBeChanged();
 
         int n = ti->childNum();
         beginRemoveRows(parentIndex, n, n);
         removeRows(n, 1, parentIndex);  // Deletes object!
         endRemoveRows();
 
-        emit(layoutChanged());
+        emit layoutChanged();
         emitUpdateQueries();
 
         if (wasAttribute) {
@@ -4818,13 +4818,13 @@ void VymModel::unscrollSubtree(BranchItem *bi)
     reposition();
 }
 
-void VymModel::emitExpandAll() { emit(expandAll()); }
+void VymModel::emitExpandAll() { emit expandAll(); }
 
-void VymModel::emitExpandOneLevel() { emit(expandOneLevel()); }
+void VymModel::emitExpandOneLevel() { emit expandOneLevel(); }
 
-void VymModel::emitCollapseOneLevel() { emit(collapseOneLevel()); }
+void VymModel::emitCollapseOneLevel() { emit collapseOneLevel(); }
 
-void VymModel::emitCollapseUnselected() { emit(collapseUnselected()); }
+void VymModel::emitCollapseUnselected() { emit collapseUnselected(); }
 
 void VymModel::toggleTarget(BranchItem *bi)
 {
@@ -7118,7 +7118,7 @@ void VymModel::appendSelectionToHistory() // FIXME-3 history unable to cope with
 void VymModel::emitShowSelection(bool scaled, bool rotated)
 {
     if (!repositionBlocked)
-        emit(showSelection(scaled, rotated));
+        emit showSelection(scaled, rotated);
 }
 
 TreeItem* VymModel::lastToggledItem()
@@ -7129,7 +7129,7 @@ TreeItem* VymModel::lastToggledItem()
 void VymModel::emitNoteChanged(TreeItem *ti)
 {
     QModelIndex ix = index(ti);
-    emit(noteChanged(ix));
+    emit noteChanged(ix);
     mainWindow->updateNoteEditor(ti);
 }
 
@@ -7138,7 +7138,7 @@ void VymModel::emitDataChanged(TreeItem *ti)
     //qDebug() << "VM::emitDataChanged ti=" << ti;
     if (ti) {
         QModelIndex ix = index(ti);
-        emit(dataChanged(ix, ix));
+        emit dataChanged(ix, ix);
 
         // Update taskmodel and recalc priorities there
         if (ti->hasTypeBranch() && ((BranchItem *)ti)->getTask()) {
@@ -7153,12 +7153,12 @@ void VymModel::emitUpdateQueries()
     // Used to tell MainWindow to update query results
     if (repositionBlocked) return;
 
-    emit(updateQueries(this));
+    emit updateQueries(this);
 }
 void VymModel::emitUpdateLayout()
 {
     if (settings.value("/mainwindow/autoLayout/use", "true") == "true")
-        emit(updateLayout());
+        emit updateLayout();
 }
 
 bool VymModel::selectFirstBranch(BranchItem *bi)

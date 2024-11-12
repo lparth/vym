@@ -84,11 +84,11 @@ void FindResultWidget::popup()
     findWidget->setFocus();
 }
 
-void FindResultWidget::cancelPressed() { emit(hideFindResultWidget()); }
+void FindResultWidget::cancelPressed() { emit hideFindResultWidget(); }
 
 void FindResultWidget::nextButtonPressed(QString s, bool searchNotesFlag)
 {
-    emit(findPressed(s, searchNotesFlag));
+    emit findPressed(s, searchNotesFlag);
 }
 
 void FindResultWidget::updateSelection(QItemSelection newsel, QItemSelection)
@@ -103,7 +103,7 @@ void FindResultWidget::updateSelection(QItemSelection newsel, QItemSelection)
                 fri->getOrgModel()->select(ti);
                 int i = fri->getOriginalIndex();
                 if (i >= 0)
-                    emit(noteSelected(resultsModel->getSearchString(), i));
+                    emit noteSelected(resultsModel->getSearchString(), i);
             }
         }
     }

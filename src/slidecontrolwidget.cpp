@@ -59,16 +59,16 @@ SlideControlWidget::SlideControlWidget(QWidget *)
     setLayout(mainLayout);
 }
 
-void SlideControlWidget::snapshotPressed() { emit(takeSnapshot()); }
+void SlideControlWidget::snapshotPressed() { emit takeSnapshot(); }
 
-void SlideControlWidget::editPressed() { emit(editButtonPressed()); }
+void SlideControlWidget::editPressed() { emit editButtonPressed(); }
 
-void SlideControlWidget::deletePressed() { emit(deleteButtonPressed()); }
+void SlideControlWidget::deletePressed() { emit deleteButtonPressed(); }
 
-void SlideControlWidget::previousPressed() { emit(previousButtonPressed()); }
+void SlideControlWidget::previousPressed() { emit previousButtonPressed(); }
 
-void SlideControlWidget::nextPressed() { emit(nextButtonPressed()); }
+void SlideControlWidget::nextPressed() { emit nextButtonPressed(); }
 
-void SlideControlWidget::upPressed() { emit(upButtonPressed()); }
+void SlideControlWidget::upPressed() { emit upButtonPressed(); }
 
-void SlideControlWidget::downPressed() { emit(downButtonPressed()); }
+void SlideControlWidget::downPressed() { emit downButtonPressed(); }

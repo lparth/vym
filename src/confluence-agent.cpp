@@ -371,7 +371,7 @@ void ConfluenceAgent::continueJob(int nextStep)
                     user.setDisplayName( u["displayName"].toString());
                     userList << user;
                 }
-                emit (foundUsers(userList));
+                emit foundUsers(userList);
                 finishJob();
                 return;
             }
@@ -383,7 +383,7 @@ void ConfluenceAgent::continueJob(int nextStep)
 
                 if (uploadAttachmentPaths.count() <= 0) {
                     qWarning() << "ConfluenceAgent: No attachments to upload!";
-                    emit(attachmentsFailure());
+                    emit attachmentsFailure();
                     finishJob();
                     return;
                 }
@@ -400,7 +400,7 @@ void ConfluenceAgent::continueJob(int nextStep)
 
                 if (currentUploadAttachmentIndex >= uploadAttachmentPaths.count()) {
                     // All uploaded, let's finish uploading
-                    emit(attachmentsSuccess());
+                    emit attachmentsSuccess();
                     finishJob();
                 } else {
                     currentAttachmentPath = uploadAttachmentPaths.at(currentUploadAttachmentIndex);

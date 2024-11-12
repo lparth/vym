@@ -826,7 +826,7 @@ void BranchPropertyEditor::closeEvent(QCloseEvent *ce)
 {
     ce->accept(); // can be reopened with show()
     hide();
-    emit(windowClosed());
+    emit windowClosed();
     return;
 }
 

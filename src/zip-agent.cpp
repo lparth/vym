@@ -162,7 +162,7 @@ void ZipAgent::zipProcessFinished(int exitCode, QProcess::ExitStatus exitStatus)
         }
     }
 #endif
-    emit(zipFinished());
+    emit zipFinished();
 }
 
 void ZipAgent::startUnzip()

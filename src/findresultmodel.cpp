@@ -203,7 +203,7 @@ FindResultItem *FindResultModel::addItem(TreeItem *ti)
     if (ti) {
         QModelIndex parix(index(rootItem));
 
-        emit(layoutAboutToBeChanged());
+        emit layoutAboutToBeChanged();
 
         int n = rowCount(parix);
         beginInsertRows(parix, n, n);
@@ -216,7 +216,7 @@ FindResultItem *FindResultModel::addItem(TreeItem *ti)
         }
         endInsertRows();
 
-        emit(layoutChanged());
+        emit layoutChanged();
     }
     return ni;
 }
@@ -229,7 +229,7 @@ FindResultItem *FindResultModel::addSubItem(FindResultItem *parent,
     if (pi && parent) {
         QModelIndex parix(index(parent));
 
-        emit(layoutAboutToBeChanged());
+        emit layoutAboutToBeChanged();
 
         int n = rowCount(parix);
         beginInsertRows(parix, n, n);
@@ -243,7 +243,7 @@ FindResultItem *FindResultModel::addSubItem(FindResultItem *parent,
             ni->setOriginalIndex(i);
         }
         endInsertRows();
-        emit(layoutChanged());
+        emit layoutChanged();
     }
     return ni;
 }

@@ -280,7 +280,7 @@ void JiraAgent::continueJob()
                     jsobj["vymBranchId"] = QJsonValue(branchId);
                     jsobj["vymJiraTicketUrl"] = QJsonValue(url());
 
-                    emit (jiraTicketReady(QJsonObject(jsobj)));
+                    emit jiraTicketReady(QJsonObject(jsobj));
                     finishJob();
                     }
                     break;
@@ -305,7 +305,7 @@ void JiraAgent::continueJob()
                     jsobj["vymJiraLastQuery"] = queryInt;
                     jsobj["doSubtree"] = doSubtreeInt;
 
-                    emit (jiraQueryReady(QJsonObject(jsobj)));
+                    emit jiraQueryReady(QJsonObject(jsobj));
                     finishJob();
                     }
                     break;
