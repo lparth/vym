@@ -1914,7 +1914,7 @@ void MapEditor::mousePressEvent(QMouseEvent *e) // FIXME-3  Drop down dialog, if
     }   // system flags or modModes
     else { // No selbc found, check XLinks
         if (ti_found) {
-            if (ti_found->getType() == TreeItem::XLinkType) {
+            if (ti_found->getType() == TreeItem::XLinkItemType) {
                 XLinkObj *xlo = ((XLinkItem *)ti_found)->getXLink()->getXLinkObj();
                 if (xlo)
                     setState(EditingXLink);
@@ -2095,7 +2095,7 @@ void MapEditor::moveObject(QMouseEvent *e, const QPointF &p_event)
                     tmpParentContainer->addToImagesContainer(ic);
                 }
         }
-            else if (ti->getType() == TreeItem::XLinkType) {
+            else if (ti->getType() == TreeItem::XLinkItemType) {
                 // Move XLink control point
                 XLinkObj *xlo = ((XLinkItem *)ti)->getXLinkObj();
                 if (xlo) {

@@ -21,7 +21,7 @@ XLinkItem::XLinkItem(TreeItem *parent)
 
 XLinkItem::~XLinkItem()
 {
-    //qDebug() << "Destr XLinkItem begin  "<< this << "  pI=" << parentItem << " xlink=" << xlinkInt;
+    qDebug() << "Destr XLinkItem begin  "<< this << "  pI=" << parentItem << " xlink=" << xlinkInt;
     if (xlinkInt) {
         xlinkInt->unsetXLinkItem(this);
 
@@ -32,7 +32,7 @@ XLinkItem::~XLinkItem()
 
 void XLinkItem::init()
 {
-    setType(XLinkType);
+    setType(XLinkItemType);
     xlinkInt = nullptr;
     itemData[0] = "XLink";
 }

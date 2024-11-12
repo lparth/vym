@@ -24,7 +24,7 @@ XLink::XLink(VymModel *m)
 
 XLink::~XLink()
 {
-    // qDebug() << "* Destr Link begin this=" << this;
+    qDebug() << "* Destr Link begin this=" << this;
 
     delete (xlo);
 
@@ -121,11 +121,10 @@ void XLink::unsetXLinkItem(XLinkItem *xli)
 {
     if (xli == beginXLinkItemInt) {
         beginXLinkItemInt = nullptr;
-        xLinkState = deleteXLink;
     } else if (xli == endXLinkItemInt) {
         endXLinkItemInt = nullptr;
-        xLinkState = deleteXLink;
     }
+    xLinkState = deleteXLink;
 }
 
 QPen XLink::getPen() { return pen; }

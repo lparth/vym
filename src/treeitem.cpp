@@ -90,7 +90,7 @@ int TreeItem::getRowNumAppend(TreeItem *item)
     switch (item->type) {
         case Attribute:
             return attributeOffset + attributeCounter;
-        case XLinkType:
+        case XLinkItemType:
             return xlinkOffset + xlinkCounter;
         case Image:
             return imageOffset + imageCounter;
@@ -118,7 +118,7 @@ void TreeItem::appendChild(TreeItem *item)
         branchOffset++;
     }
 
-    if (item->type == XLinkType) {
+    if (item->type == XLinkItemType) {
         childItems.insert(xlinkCounter + xlinkOffset, item);
         xlinkCounter++;
         imageOffset++;
@@ -155,7 +155,7 @@ void TreeItem::removeChild(int row)
             imageOffset--;
             branchOffset--;
         }
-        if (childItems.at(row)->type == XLinkType) {
+        if (childItems.at(row)->type == XLinkItemType) {
             xlinkCounter--;
             imageOffset--;
             branchOffset--;
@@ -256,7 +256,7 @@ int TreeItem::num(TreeItem *item)
         return childItems.indexOf(item) - imageOffset;
     case Attribute:
         return childItems.indexOf(item) - attributeOffset;
-    case XLinkType:
+    case XLinkItemType:
         return childItems.indexOf(item) - xlinkOffset;
     default:
         return -1;
@@ -308,7 +308,7 @@ bool TreeItem::hasTypeBranchOrImage() const
 
 bool TreeItem::hasTypeXLink() const
 {
-    if (type == XLinkType)
+    if (type == XLinkItemType)
         return true;
     else
         return false;
@@ -327,7 +327,7 @@ QString TreeItem::getTypeName()
             return QString("Image");
         case Attribute:
             return QString("Attribute");
-        case XLinkType:
+        case XLinkItemType:
             return QString("XLink");
         default:
             return QString("TreeItem::getTypeName no typename defined?!");

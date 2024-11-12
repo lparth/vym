@@ -376,7 +376,7 @@ QString VymModel::saveToDir(const QString &tmpdir, const QString &prefix,
             case TreeItem::Image:
                 tree += ((ImageItem *)saveSel)->saveToDir(tmpdir);
                 break;
-            case TreeItem::XLinkType:
+            case TreeItem::XLinkItemType:
                 tree += ((XLinkItem *)saveSel)->getXLink()->saveToDir();
                 break;
             default:
@@ -4539,7 +4539,7 @@ void VymModel::deleteSelection(ulong selID)
                 deleteItem(ti);
                 emitDataChanged(pbi);
                 select(pbi);
-            } else if (ti->getType() == TreeItem::XLinkType) {
+            } else if (ti->getType() == TreeItem::XLinkItemType) {
                 deleteXLink(((XLinkItem*)ti)->getXLink());
             } else if (ti->getType() == AttributeItem::Attribute && pbi) {
                 AttributeItem *ai = (AttributeItem*)ti;
@@ -4666,7 +4666,7 @@ TreeItem *VymModel::deleteItem(TreeItem *ti)
 {
     if (ti) {
         TreeItem *pi = ti->parent();
-        // qDebug()<<"VM::deleteItem  start ti=" << ti << "  " << ti->headingText();
+        qDebug()<<"VM::deleteItem  start ti=" << ti << "  " << ti->headingText();
 
         bool wasAttribute = ti->hasTypeAttribute();
         TreeItem *parentItem = ti->parent();
@@ -4712,7 +4712,7 @@ void VymModel::deleteXLink(XLink *xlink)
 
 void VymModel::deleteXLinkInt(XLink *xlink)
 {
-   // qDebug() << "VM::deleteXLinkInt start";
+   qDebug() << "VM::deleteXLinkInt start deleting " << xlink;
 
     if (!xlink) {
         qWarning() << __FUNCTION__ << "No xlink ?!";
@@ -4723,15 +4723,18 @@ void VymModel::deleteXLinkInt(XLink *xlink)
     XLinkItem *xli;
     xli = xlink->beginXLinkItem();
     if (xli) {
+        qDebug() << "  Removing beginXLinkItem";
         xlink->unsetXLinkItem(xli);
         deleteItem(xli);
     }
     xli = xlink->endXLinkItem();
     if (xli) {
+        qDebug() << "  Removing endXLinkItem";
         xlink->unsetXLinkItem(xli);
         deleteItem(xli);
     }
 
+    qDebug() << "  Trying to remove " << xlink;
     // Remove from list of items and delete xlink itself, including XLinkObj
     if (xlinks.removeOne(xlink))
         delete (xlink);
@@ -6833,7 +6836,7 @@ void VymModel::updateSelection(QItemSelection newsel, QItemSelection dsel)
     foreach (ix, dsel.indexes()) {
         mi = static_cast<MapItem *>(ix.internalPointer());
 
-        if (mi->hasTypeBranch() || mi->getType() == TreeItem::Image || mi->getType() == TreeItem::XLinkType) {
+        if (mi->hasTypeBranch() || mi->getType() == TreeItem::Image || mi->getType() == TreeItem::XLinkItemType) {
             if (mi->hasTypeBranch()) {
                 ((BranchItem*)mi)->getBranchContainer()->unselect();
                 do_reposition =
@@ -6867,7 +6870,7 @@ void VymModel::updateSelection(QItemSelection newsel, QItemSelection dsel)
         if (mi->hasTypeImage())
             ((ImageItem*)mi)->getImageContainer()->select();
 
-        if (mi->getType() == TreeItem::XLinkType) {
+        if (mi->getType() == TreeItem::XLinkItemType) {
             XLinkItem *xli = (XLinkItem*)mi;
             xli->setSelectionType();
             xli->getXLinkObj()->select(
@@ -7327,7 +7330,7 @@ XLink *VymModel::getSelectedXLink(XLink *xl)
 XLinkItem *VymModel::getSelectedXLinkItem()
 {
     TreeItem *ti = getSelectedItem();
-    if (ti && ti->getType() == TreeItem::XLinkType)
+    if (ti && ti->getType() == TreeItem::XLinkItemType)
         return (XLinkItem *)ti;
     else
         return nullptr;
@@ -7459,7 +7462,7 @@ QString VymModel::getSelectString(TreeItem *ti)
     case TreeItem::Attribute:
         s = "ai:";
         break;
-    case TreeItem::XLinkType:
+    case TreeItem::XLinkItemType:
         s = "xl:";
         break;
     default:
