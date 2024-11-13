@@ -4712,8 +4712,6 @@ void VymModel::deleteXLink(XLink *xlink)
 
 void VymModel::deleteXLinkInt(XLink *xlink)
 {
-   qDebug() << "VM::deleteXLinkInt start deleting " << xlink;
-
     if (!xlink) {
         qWarning() << __FUNCTION__ << "No xlink ?!";
         return;
@@ -4723,18 +4721,15 @@ void VymModel::deleteXLinkInt(XLink *xlink)
     XLinkItem *xli;
     xli = xlink->beginXLinkItem();
     if (xli) {
-        qDebug() << "  Removing beginXLinkItem";
-        xlink->unsetXLinkItem(xli);
+        xli->setXLink(nullptr);
         deleteItem(xli);
     }
     xli = xlink->endXLinkItem();
     if (xli) {
-        qDebug() << "  Removing endXLinkItem";
-        xlink->unsetXLinkItem(xli);
+        xli->setXLink(nullptr);
         deleteItem(xli);
     }
 
-    qDebug() << "  Trying to remove " << xlink;
     // Remove from list of items and delete xlink itself, including XLinkObj
     if (xlinks.removeOne(xlink))
         delete (xlink);

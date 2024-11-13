@@ -24,7 +24,7 @@ XLink::XLink(VymModel *m)
 
 XLink::~XLink()
 {
-    qDebug() << "* Destr Link begin this=" << this;
+    // std::cout << "Destr XLink" << this << std::endl << std::flush;
 
     delete (xlo);
 
@@ -44,7 +44,7 @@ void XLink::init()
     endBranch = nullptr;
     beginXLinkItemInt = nullptr;
     endXLinkItemInt = nullptr;
-    xLinkState = XLink::undefinedXLink;
+    stateInt = XLink::undefinedXLink;
 
     type = Bezier;
     pen = model->mapDesign()->defXLinkPen();
@@ -68,7 +68,7 @@ XLinkWrapper* XLink::xlinkWrapper()
 void XLink::setBeginBranch(BranchItem *bi)
 {
     if (bi) {
-        xLinkState = initXLink;
+        stateInt = initXLink;
         beginBranch = bi;
     }
 }
@@ -93,7 +93,7 @@ void XLink::setEndPoint(QPointF p)
 void XLink::setBeginXLinkItem(XLinkItem *li)
 {
     if (li) {
-        xLinkState = initXLink;
+        stateInt = initXLink;
         beginXLinkItemInt = li;
     }
 }
@@ -103,7 +103,7 @@ XLinkItem *XLink::beginXLinkItem() { return beginXLinkItemInt;}
 void XLink::setEndXLinkItem(XLinkItem *li)
 {
     if (li) {
-        xLinkState = initXLink;
+        stateInt = initXLink;
         endXLinkItemInt = li;
     }
 }
@@ -119,12 +119,14 @@ void XLink::setPen(const QPen &p)
 
 void XLink::unsetXLinkItem(XLinkItem *xli)
 {
+    // If deleting XLink is triggered from destructor of XLinkItem,
+    // VymModel will not try to delete XLinkItem a second time
     if (xli == beginXLinkItemInt) {
         beginXLinkItemInt = nullptr;
     } else if (xli == endXLinkItemInt) {
         endXLinkItemInt = nullptr;
     }
-    xLinkState = deleteXLink;
+    stateInt = deleteXLink;
 }
 
 QPen XLink::getPen() { return pen; }
@@ -176,7 +178,7 @@ bool XLink::activate()
     if (beginBranch && endBranch) {
         if (beginBranch == endBranch)
             return false;
-        xLinkState = activeXLink;
+        stateInt = activeXLink;
         if (xlo) xlo->initC1();
         model->updateActions();
         return true;
@@ -185,7 +187,7 @@ bool XLink::activate()
         return false;
 }
 
-XLink::XLinkState XLink::getState() { return xLinkState; }
+XLink::XLinkState XLink::state() { return stateInt; }
 
 void XLink::updateXLink()
 {
@@ -197,9 +199,9 @@ QString XLink::saveToDir()
 {
     //    qDebug()<<"XLink::saveToDir  this="<<this<<"
     //    beginBranch="<<beginBranch<<"  endBranch="<<endBranch<<"
-    //    state="<<xLinkState;
+    //    state="<<stateInt;
     QString s = "";
-    if (beginBranch && endBranch && xLinkState == activeXLink) {
+    if (beginBranch && endBranch && stateInt == activeXLink) {
         if (beginBranch == endBranch)
             qWarning(
                 "XLink::saveToDir  ignored, because beginBranch==endBranch, ");

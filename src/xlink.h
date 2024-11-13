@@ -24,7 +24,7 @@ class XLink: public XMLObj {
 
     XLink(VymModel *m);
     virtual ~XLink();
-    virtual void init();
+    void init();
     void setUuid(const QString &id);
     QUuid getUuid();
     VymModel *getModel();
@@ -47,7 +47,7 @@ class XLink: public XMLObj {
     void setStyleEnd(const QString &s);
     QString getStyleEndString();
     bool activate();
-    XLinkState getState();
+    XLinkState state();
     void updateXLink();
     QString saveToDir();
     XLinkObj *getXLinkObj();
@@ -56,7 +56,7 @@ class XLink: public XMLObj {
   private:
     QUuid uuid;
 
-    XLinkState xLinkState; // init during drawing or active
+    XLinkState stateInt; // init during drawing or active
     LinkType type;
     QPen pen;
 
