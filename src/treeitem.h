@@ -100,7 +100,7 @@ class TreeItem : public XMLObj {
     virtual QColor headingColor(); //! Returns color of heading
 
   public:
-    enum UrlType{GeneralUrl, JiraUrl};
+    enum UrlType{NoUrl, GeneralUrl, JiraUrl};
 
   protected:
     QString urlInt;
