@@ -61,10 +61,12 @@ class ConfluenceAgent : public QObject {
   private: void startGetPageDetailsRequest();
   private slots: void pageDetailsReceived(QNetworkReply *reply);
 
+  private: void startGetPageChildrenRequest();
+  private slots: void pageChildrenReceived(QNetworkReply *reply);
+
   private: void startCreatePageRequest();
   private: void startUpdatePageRequest();
   private slots: void pageUploaded(QNetworkReply *reply);
-
 
   private: void startGetUserInfoRequest();
   private slots: void userInfoReceived(QNetworkReply *reply);

@@ -370,6 +370,8 @@ void VymReader::readAttribute() // FIXME-5 Checking types no longer needed. Chec
     if (lastBranch && !key.isEmpty() && !type.isEmpty()) {
         if (type == "Integer")
             val = xml.attributes().value("value").toInt();
+        else if (type == "qlonglong")
+            val = xml.attributes().value("value").toLongLong();
         else if (type == "QString" || type == "String")
             val = xml.attributes().value("value").toString();
         else if (type == "QDateTime" || type == "DateTime")

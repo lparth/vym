@@ -178,6 +178,7 @@ void ConfluenceAgent::continueJob(int nextStep)
     switch(jobType) {
         case GetPageDetails:
             if (jobStep == 1) {
+                // Get pageID and spaceKey
                 startGetPageSourceRequest(pageURL);
                 return;
             }
@@ -192,13 +193,18 @@ void ConfluenceAgent::continueJob(int nextStep)
 
                     if (bi) {
                         QString h = spaceKey + ": " + pageObj["title"].toString();
-                        model->setHeading(h, bi);
+                        model->setHeadingPlainText(h, bi);
 
                         // Set labels of page as attributes
+                        model->deleteAttributesKeyStartingWith(bi, "Confluence.");
+                        model->setAttribute( bi, "Confluence.pageID", pageID);
+                        model->setAttribute( bi, "Confluence.spaceKey", spaceKey);
+
                         QJsonObject metaDataObj = pageObj["metadata"].toObject();
                         QJsonObject labelsObj = metaDataObj["labels"].toObject();
                         QJsonArray resultsArr = labelsObj["results"].toArray();
 
+                        model->setAttribute( bi, "Confluence.labels.count", resultsArr.size());
                         for (int i = 0; i < resultsArr.size(); ++i) {
                             QJsonObject ro = resultsArr[i].toObject();
                             qDebug() << "  n=" << ro["name"].toString();
@@ -212,11 +218,36 @@ void ConfluenceAgent::continueJob(int nextStep)
                     } else
                         qWarning() << "CA::continueJob couldn't find branch "
                                    << branchID;
-                } else
+                    jobStep++;  // FIXME-0 remove again. create command and code in VM
+                } else {
                     qWarning() << "CA::continueJob couldn't find model " << modelID;
-                finishJob();
+                    finishJob();
+                    return;
+                }
+            }
+
+            if (jobStep == 4) {
+                startGetPageChildrenRequest();
                 return;
             }
+
+            if (jobStep == 5) {
+                qDebug() << "Reached step 5";
+
+                // FIXME-0 remove again. create command and code in VM:
+                QJsonObject pObj = pageObj["page"].toObject();
+                QJsonArray resultsArr = pObj["results"].toArray();
+                qDebug() << "results=" << resultsArr;
+
+                for (int i = 0; i < resultsArr.size(); ++i) {
+                    QJsonObject ro = resultsArr[i].toObject();
+                    qDebug() << "  n=" << ro["title"].toString() << ro["id"].toString();
+                }
+            }
+
+            finishJob();
+            return;
+
             unknownStepWarningFinishJob();
             return;
 
@@ -587,6 +618,46 @@ void ConfluenceAgent::pageDetailsReceived(QNetworkReply *reply)
 
     pageObj = jsdoc.object();
     cout << jsdoc.toJson(QJsonDocument::Indented).toStdString();
+
+    continueJob();
+}
+
+void ConfluenceAgent::startGetPageChildrenRequest()
+{
+    if (debug) qDebug() << "CA::startGetPageChildrenRequest" << pageID;
+
+    // Authentication in URL  (only SSL!)
+    QString url = "https://"
+        + baseURL + apiURL
+        + "/content/" + pageID + "/child?expand=page";
+
+    QNetworkRequest request = createRequest(url);
+
+    connect(networkManager, &QNetworkAccessManager::finished,
+        this, &ConfluenceAgent::pageChildrenReceived);
+
+    killTimer->start();
+
+    networkManager->get(request);
+}
+
+void ConfluenceAgent::pageChildrenReceived(QNetworkReply *reply)
+{
+    if (debug) qDebug() << "CA::pageChildrenReceived";
+
+    killTimer->stop();
+    networkManager->disconnect();
+    reply->deleteLater();
+
+    QByteArray fullReply = reply->readAll();
+    if (!wasRequestSuccessful(reply, "receive page children", fullReply))
+        return;
+
+    QJsonDocument jsdoc;
+    jsdoc = QJsonDocument::fromJson(fullReply);
+
+    //cout << jsdoc.toJson(QJsonDocument::Indented).toStdString();
+    pageObj = jsdoc.object();
 
     continueJob();
 }
