@@ -880,7 +880,6 @@ bool VymModel::isSaving()
 
 void VymModel::zipFinished()
 {
-    //qDebug() << "VM::zipFinished exitStatus=" << zipAgent->exitStatus() << " exitCode=" << zipAgent->exitCode();
     // Cleanup
     QString log = QString("Finished zipping %1 to %2").arg(zipAgent->zipDir().path(), zipAgent->zipName());
     logInfo(log, __func__);
@@ -1294,9 +1293,9 @@ void VymModel::autosave()
     if (mapUnsaved && mapChanged && mainWindow->useAutosave() && !testmode) {
         if (QFileInfo(filePath).lastModified() <= fileChangedTime) {
             logInfo("Autosave starting", __func__);
-            mainWindow->fileSave(this);
+            mainWindow->fileSave(this);	// FIXME-2 why redirecting via mainWindow?
         } else if (debug)
-            qDebug() << "  ME::autosave  rejected, file on disk is newer than "
+            qDebug() << "  VM::autosave  rejected, file on disk is newer than "
                         "last save.\n";
     }
 }
@@ -4673,7 +4672,6 @@ TreeItem *VymModel::deleteItem(TreeItem *ti)
 {
     if (ti) {
         TreeItem *pi = ti->parent();
-        qDebug()<<"VM::deleteItem  start ti=" << ti << "  " << ti->headingText();
 
         bool wasAttribute = ti->hasTypeAttribute();
         TreeItem *parentItem = ti->parent();
@@ -7638,10 +7636,27 @@ void VymModel::updateSlideSelection(QItemSelection newsel, QItemSelection)
     }
 }
 
+void VymModel::logDebug(const QString &comment, const QString &caller)
+{
+    QString place = QString("\"%1\"").arg(fileName);
+    if (!caller.isEmpty()) place += "  Called by: " + caller + "()";
+
+    QString log = QString("\n// %1 [Debug] %2\n// MapID: %3 Map: %4").arg(
+            QDateTime::currentDateTime().toString(Qt::ISODateWithMs),
+            comment,
+            QString::number(modelIdInt),
+            place);
+
+    std::cout << log.toStdString() << std::endl << std::flush;
+
+    if (!useActionLog) return;
+
+    appendStringToFile(actionLogPath, log);
+}
+
 void VymModel::logInfo(const QString &comment, const QString &caller)
 {
     if (!useActionLog) return;
-
 
     QString log = QString("\n// %1 [Info VymModel::%2] %3\n// MapID: %4 Map: %5\n").arg(
             QDateTime::currentDateTime().toString(Qt::ISODateWithMs),
@@ -7651,13 +7666,13 @@ void VymModel::logInfo(const QString &comment, const QString &caller)
             mapName
     );
 
+    std::cout << log.toStdString() << std::endl << std::flush;
+
     appendStringToFile(actionLogPath, log);
 }
 
 void VymModel::logCommand(const QString &command, const QString &comment, const QString &caller)
 {
-    if (!useActionLog) return;
-
     QString place = QString("\"%1\"").arg(fileName);
     if (!caller.isEmpty()) place += "  Called by: " + caller + "()";
 
@@ -7666,6 +7681,10 @@ void VymModel::logCommand(const QString &command, const QString &comment, const 
             comment,
             QString::number(modelIdInt),
             place);
+
+    std::cout << log.toStdString() << std::endl << std::flush;
+
+    if (!useActionLog) return;
 
     appendStringToFile(actionLogPath, log + "\n" + command + "\n");
 }
