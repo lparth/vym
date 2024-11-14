@@ -176,7 +176,7 @@ void ConfluenceAgent::continueJob(int nextStep)
     // qDebug() << "CA::contJob " << jobType << " Step: " << jobStep;
 
     switch(jobType) {
-        case CopyPagenameToHeading:
+        case GetPageDetails:
             if (jobStep == 1) {
                 startGetPageSourceRequest(pageURL);
                 return;
@@ -193,6 +193,22 @@ void ConfluenceAgent::continueJob(int nextStep)
                     if (bi) {
                         QString h = spaceKey + ": " + pageObj["title"].toString();
                         model->setHeading(h, bi);
+
+                        // Set labels of page as attributes
+                        QJsonObject metaDataObj = pageObj["metadata"].toObject();
+                        QJsonObject labelsObj = metaDataObj["labels"].toObject();
+                        QJsonArray resultsArr = labelsObj["results"].toArray();
+
+                        for (int i = 0; i < resultsArr.size(); ++i) {
+                            QJsonObject ro = resultsArr[i].toObject();
+                            qDebug() << "  n=" << ro["name"].toString();
+                            model->setAttribute(
+                                    bi,
+                                    QString("Confluence.label-%1").arg(i),
+                                    ro["name"].toString()
+                                    );
+                        }
+
                     } else
                         qWarning() << "CA::continueJob couldn't find branch "
                                    << branchID;
@@ -570,7 +586,7 @@ void ConfluenceAgent::pageDetailsReceived(QNetworkReply *reply)
     jsdoc = QJsonDocument::fromJson(fullReply);
 
     pageObj = jsdoc.object();
-    // cout << jsdoc.toJson(QJsonDocument::Indented).toStdString();
+    cout << jsdoc.toJson(QJsonDocument::Indented).toStdString();
 
     continueJob();
 }

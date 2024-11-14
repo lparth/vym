@@ -470,6 +470,7 @@ class VymModel : public TreeModel {
             const QVariant &v,
             bool removeIfEmpty = true);
     void deleteAttribute(BranchItem *dst, const QString &k);
+    void deleteAttributesKeyStartingWith(BranchItem *dst, const QString &k);
     AttributeItem* getAttributeByKey(const QString &key, TreeItem *ti = nullptr);
 
     //! \brief Add new mapcenter

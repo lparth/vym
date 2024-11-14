@@ -3946,6 +3946,22 @@ void VymModel::deleteAttribute(BranchItem *dst, const QString &key)
     }
 }
 
+void VymModel::deleteAttributesKeyStartingWith(BranchItem *dst, const QString &key_start)
+{
+    AttributeItem *ai;
+
+    for (int i = 0; i < dst->attributeCount(); i++) {
+        // Check if there is already an attribute with same key
+        ai = dst->getAttributeNum(i);
+        if (ai->key().startsWith(key_start))
+        {
+            // Key exists, delete attribute
+            deleteItem(ai);
+            break;
+        }
+    }
+}
+
 AttributeItem *VymModel::getAttributeByKey(const QString &key, TreeItem *ti)
 {
     TreeItem *selti = getSelectedItem(ti);
@@ -5363,7 +5379,7 @@ void VymModel::setHeadingConfluencePageName()
 
             ConfluenceAgent *ca_setHeading = new ConfluenceAgent(selbi);
             ca_setHeading->setPageURL(url);
-            ca_setHeading->setJobType(ConfluenceAgent::CopyPagenameToHeading);
+            ca_setHeading->setJobType(ConfluenceAgent::GetPageDetails);
             ca_setHeading->startJob();
         }
     }
@@ -7658,12 +7674,12 @@ void VymModel::logInfo(const QString &comment, const QString &caller)
 {
     if (!useActionLog) return;
 
-    QString log = QString("\n// %1 [Info VymModel::%2] %3\n// MapID: %4 Map: %5\n").arg(
+    QString log = QString("\n// %1 [Info VymModel::%2 \"%3\"] %4").arg(
             QDateTime::currentDateTime().toString(Qt::ISODateWithMs),
             caller,
-            comment,
-            QString::number(modelIdInt),
-            mapName
+            fileName,
+            comment
+//            QString::number(modelIdInt)
     );
 
     std::cout << log.toStdString() << std::endl << std::flush;

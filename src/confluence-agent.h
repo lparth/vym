@@ -20,7 +20,7 @@ class ConfluenceAgent : public QObject {
   public:
     enum JobType {
         Undefined,
-        CopyPagenameToHeading,
+        GetPageDetails,
         CreatePage,
         UpdatePage,
         UploadAttachments,
