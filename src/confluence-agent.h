@@ -21,6 +21,7 @@ class ConfluenceAgent : public QObject {
     enum JobType {
         Undefined,
         GetPageDetails,
+        GetPageDetailsRecursively,
         CreatePage,
         UpdatePage,
         UploadAttachments,
@@ -37,6 +38,11 @@ class ConfluenceAgent : public QObject {
     void setBranch(BranchItem *bi);
     void setModelID(uint id);
     void setPageURL(const QString &u);
+
+  private:
+    int originalPageIndexInt;
+  public:  
+    void setOriginalPageIndex(const int &i);
     void setNewPageName(const QString &t);
     void setUploadPagePath(const QString &fp);
     void addUploadAttachmentPath(const QString &fp);

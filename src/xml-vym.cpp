@@ -368,7 +368,7 @@ void VymReader::readAttribute() // FIXME-5 Checking types no longer needed. Chec
     QString type = xml.attributes().value("type").toString();   // May be empty!
     QVariant val;
     if (lastBranch && !key.isEmpty() && !type.isEmpty()) {
-        if (type == "Integer")
+        if (type == "Integer" || type == "int")
             val = xml.attributes().value("value").toInt();
         else if (type == "qlonglong")
             val = xml.attributes().value("value").toLongLong();

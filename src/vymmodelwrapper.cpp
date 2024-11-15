@@ -384,7 +384,15 @@ bool VymModelWrapper::loadDataInsert(QString fileName, int pos, BranchWrapper *b
 
 void VymModelWrapper::newBranchIterator(const QString &itname, bool deepLevelsFirst)
 {
-    model->newBranchIterator(itname, nullptr, deepLevelsFirst);
+    BranchItem *bi = model->getSelectedBranch();
+    if (!bi) {
+        mainWindow->abortScript(
+                QJSValue::GenericError,
+                "No branch selected");
+        return;
+    }
+
+    model->newBranchIterator(itname, bi, deepLevelsFirst);
 }
 
 BranchWrapper* VymModelWrapper::nextBranch(const QString &itname)
@@ -613,7 +621,7 @@ void VymModelWrapper::setDefaultLinkColor(const QString &color)
 
 void VymModelWrapper::setHeadingConfluencePageName()
 {
-    model->setHeadingConfluencePageName();
+    model->setConfluencePageDetails(false);
 }
 
 void VymModelWrapper::setAnimCurve(int n)

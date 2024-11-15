@@ -848,7 +848,7 @@ void Main::setupAPI()
     c = new Command("selectToggle", Command::BranchOrImageSel, Command::BoolPar);
     modelCommands.append(c);
 
-    c = new Command("setHeadingConfluencePageName", Command::BranchSel);
+    c = new Command("setHeadingConfluencePageName", Command::BranchSel);    // FIXME-2 adapt name and add recursie command
     modelCommands.append(c);
 
     c = new Command("setAnimCurve", Command::AnySel);
@@ -1071,6 +1071,11 @@ void Main::setupAPI()
     c = new Command("hasActiveFlag", Command::TreeItemSel, Command::BoolPar);
     c->addParameter(Command::StringPar, false, "Name of flag");
     c->setComment("Check if branch has an active flag with given name");
+    branchCommands.append(c);
+
+    c = new Command("hasAttributeWithKey", Command::TreeItemSel, Command::BoolPar);
+    c->addParameter(Command::StringPar, false, "Key");
+    c->setComment("Check if branch has an attribute with given key");
     branchCommands.append(c);
 
     c = new Command("hasNote", Command::BranchSel, Command::BoolPar);
@@ -2158,16 +2163,25 @@ void Main::setupEditActions()
     actionGetJiraDataSubtree = a;
 
     tag = "Confluence";
-    a = new QAction(tr("Get page name from Confluence", "Edit menu"),
+    a = new QAction(tr("Get page name and details from Confluence", "Edit menu"),
                     this);
     //    a->setShortcut ( Qt::Key_J | Qt::CTRL);
     //    a->setShortcutContext (Qt::WindowShortcut);
-    //    switchboard.addSwitch ("mapUpdateSubTreeFromJira", shortcutScope, a,
-    //    tag);
+    //    switchboard.addSwitch ("mapUpdateSubTreeFromJira", shortcutScope, a, tag);
     addAction(a);
-    connect(a, SIGNAL(triggered()), this, SLOT(setHeadingConfluencePageName()));
+    connect(a, SIGNAL(triggered()), this, SLOT(getConfluencePageDetails()));
     actionListBranches.append(a);
-    actionGetConfluencePageName = a;
+    actionGetConfluencePageDetails = a;
+
+    a = new QAction(tr("Get page name and details from Confluence for child pages", "Edit menu"),
+                    this);
+    //    a->setShortcut ( Qt::Key_J | Qt::CTRL);
+    //    a->setShortcutContext (Qt::WindowShortcut);
+    //    switchboard.addSwitch ("mapUpdateSubTreeFromJira", shortcutScope, a, tag);
+    addAction(a);
+    connect(a, SIGNAL(triggered()), this, SLOT(getConfluencePageDetailsRecursively()));
+    actionListBranches.append(a);
+    actionGetConfluencePageDetailsRecursively = a;
 
     tag = tr("vymlinks - linking maps", "Shortcuts");
     a = new QAction(QPixmap(":/flag-vymlink.png"),
@@ -2892,7 +2906,8 @@ void Main::setupConnectActions()
     connect(a, SIGNAL(triggered()), this, SLOT(getConfluenceUser()));
     actionConnectGetConfluenceUser = a;
 
-    connectMenu->addAction(actionGetConfluencePageName);
+    connectMenu->addAction(actionGetConfluencePageDetails);
+    connectMenu->addAction(actionGetConfluencePageDetailsRecursively);
     connectMenu->addAction(actionGetJiraDataSubtree);
 
     connectMenu->addSeparator();
@@ -3661,7 +3676,8 @@ void Main::setupContextMenus()
     branchLinksContextMenu->addAction(actionGetURLsFromNote);
     branchLinksContextMenu->addAction(actionHeading2URL);
     branchLinksContextMenu->addAction(actionGetJiraDataSubtree);
-    branchLinksContextMenu->addAction(actionGetConfluencePageName);
+    branchLinksContextMenu->addAction(actionGetConfluencePageDetails);
+    branchLinksContextMenu->addAction(actionGetConfluencePageDetailsRecursively);
     branchLinksContextMenu->addSeparator();
     branchLinksContextMenu->addAction(actionOpenVymLink);
     branchLinksContextMenu->addAction(actionOpenVymLinkBackground);
@@ -5180,11 +5196,18 @@ void Main::getJiraDataSubtree()
         m->getJiraData(true);
 }
 
-void Main::setHeadingConfluencePageName()
+void Main::getConfluencePageDetails()
 {
     VymModel *m = currentModel();
     if (m)
-        m->setHeadingConfluencePageName();
+        m->setConfluencePageDetails(false);
+}
+
+void Main::getConfluencePageDetailsRecursively()
+{
+    VymModel *m = currentModel();
+    if (m)
+        m->setConfluencePageDetails(true);
 }
 
 void Main::getConfluenceUser()
@@ -6737,12 +6760,14 @@ void Main::updateActions()
 
     if (ConfluenceAgent::available())
     {
-        actionGetConfluencePageName->setEnabled(true);
+        actionGetConfluencePageDetails->setEnabled(true);
+        actionGetConfluencePageDetailsRecursively->setEnabled(true);
         actionConnectGetConfluenceUser->setEnabled(true);
         actionFileExportConfluence->setEnabled(true);
     } else
     {
-        actionGetConfluencePageName->setEnabled(false);
+        actionGetConfluencePageDetails->setEnabled(false);
+        actionGetConfluencePageDetailsRecursively->setEnabled(false);
         actionConnectGetConfluenceUser->setEnabled(false);
         actionFileExportConfluence->setEnabled(false);
     }
@@ -6981,15 +7006,15 @@ void Main::updateActions()
                 if (url.isEmpty()) {
                     actionOpenURL->setEnabled(false);
                     actionOpenURLTab->setEnabled(false);
-                    actionGetConfluencePageName->setEnabled(false);
+                    actionGetConfluencePageDetails->setEnabled(false);
                 }
                 else {
                     actionOpenURL->setEnabled(true);
                     actionOpenURLTab->setEnabled(true);
                     if (ConfluenceAgent::available())
-                        actionGetConfluencePageName->setEnabled(true);
+                        actionGetConfluencePageDetails->setEnabled(true);
                     else
-                        actionGetConfluencePageName->setEnabled(false);
+                        actionGetConfluencePageDetails->setEnabled(false);
                 }
 
                 if (selti && selti->vymLink().isEmpty()) {

@@ -580,7 +580,7 @@ class VymModel : public TreeModel {
     void processJiraJqlQuery(QJsonObject);
 
   public:
-    void setHeadingConfluencePageName(); // get page details from Confluence
+    void setConfluencePageDetails(bool recursive); // get page details from Confluence
     void setVymLink(const QString &, BranchItem *bi = nullptr);    // Set vymLink for selection
     void deleteVymLink();                // delete link to another map
     QString getVymLink();                // return path to map

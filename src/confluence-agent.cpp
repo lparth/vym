@@ -77,9 +77,13 @@ void ConfluenceAgent::init()
 
     QObject::connect(killTimer, SIGNAL(timeout()), this, SLOT(timeout()));
 
-    apiURL = baseURL + "/rest/api";
+    apiURL = "/rest/api";
     baseURL = settings.value("/atlassian/confluence/url", "baseURL").toString();
     
+    // If pages are created recursively, ordering might be wrong
+    // Save original inded before starting retrieval
+    originalPageIndexInt = -1;
+
     // Attachments
     attachmentsAgent = nullptr;
     currentUploadAttachmentIndex = -1;
@@ -134,6 +138,11 @@ void ConfluenceAgent::setPageURL(const QString &u)
     pageURL = u;
 }
 
+void ConfluenceAgent::setOriginalPageIndex(const int &i)
+{
+    originalPageIndexInt = i;
+}
+
 void ConfluenceAgent::setNewPageName(const QString &t)
 {
     newPageName = t;
@@ -177,6 +186,7 @@ void ConfluenceAgent::continueJob(int nextStep)
 
     switch(jobType) {
         case GetPageDetails:
+        case GetPageDetailsRecursively:
             if (jobStep == 1) {
                 // Get pageID and spaceKey
                 startGetPageSourceRequest(pageURL);
@@ -192,13 +202,17 @@ void ConfluenceAgent::continueJob(int nextStep)
                     BranchItem *bi = (BranchItem *)(model->findID(branchID));
 
                     if (bi) {
-                        QString h = spaceKey + ": " + pageObj["title"].toString();
+                        QString title = pageObj["title"].toString();
+                        QString h = spaceKey + ": " + title;
                         model->setHeadingPlainText(h, bi);
+                        model->setAttribute( bi, "Confluence.title", title);
 
                         // Set labels of page as attributes
                         model->deleteAttributesKeyStartingWith(bi, "Confluence.");
                         model->setAttribute( bi, "Confluence.pageID", pageID);
                         model->setAttribute( bi, "Confluence.spaceKey", spaceKey);
+                        if (originalPageIndexInt > -1)
+                            model->setAttribute( bi, "Confluence.childIndex", originalPageIndexInt);
 
                         QJsonObject metaDataObj = pageObj["metadata"].toObject();
                         QJsonObject labelsObj = metaDataObj["labels"].toObject();
@@ -218,6 +232,11 @@ void ConfluenceAgent::continueJob(int nextStep)
                     } else
                         qWarning() << "CA::continueJob couldn't find branch "
                                    << branchID;
+                    if (jobType == GetPageDetails) {
+                        finishJob();
+                        return;
+                    }
+
                     jobStep++;  // FIXME-0 remove again. create command and code in VM
                 } else {
                     qWarning() << "CA::continueJob couldn't find model " << modelID;
@@ -244,17 +263,33 @@ void ConfluenceAgent::continueJob(int nextStep)
                         for (int i = 0; i < resultsArr.size(); ++i) {
                             QJsonObject ro = resultsArr[i].toObject();
                             //qDebug() << "  n=" << ro["title"].toString() << ro["id"].toString();
-                            model->setAttribute(
-                                    bi,
-                                    QString("Confluence.child-%1.title").arg(i),
-                                    ro["title"].toString()
-                            );
-                            model->setAttribute(
-                                    bi,
-                                    QString("Confluence.child-%1.id").arg(i),
-                                    ro["id"].toString()
-                            );
+                            QString childTitle = ro["title"].toString();
+                            QString childId = ro["id"].toString();
+                            model->setAttribute( bi, QString("Confluence.child-%1.title").arg(i), childTitle);
+                            model->setAttribute( bi, QString("Confluence.child-%1.id").arg(i), childId);
+
+                            if (true) {
+                                // Recursively create branches for child pages
+                                // Warning: Branches might be created in a different order
+                                //          than pages.
+                                BranchItem *newbi = model->addNewBranch(bi);
+                                if (newbi) {
+                                    newbi->setHeadingPlainText(childTitle);
+                                    qDebug() << "  * newbi " << childTitle;
+                                    qDebug() << "          " << childId;
+                                    QString newUrl = "https://" + baseURL + "/pages/viewpage.action?pageId=" + childId;
+                                    // Set Url, but do not update from cloud in VymModel
+                                    model->setUrl(newUrl, false, newbi);
+
+                                    ConfluenceAgent *ca_setHeading = new ConfluenceAgent(newbi);
+                                    ca_setHeading->setPageURL(newUrl);
+                                    ca_setHeading->setJobType(ConfluenceAgent::GetPageDetails);
+                                    ca_setHeading->setOriginalPageIndex(i);
+                                    ca_setHeading->startJob();
+                                }
+                            }
                         }
+
                     } else
                         qWarning() << "CA::continueJob couldn't find branch "
                                    << branchID;
@@ -671,7 +706,7 @@ void ConfluenceAgent::pageChildrenReceived(QNetworkReply *reply)
     QJsonDocument jsdoc;
     jsdoc = QJsonDocument::fromJson(fullReply);
 
-    //cout << jsdoc.toJson(QJsonDocument::Indented).toStdString();
+    cout << jsdoc.toJson(QJsonDocument::Indented).toStdString();
     pageObj = jsdoc.object();
 
     if (!wasRequestSuccessful(reply, "receive page children", fullReply))

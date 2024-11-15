@@ -186,7 +186,8 @@ class Main : public QMainWindow {
     void editHeading2URL();
     void setJiraQuery();
     void getJiraDataSubtree();
-    void setHeadingConfluencePageName();
+    void getConfluencePageDetails();
+    void getConfluencePageDetailsRecursively();
     void getConfluenceUser();
     void openVymLinks(const QStringList &, bool background = false);
     void editVymLink();
@@ -506,7 +507,8 @@ class Main : public QMainWindow {
     QAction *actionLocalURL;
     QAction *actionHeading2URL;
     QAction *actionGetJiraDataSubtree;
-    QAction *actionGetConfluencePageName;
+    QAction *actionGetConfluencePageDetails;
+    QAction *actionGetConfluencePageDetailsRecursively;
     QAction *actionOpenVymLink;
     QAction *actionOpenVymLinkBackground;
     QAction *actionOpenMultipleVymLinks;

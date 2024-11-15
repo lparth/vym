@@ -129,7 +129,7 @@ XLinkWrapper* BranchWrapper::addXLink(BranchWrapper *bwEnd,
 int BranchWrapper::attributeAsInt(const QString &key)
 {
     QVariant v;
-    AttributeItem *ai = model()->getAttributeByKey(key);
+    AttributeItem *ai = model()->getAttributeByKey(key, branchItemInt);
     if (ai) {
         v = ai->value();
     } else {
@@ -140,6 +140,7 @@ int BranchWrapper::attributeAsInt(const QString &key)
 
     bool ok;
     int i = v.toInt(&ok);
+    qDebug() << __func__ << "  v=" << v << " ok=" << ok << " i=" << i;
     if (ok) {
         mainWindow->setScriptResult(i);
         return i;
@@ -147,14 +148,14 @@ int BranchWrapper::attributeAsInt(const QString &key)
         mainWindow->abortScript(
                 QJSValue::GenericError,
                 QString("Could not convert attribute  with key '%1' to int.").arg(key));
+        return -314;
     }
-    return -1;
 }
 
 QString BranchWrapper::attributeAsString(const QString &key)
 {
     QVariant v;
-    AttributeItem *ai = model()->getAttributeByKey(key);
+    AttributeItem *ai = model()->getAttributeByKey(key, branchItemInt);
     if (ai) {
         v = ai->value();
     } else {
@@ -376,6 +377,16 @@ bool BranchWrapper::hasActiveFlag(const QString &flag)
     bool r = branchItemInt->hasActiveFlag(flag);
     mainWindow->setScriptResult(r);
     return r;
+}
+
+bool BranchWrapper::hasAttributeWithKey(const QString &key)
+{
+    QVariant v;
+    AttributeItem *ai = model()->getAttributeByKey(key, branchItemInt);
+    if (ai)
+        return true;
+    else
+        return false;
 }
 
 bool BranchWrapper::hasNote()

@@ -2227,7 +2227,7 @@ void VymModel::setHeading(const VymText &vt, TreeItem *ti)
         selti->setHeading(vt);
         emitDataChanged(selti);
         emitUpdateQueries();
-        mainWindow->updateHeadingEditor(selti);    // Update HeadingEditor with new heading
+        mainWindow->updateHeadingEditor(selti);    // Update HeadingEditor with new heading (if required)
         reposition();
     } else
         qWarning() << "VM::setHeading has no branch or image selected!";
@@ -2478,7 +2478,7 @@ void VymModel::setUrl(QString url, bool updateFromCloud, BranchItem *bi)    // F
 
                 // Check for Confluence
                 if (bi->urlType() != TreeItem::JiraUrl)
-                    setHeadingConfluencePageName();
+                    setConfluencePageDetails(false);
             }
         } else {
             // url == ""
@@ -5368,7 +5368,7 @@ void VymModel::processJiraJqlQuery(QJsonObject jsobj)
     reposition();
 }
 
-void VymModel::setHeadingConfluencePageName()
+void VymModel::setConfluencePageDetails(bool recursive)
 {
     BranchItem *selbi = getSelectedBranch();
     if (selbi) {
@@ -5379,7 +5379,11 @@ void VymModel::setHeadingConfluencePageName()
 
             ConfluenceAgent *ca_setHeading = new ConfluenceAgent(selbi);
             ca_setHeading->setPageURL(url);
-            ca_setHeading->setJobType(ConfluenceAgent::GetPageDetails);
+            if (recursive)
+                ca_setHeading->setJobType(ConfluenceAgent::GetPageDetailsRecursively);
+            else
+                ca_setHeading->setJobType(ConfluenceAgent::GetPageDetails);
+            // FIXME-0 set recursive flag in CA
             ca_setHeading->startJob();
         }
     }
@@ -6795,11 +6799,11 @@ void VymModel::newBranchIterator(
 
     BranchItem *cur = nullptr;
     BranchItem *prev = nullptr;
-    nextBranch(cur, prev);
+    nextBranch(cur, prev, true, bi);
     while (cur) {
         branchIterators[itname].append(cur->getUuid());
         //qDebug() << "VM::newBranchIterator Adding " << headingText(cur) << " to " << itname;
-        nextBranch(cur, prev);
+        nextBranch(cur, prev, true, bi);
     }
 }
 

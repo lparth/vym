@@ -56,6 +56,7 @@ class BranchWrapper : public QObject {
     QString getUrl();
     QString getVymLink();
     bool hasActiveFlag(const QString &flag);
+    bool hasAttributeWithKey(const QString &key);
     bool hasNote();
     bool hasRichTextHeading();
     bool hasRichTextNote();
