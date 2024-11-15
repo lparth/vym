@@ -232,17 +232,33 @@ void ConfluenceAgent::continueJob(int nextStep)
             }
 
             if (jobStep == 5) {
-                qDebug() << "Reached step 5";
+                model = mainWindow->getModel(modelID);
+                if (model) {
+                    BranchItem *bi = (BranchItem *)(model->findID(branchID));
 
-                // FIXME-0 remove again. create command and code in VM:
-                QJsonObject pObj = pageObj["page"].toObject();
-                QJsonArray resultsArr = pObj["results"].toArray();
-                qDebug() << "results=" << resultsArr;
+                    if (bi) {
+                        QJsonObject pObj = pageObj["page"].toObject();
+                        QJsonArray resultsArr = pObj["results"].toArray();
 
-                for (int i = 0; i < resultsArr.size(); ++i) {
-                    QJsonObject ro = resultsArr[i].toObject();
-                    qDebug() << "  n=" << ro["title"].toString() << ro["id"].toString();
-                }
+                        model->setAttribute( bi, "Confluence.children.count", resultsArr.size());
+                        for (int i = 0; i < resultsArr.size(); ++i) {
+                            QJsonObject ro = resultsArr[i].toObject();
+                            //qDebug() << "  n=" << ro["title"].toString() << ro["id"].toString();
+                            model->setAttribute(
+                                    bi,
+                                    QString("Confluence.child-%1.title").arg(i),
+                                    ro["title"].toString()
+                            );
+                            model->setAttribute(
+                                    bi,
+                                    QString("Confluence.child-%1.id").arg(i),
+                                    ro["id"].toString()
+                            );
+                        }
+                    } else
+                        qWarning() << "CA::continueJob couldn't find branch "
+                                   << branchID;
+                } // model found
             }
 
             finishJob();
@@ -617,7 +633,7 @@ void ConfluenceAgent::pageDetailsReceived(QNetworkReply *reply)
     jsdoc = QJsonDocument::fromJson(fullReply);
 
     pageObj = jsdoc.object();
-    cout << jsdoc.toJson(QJsonDocument::Indented).toStdString();
+    //cout << jsdoc.toJson(QJsonDocument::Indented).toStdString();
 
     continueJob();
 }
@@ -629,7 +645,8 @@ void ConfluenceAgent::startGetPageChildrenRequest()
     // Authentication in URL  (only SSL!)
     QString url = "https://"
         + baseURL + apiURL
-        + "/content/" + pageID + "/child?expand=page";
+        + "/content/" + pageID + "/child?expand=page&limit=999";    // API v1
+        // + "/v2/pages/" + pageID + "/children"; //?expand=page";      // API v2
 
     QNetworkRequest request = createRequest(url);
 
@@ -650,14 +667,15 @@ void ConfluenceAgent::pageChildrenReceived(QNetworkReply *reply)
     reply->deleteLater();
 
     QByteArray fullReply = reply->readAll();
-    if (!wasRequestSuccessful(reply, "receive page children", fullReply))
-        return;
 
     QJsonDocument jsdoc;
     jsdoc = QJsonDocument::fromJson(fullReply);
 
     //cout << jsdoc.toJson(QJsonDocument::Indented).toStdString();
     pageObj = jsdoc.object();
+
+    if (!wasRequestSuccessful(reply, "receive page children", fullReply))
+        return;
 
     continueJob();
 }
