@@ -479,9 +479,14 @@ void Main::logInfo(const QString &comment, const QString &caller)
 {
     if (!useActionLog) return;
 
-    QString log = QString("\n// %1 [Info MainWindow]").arg(QDateTime::currentDateTime().toString(Qt::ISODateWithMs));
+    QString c;
+    if (!caller.isEmpty())
+        c = "::" + caller;
 
-    appendStringToFile(actionLogPath, log + "\n// " + comment + "\n");
+    QString log = QString("\n// %1 [Info MainWindow%2] %3\n")
+        .arg(QDateTime::currentDateTime().toString(Qt::ISODateWithMs), c, comment);
+
+    appendStringToFile(actionLogPath, log);
 }
 
 void Main::statusMessage(const QString &s, int timeout)
@@ -989,6 +994,11 @@ void Main::setupAPI()
     c = new Command("cycleTask", Command::BranchOrImageSel, Command::BoolPar);
     c->addParameter(Command::BoolPar, true, "Flag to cycle in reverse order");
     c->setComment("Cycle states of task in branch. Returns false, if branch has no task");
+    branchCommands.append(c);
+
+    c = new Command("deleteConfluencePageLabel", Command::BranchSel);
+    c->addParameter(Command::StringPar, true, "Label name");
+    c->setComment("Remove label from the a branch with Confluence page details");
     branchCommands.append(c);
 
     c = new Command("getFrameType", Command::BranchSel, Command::StringPar);

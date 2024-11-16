@@ -5383,7 +5383,6 @@ void VymModel::setConfluencePageDetails(bool recursive)
                 ca_setHeading->setJobType(ConfluenceAgent::GetPageDetailsRecursively);
             else
                 ca_setHeading->setJobType(ConfluenceAgent::GetPageDetails);
-            // FIXME-0 set recursive flag in CA
             ca_setHeading->startJob();
         }
     }

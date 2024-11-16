@@ -34,6 +34,7 @@ class BranchWrapper : public QObject {
     void colorBranch(const QString &color);
     void colorSubtree(const QString &color);
     bool cycleTask(bool reverse = false);
+    void deleteConfluencePageLabel(const QString &labelName);
     int getFramePadding(const bool & useInnerFrame);
     int getFramePenWidth(const bool & useInnerFrame);
     QString getFrameType(const bool & useInnerFrame);

@@ -140,7 +140,6 @@ int BranchWrapper::attributeAsInt(const QString &key)
 
     bool ok;
     int i = v.toInt(&ok);
-    qDebug() << __func__ << "  v=" << v << " ok=" << ok << " i=" << i;
     if (ok) {
         mainWindow->setScriptResult(i);
         return i;
@@ -207,6 +206,28 @@ bool BranchWrapper::cycleTask(bool reverse)
 
     mainWindow->setScriptResult(r);
     return r;
+}
+
+#include "confluence-agent.h"
+void BranchWrapper::deleteConfluencePageLabel(const QString &labelName)
+{
+    qDebug() << __func__ << "called!";
+    AttributeItem *ai = model()->getAttributeByKey("Confluence.pageID", branchItemInt);
+    if (ai) {
+        QString pageID = ai->value().toString();
+        qDebug() << "  Found pageID in branch attributes: " << pageID;  // FIXME-2
+        ConfluenceAgent *ca_setHeading = new ConfluenceAgent(branchItemInt);
+        ca_setHeading->setPageID(pageID);
+        ca_setHeading->setLabelName(labelName);
+        ca_setHeading->setJobType(ConfluenceAgent::DeletePageLabel);
+        ca_setHeading->startJob();
+    } else {
+        qDebug() << "  No  pageID in branch attributes";    // FIXME-2
+        mainWindow->abortScript(
+                QJSValue::GenericError,
+                "No pageID found in attributes of branch. Run getConfluencePageDetails first.");
+        return;
+    }
 }
 
 int BranchWrapper::getFramePadding(const bool &useInnerFrame)

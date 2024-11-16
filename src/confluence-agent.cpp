@@ -138,9 +138,19 @@ void ConfluenceAgent::setPageURL(const QString &u)
     pageURL = u;
 }
 
+void ConfluenceAgent::setPageID(const QString &id)
+{
+    pageID =id;
+}
+
 void ConfluenceAgent::setOriginalPageIndex(const int &i)
 {
     originalPageIndexInt = i;
+}
+
+void ConfluenceAgent::setLabelName(const QString &labelName)
+{
+    labelNameInt = labelName;
 }
 
 void ConfluenceAgent::setNewPageName(const QString &t)
@@ -283,7 +293,7 @@ void ConfluenceAgent::continueJob(int nextStep)
 
                                     ConfluenceAgent *ca_setHeading = new ConfluenceAgent(newbi);
                                     ca_setHeading->setPageURL(newUrl);
-                                    ca_setHeading->setJobType(ConfluenceAgent::GetPageDetails);
+                                    ca_setHeading->setJobType(ConfluenceAgent::GetPageDetailsRecursively);
                                     ca_setHeading->setOriginalPageIndex(i);
                                     ca_setHeading->startJob();
                                 }
@@ -298,6 +308,21 @@ void ConfluenceAgent::continueJob(int nextStep)
 
             finishJob();
             return;
+
+            unknownStepWarningFinishJob();
+            return;
+
+        case DeletePageLabel:
+            if (jobStep == 1) {
+                // FIXME-0 check if pageID is set
+                startDeleteLabelRequest();
+                return;
+            }
+
+            if (jobStep == 2) {
+                finishJob();
+                return;
+            }
 
             unknownStepWarningFinishJob();
             return;
@@ -668,7 +693,7 @@ void ConfluenceAgent::pageDetailsReceived(QNetworkReply *reply)
     jsdoc = QJsonDocument::fromJson(fullReply);
 
     pageObj = jsdoc.object();
-    //cout << jsdoc.toJson(QJsonDocument::Indented).toStdString();
+    cout << jsdoc.toJson(QJsonDocument::Indented).toStdString();
 
     continueJob();
 }
@@ -710,6 +735,47 @@ void ConfluenceAgent::pageChildrenReceived(QNetworkReply *reply)
     pageObj = jsdoc.object();
 
     if (!wasRequestSuccessful(reply, "receive page children", fullReply))
+        return;
+
+    continueJob();
+}
+
+void ConfluenceAgent::startDeleteLabelRequest()
+{
+    if (debug) qDebug() << "CA::startDeleteLabelRequest" << pageID;
+
+    // Authentication in URL  (only SSL!)
+    QString url = "https://"
+        + baseURL + apiURL
+        + "/content/" + pageID + "/label/" + labelNameInt;    // API v1
+
+    QNetworkRequest request = createRequest(url);
+
+    connect(networkManager, &QNetworkAccessManager::finished,
+        this, &ConfluenceAgent::deleteLabelResponseReceived);
+
+    killTimer->start();
+
+    networkManager->deleteResource(request);
+}
+
+void ConfluenceAgent::deleteLabelResponseReceived(QNetworkReply *reply)
+{
+    if (debug) qDebug() << "CA::deleteLabelResponseReceived";
+
+    killTimer->stop();
+    networkManager->disconnect();
+    reply->deleteLater();
+
+    QByteArray fullReply = reply->readAll();
+
+    QJsonDocument jsdoc;
+    jsdoc = QJsonDocument::fromJson(fullReply);
+
+    cout << jsdoc.toJson(QJsonDocument::Indented).toStdString();
+    pageObj = jsdoc.object();
+
+    if (!wasRequestSuccessful(reply, "received delete label response", fullReply))
         return;
 
     continueJob();
