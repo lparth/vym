@@ -250,7 +250,7 @@ void ConfluenceAgent::continueJob(int nextStep)
                         return;
                     }
 
-                    jobStep++;  // FIXME-0 remove again. create command and code in VM
+                    jobStep++;
                 } else {
                     qWarning() << "CA::continueJob couldn't find model " << modelID;
                     finishJob();
@@ -317,7 +317,7 @@ void ConfluenceAgent::continueJob(int nextStep)
 
         case DeletePageLabel:
             if (jobStep == 1) {
-                // FIXME-0 check if pageID is set
+                // FIXME-2 check if pageID is set
                 startDeleteLabelRequest();
                 return;
             }
