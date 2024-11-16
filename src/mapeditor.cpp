@@ -2524,8 +2524,10 @@ void MapEditor::mouseReleaseEvent(QMouseEvent *e)
     movingItems.clear();
     QGraphicsView::mouseReleaseEvent(e);
 
-    if (repositionNeeded)
+    if (repositionNeeded) {
         model->reposition();    // FIXME-3 really reposition whole model? Or only affected MapCenters?
+        minimizeView();
+    }
 }
 
 void MapEditor::mouseDoubleClickEvent(QMouseEvent *e)
