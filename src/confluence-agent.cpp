@@ -231,13 +231,16 @@ void ConfluenceAgent::continueJob(int nextStep)
                         model->setAttribute( bi, "Confluence.labels.count", resultsArr.size());
                         for (int i = 0; i < resultsArr.size(); ++i) {
                             QJsonObject ro = resultsArr[i].toObject();
-                            qDebug() << "  n=" << ro["name"].toString();
-                            model->setAttribute(
-                                    bi,
-                                    QString("Confluence.label-%1").arg(i),
-                                    ro["name"].toString()
-                                    );
+                            model->setAttribute( bi, QString("Confluence.label-%1").arg(i), ro["name"].toString());
                         }
+
+                        QJsonObject versionObj = pageObj["version"].toObject();
+                        QString timestamp = versionObj["when"].toString();
+                        QJsonObject byObj = versionObj["by"].toObject();
+                        QString author = byObj["displayName"].toString();
+                        //qDebug() << bi->headingText() << " changed at " << timestamp << " by " << author;
+                        model->setAttribute( bi, QString("Confluence.lastChanged"), timestamp);
+                        model->setAttribute( bi, QString("Confluence.lastAuthor"), author);
 
                     } else
                         qWarning() << "CA::continueJob couldn't find branch "
