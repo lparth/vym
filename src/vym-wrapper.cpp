@@ -22,7 +22,12 @@ extern bool usingDarkTheme;
 
 VymWrapper::VymWrapper()
 {
-    // qDebug() << "Constr. VymWrapper";
+    qDebug() << "Constr. VymWrapper";
+}
+
+VymWrapper::~VymWrapper()
+{
+    qDebug() << "Destr. VymWrapper";
 }
 
 void VymWrapper::clearConsole() { mainWindow->clearScriptOutput(); }
@@ -49,7 +54,13 @@ QString VymWrapper::currentColor()
 
 QObject *VymWrapper::currentMap()
 {
-    return mainWindow->getCurrentModelWrapper();
+    QObject * mw = mainWindow->getCurrentModelWrapper();
+    if (!mw) {
+        mainWindow->abortScript(
+                QJSValue::ReferenceError,
+                "No current model available");
+    }
+    return mw;
 }
 
 void VymWrapper::editHeading()

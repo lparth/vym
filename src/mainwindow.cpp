@@ -7203,6 +7203,9 @@ QVariant Main::runScript(const QString &script)
 
     scriptResult.clear();
 
+    qDebug() << "ok0";
+    qDebug() << __func__ << " vymWrapper=" << vymWrapper;
+
     QJSValue val2 = scriptEngine->newQObject(vymWrapper);
     scriptEngine->globalObject().setProperty("vym", val2);
 
@@ -7232,12 +7235,19 @@ QVariant Main::runScript(const QString &script)
 
     if (debug) qDebug() << "Main::runScript finished.";
 
+    // FIXME-2 testing scriptEngines
+    if (scriptEngines.last() != scriptEngine)
+        QMessageBox::warning(0, "Warning", "scriptEnginge is not last element in scriptEngines");
     if (scriptEngines.isEmpty())
         qWarning() << "MainWindow::runScript  has empty scriptEngines!";
-    else
-        scriptEngines.removeLast();
-
-    delete scriptEngine;
+    else {
+        if (!scriptEngines.removeOne(scriptEngine))
+            QMessageBox::warning(0, "Warning", "Failed to remove scriptEnginge from scriptEngines!");
+        else {
+            scriptEngine->disconnect();
+            delete scriptEngine;
+        }
+    }
 
     return QVariant("");
 }

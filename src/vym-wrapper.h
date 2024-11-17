@@ -11,6 +11,7 @@ class VymWrapper : public QObject {
     Q_OBJECT
   public:
     VymWrapper();
+    ~VymWrapper();
 
   public slots:
     void clearConsole();
