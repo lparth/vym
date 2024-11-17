@@ -223,7 +223,7 @@ QString VymWrapper::version() {
 }
 
 // See also http://doc.qt.io/qt-5/qscriptengine.html#newFunction
-Selection::Selection() { modelWrapper = nullptr; }
+Selection::Selection() { modelWrapper = nullptr; }  // FIXME-2 needed?
 
 void Selection::test()
 {
