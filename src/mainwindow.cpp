@@ -7617,17 +7617,14 @@ QUrl Main::serverUrl(const QString &scriptName)
     // Local URL for testing only
     // QString("http://localhost/release-notes.php?vymVersion=%1") /
     return QUrl(
-        QString("http://www.insilmaril.de/vym/%1?"
-                    "vymVersion=%2"
-                    "&config=darkTheme=%3+localeName=%4+buildDate=%5+codeQuality='%6'+codeName='%7'")
-            .arg(scriptName)
-            .arg(vymVersion)
-            .arg(usingDarkTheme)
-            .arg(localeName)
-            .arg(vymBuildDate)
-            .arg(vymCodeQuality)
-            .arg(vymCodeName)
-            );
+            QString("http://www.insilmaril.de/vym/%1?").arg(scriptName) +
+            QString("&vymVersion=%1").arg(vymVersion) +
+            QString("&darkTheme=%1").arg(usingDarkTheme) +
+            QString("&localeName=%1").arg(localeName) +
+            QString("&vymBuildDate=%1").arg(vymBuildDate) +
+            QString("&vymCodeQuality=%1").arg(vymCodeQuality) +
+            QString("&vymCodeName=%1").arg(vymCodeName)
+        );
 }
 
 void Main::checkReleaseNotesAndUpdates ()
