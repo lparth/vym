@@ -7207,6 +7207,10 @@ QVariant Main::runScript(const QString &script)
     qDebug() << __func__ << " vymWrapper=" << vymWrapper;
 
     QJSValue val2 = scriptEngine->newQObject(vymWrapper);
+
+    // Make sure that deleting scriptEngine later does not delete vymWrapper, too
+    scriptEngine->setObjectOwnership(vymWrapper, QJSEngine::CppOwnership);
+
     scriptEngine->globalObject().setProperty("vym", val2);
 
     QJSValue result = scriptEngine->evaluate(script);
@@ -7235,7 +7239,6 @@ QVariant Main::runScript(const QString &script)
 
     if (debug) qDebug() << "Main::runScript finished.";
 
-    // FIXME-2 testing scriptEngines
     if (scriptEngines.last() != scriptEngine)
         QMessageBox::warning(0, "Warning", "scriptEnginge is not last element in scriptEngines");
     if (scriptEngines.isEmpty())
