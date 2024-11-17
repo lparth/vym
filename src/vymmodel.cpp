@@ -6224,6 +6224,8 @@ void VymModel::reposition(bool force)
 
     repositionXLinks();
 
+    mapEditor->minimizeView();  // FIXME-2 really needed every time?
+
     // FIXME-4 needed? everytime? mapEditor->minimizeView();
     //qDebug() << "VM::reposition end";
     if (force)
