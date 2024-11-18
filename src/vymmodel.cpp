@@ -1290,7 +1290,7 @@ void VymModel::autosave()
         return;
     }
 
-    if (mapUnsaved && mapChanged && mainWindow->useAutosave() && !testmode) {
+    if (mapUnsaved && mapChanged && !testmode) {
         if (QFileInfo(filePath).lastModified() <= fileChangedTime) {
             logInfo("Autosave starting", __func__);
             mainWindow->fileSave(this);	// FIXME-2 why redirecting via mainWindow?
