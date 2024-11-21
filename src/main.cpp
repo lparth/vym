@@ -120,6 +120,7 @@ ImageIO imageIO;
 
 bool usingDarkTheme;    // Influences some color schemes
 bool systemSeemsDark;   // Text brighter than background?
+QString iconPrefix;     // "dark-" when usingDarkTheme
 QColor vymBlue;
 
 int warningCount = 0;
@@ -351,9 +352,12 @@ int main(int argc, char *argv[])
     systemSeemsDark = (text_hsv_value > bg_hsv_value);
     QString settingsDarkTheme = settings.value("/system/darkTheme", "system").toString();
     usingDarkTheme = false; // FIXME-2 bright theme cannot be enforced (at least on Linux, KDE settings are used)
+    iconPrefix = "bright-";
     if (settingsDarkTheme != "never") {
-        if (settingsDarkTheme == "always" || (settingsDarkTheme == "system" && systemSeemsDark))
+        if (settingsDarkTheme == "always" || (settingsDarkTheme == "system" && systemSeemsDark)) {
             usingDarkTheme = true;
+            iconPrefix = "dark-";
+        }
     }
 
 #if defined(Q_OS_WINDOWS)
