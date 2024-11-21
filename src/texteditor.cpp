@@ -802,8 +802,6 @@ void TextEditor::deleteAll()
 void TextEditor::textSaveAs()
 {
     QTextCharFormat f = e->currentCharFormat();
-    qDebug() << "TE::textSave cf  fg=" << f.foreground().color() << " bg=" << f.background().color() << " valid=" << f.isValid();
-    return;
 
     QString caption = tr("Export Note to single file");
     QString fn = QFileDialog::getSaveFileName(
