@@ -118,7 +118,8 @@ QList<Command *> xlinkCommands;
 Options options;
 ImageIO imageIO;
 
-bool usingDarkTheme;
+bool usingDarkTheme;    // Influences some color schemes
+bool systemSeemsDark;   // Text brighter than background?
 QColor vymBlue;
 
 int warningCount = 0;
@@ -347,9 +348,9 @@ int main(int argc, char *argv[])
     // Use dark theme depending on system appearance and preferences
     int text_hsv_value = app.palette().color(QPalette::WindowText).value();
     int bg_hsv_value = app.palette().color(QPalette::Base).value();
-    bool systemSeemsDark = (text_hsv_value > bg_hsv_value);
+    systemSeemsDark = (text_hsv_value > bg_hsv_value);
     QString settingsDarkTheme = settings.value("/system/darkTheme", "system").toString();
-    usingDarkTheme = false;
+    usingDarkTheme = false; // FIXME-2 bright theme cannot be enforced (at least on Linux, KDE settings are used)
     if (settingsDarkTheme != "never") {
         if (settingsDarkTheme == "always" || (settingsDarkTheme == "system" && systemSeemsDark))
             usingDarkTheme = true;

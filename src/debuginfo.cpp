@@ -11,6 +11,7 @@
 #include "settings.h"
 
 extern bool usingDarkTheme;
+extern bool systemSeemsDark;
 extern QString vymVersion;
 
 extern QString vymVersion;
@@ -51,7 +52,7 @@ QString debugInfo()
     s += QString("use actionLog: %1\n").arg(useActionLog);
     s += QString("actionLogPath: %1\n").arg(actionLogPath);
     s += QString("     Settings: %1\n\n").arg(settings.fileName());
-    s += QString("   Dark theme: %1\n").arg(usingDarkTheme);
+    s += QString("   Dark theme: %1   System seems dark: %2\n").arg(usingDarkTheme).arg(systemSeemsDark);
     s += QString("Avail. styles: %1\n\n").arg(QStyleFactory::keys().join(","));
     s += " SSL status: ";
     QSslSocket::supportsSsl() ? s += "supported\n" : s += "not supported\n";
