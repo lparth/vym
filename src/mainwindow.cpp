@@ -6664,8 +6664,8 @@ void Main::updateHeadingEditor(TreeItem *ti)  // FIXME-2 If (ti && ti != selecte
         // Color settings, also to prepare switching to RichText later
         if (ti->hasTypeBranch()) {
             BranchItem *bi = (BranchItem*)ti;
-            headingEditor->setColorMapBackground(bi->getBackgroundColor(bi));
-            headingEditor->setColorRichTextDefaultForeground(bi->headingColor());
+            headingEditor->setMapBackgroundColor(bi->getBackgroundColor(bi));
+            headingEditor->setRichTextForegroundColor(bi->headingColor());  // FIXME-2 what about background color?? Frame background col?
         }
 
         headingEditor->setVymText(selti->heading());

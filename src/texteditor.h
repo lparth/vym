@@ -9,7 +9,7 @@ class QComboBox;
 
 #include "vymtext.h"
 
-enum EditorState { inactiveEditor, emptyEditor, filledEditor };
+enum EditorState { inactiveEditor, emptyEditor, activeEditor };
 
 class TextEditor : public QMainWindow {
     Q_OBJECT
@@ -83,25 +83,29 @@ class TextEditor : public QMainWindow {
     void textItalic();
     void textFamily(const QString &f);
     void textSize(const QString &p);
-    void textColor();
+    void selectTextFGColor();
+    void selectTextBGColor();
     void textAlign(QAction *);
     void textVAlign();
     void fontChanged(const QFont &f);
-    void colorChanged(const QColor &c);
+    void colorFGChanged(const QColor &c);
+    void colorBGChanged(const QColor &c);
     void formatChanged(const QTextCharFormat &f);
     void alignmentChanged(int a);
     void verticalAlignmentChanged(QTextCharFormat::VerticalAlignment);
     void updateActions();
     void setState(EditorState);
     void updateState();
-    void selectColorRichTextDefaultBackground();
-    void selectColorRichTextDefaultForeground();
+    void selectRichTextEditorBackgroundColor();
+    void selectRichTextForegroundColor();
+    void selectRichTextBackgroundColor();
 
   public:
-    void setColorRichTextDefaultForeground(const QColor &);
-    void setColorRichTextDefaultBackground(const QColor &);
-    void setColorMapBackground(const QColor&);
-    void setUseColorMapBackground(bool);
+    void setRichTextEditorBackgroundColor(const QColor &);
+    void setRichTextForegroundColor(const QColor &);
+    void setRichTextBackgroundColor(const QColor &);
+    void setMapBackgroundColor(const QColor&);
+    void setUseMapBackgroundColor(bool);
 
   protected:
     QString shortcutScope; // used for settings and shortcut scopes
@@ -116,8 +120,9 @@ class TextEditor : public QMainWindow {
     bool blockChangedSignal;
     bool blockTextUpdate;       // Set *while* textHasChanged is still being emitted
 
-    QColor colorRichTextDefaultBackground;
-    QColor colorRichTextDefaultForeground;
+    QColor colorRichTextEditorBackground;
+    QColor colorRichTextBackground;
+    QColor colorRichTextForeground;
     QColor colorMapBackground;
     bool useColorMapBackground;
 
@@ -135,11 +140,16 @@ class TextEditor : public QMainWindow {
         *actionEditRedo, *actionEditCopy, *actionEditCut, *actionEditPaste,
         *actionFormatUseFixedFont, *actionFormatRichText,
         *actionSettingsVarFont, *actionSettingsFixedFont,
-        *actionSettingsFonthintDefault, *actionEmptyEditorColor,
-        *actionFilledEditorColor, *actionInactiveEditorColor, *actionFontColor;
+        *actionSettingsFonthintDefault, *actionEmptyEditorBGColor,
+        *actionActiveEditorBGColor, *actionInactiveEditorBGColor,
+	*actionRichTextFGColor,
+	*actionRichTextBGColor;
 
-    QAction *actionTextBold, *actionTextUnderline, *actionTextItalic,
-        *actionTextColor, *actionAlignSubScript, *actionAlignSuperScript,
+    QAction
+        *actionTextFGColor,
+        *actionTextBGColor,
+	*actionTextBold, *actionTextUnderline, *actionTextItalic,
+	*actionAlignSubScript, *actionAlignSuperScript,
         *actionAlignLeft, *actionAlignCenter, *actionAlignRight,
         *actionAlignJustify;
 };

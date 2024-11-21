@@ -35,7 +35,8 @@ extern bool debug;
 ///////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////
 
-TextEditor::TextEditor()
+TextEditor::TextEditor()    // FIXME-0 feature insert images
+			    // https://stackoverflow.com/questions/3254652/several-ways-of-placing-an-image-in-a-qtextedit
 {
     statusBar()->hide(); // Hide sizeGrip on default, which comes with statusBar
 
@@ -85,8 +86,9 @@ TextEditor::~TextEditor()
     settings.setValue(n + "fonts/varFont", varFont.toString());
     settings.setValue(n + "fonts/fixedFont", fixedFont.toString());
 
-    settings.setValue(n + "colors/richTextDefaultBackground", colorRichTextDefaultBackground.name());
-    settings.setValue(n + "colors/richTextDefaultForeground", colorRichTextDefaultForeground.name());
+    settings.setValue(n + "colors/richTextEditorBackground", colorRichTextEditorBackground.name());
+    settings.setValue(n + "colors/richTextBackground", colorRichTextBackground.name());
+    settings.setValue(n + "colors/richTextForeground", colorRichTextForeground.name());
 }
 
 void TextEditor::init(const QString &scope)
@@ -115,16 +117,21 @@ void TextEditor::init(const QString &scope)
 
     // Default colors for RichText
     QPixmap pix(16, 16);
-    colorRichTextDefaultBackground.fromString(
-        settings.value(n + "colors/richTextDefaultBackground", "#ffffff").toString());
-    pix.fill(colorRichTextDefaultBackground);
-    actionFilledEditorColor->setIcon(pix);
+    colorRichTextEditorBackground.fromString(
+        settings.value(n + "colors/richTextEditorBackground", "#ffffff").toString());
+    pix.fill(colorRichTextEditorBackground);
+    actionActiveEditorBGColor->setIcon(pix);
 
 
-    colorRichTextDefaultForeground.fromString(
-        settings.value(n + "colors/richTextDefaultForeground", "#000000").toString());
-    pix.fill(colorRichTextDefaultForeground);
-    actionFontColor->setIcon(pix);
+    colorRichTextForeground.fromString(
+        settings.value(n + "colors/richTextForeground", "#000000").toString());
+    pix.fill(colorRichTextForeground);
+    actionRichTextFGColor->setIcon(pix);
+
+    colorRichTextBackground.fromString(
+        settings.value(n + "colors/richTextBackground", "#000000").toString());
+    pix.fill(colorRichTextBackground);
+    actionRichTextBGColor->setIcon(pix);
 
     // Default is PlainText
     actionFormatRichText->setChecked(false);
@@ -202,7 +209,7 @@ QString TextEditor::getFontHintDefault()
 
 void TextEditor::setFilename(const QString &fn)
 {
-    if (state == filledEditor) {
+    if (state == activeEditor) {
         if (fn.isEmpty()) {
             filename = "";
             mainWindow->statusMessage(
@@ -481,11 +488,18 @@ void TextEditor::setupFormatActions()
 
     QPixmap pix(16, 16);
     pix.fill(e->textColor());
-    a = new QAction(pix, tr("&Color..."), this);
+    a = new QAction(pix, tr("&Text Color..."), this);
     formatMenu->addAction(a);
     formatToolBar->addAction(a);
-    connect(a, SIGNAL(triggered()), this, SLOT(textColor()));
-    actionTextColor = a;
+    connect(a, SIGNAL(triggered()), this, SLOT(selectTextFGColor()));
+    actionTextFGColor = a;
+
+    pix.fill(e->textBackgroundColor());
+    a = new QAction(pix, tr("&Text highlight color..."), this);
+    formatMenu->addAction(a);
+    formatToolBar->addAction(a);
+    connect(a, SIGNAL(triggered()), this, SLOT(selectTextBGColor()));
+    actionTextBGColor = a;
 
     a = new QAction(QPixmap(":/text_bold.png"), tr("&Bold"), this);
     a->setShortcut(Qt::CTRL | Qt::Key_B);
@@ -596,15 +610,20 @@ void TextEditor::setupSettingsActions()
     settingsMenu->addSeparator();
 
     a = new QAction(
-        tr("Set RichText default background color", "TextEditor") + "...", this);
+        tr("Set RichText mode editor background color", "TextEditor") + "...", this);
     settingsMenu->addAction(a);
-    connect(a, SIGNAL(triggered()), this, SLOT(selectColorRichTextDefaultBackground()));
-    actionFilledEditorColor = a;
+    connect(a, SIGNAL(triggered()), this, SLOT(selectRichTextEditorBackgroundColor()));
+    actionActiveEditorBGColor = a;
 
-    a = new QAction(tr("Set RichText default font color", "TextEditor") + "...", this);
+    a = new QAction(tr("Set RichText mode default text color", "TextEditor") + "...", this);
     settingsMenu->addAction(a);
-    connect(a, SIGNAL(triggered()), this, SLOT(selectColorRichTextDefaultForeground()));
-    actionFontColor = a;
+    connect(a, SIGNAL(triggered()), this, SLOT(selectRichTextForegroundColor()));
+    actionRichTextFGColor = a;
+
+    a = new QAction(tr("Set RichText mode default text background color", "TextEditor") + "...", this);
+    settingsMenu->addAction(a);
+    connect(a, SIGNAL(triggered()), this, SLOT(selectRichTextBackgroundColor()));
+    actionRichTextBGColor = a;
 }
 
 void TextEditor::textLoad()
@@ -680,7 +699,7 @@ void TextEditor::editorChanged()
     if (isEmpty())
         state = emptyEditor;
     else
-        state = filledEditor;
+        state = activeEditor;
 
     if (!blockChangedSignal) {
         blockTextUpdate = true;
@@ -782,6 +801,10 @@ void TextEditor::deleteAll()
 
 void TextEditor::textSaveAs()
 {
+    QTextCharFormat f = e->currentCharFormat();
+    qDebug() << "TE::textSave cf  fg=" << f.foreground().color() << " bg=" << f.background().color() << " valid=" << f.isValid();
+    return;
+
     QString caption = tr("Export Note to single file");
     QString fn = QFileDialog::getSaveFileName(
         this, caption, QString(), "VYM Note (HTML) (*.html);;All files (*)",
@@ -911,7 +934,8 @@ void TextEditor::setRichTextMode(bool b)
         // Use default foreground color for all text when switching to RichText
         QTextCursor cursor = e->textCursor();
         e->selectAll();
-        e->setTextColor(colorRichTextDefaultForeground);
+        e->setTextColor(colorRichTextForeground);
+        e->setTextBackgroundColor(colorRichTextBackground);
         e->setTextCursor(cursor);
         
     } else {
@@ -966,12 +990,25 @@ void TextEditor::textFamily(const QString &f) { e->setFontFamily(f); }
 
 void TextEditor::textSize(const QString &p) { e->setFontPointSize(p.toInt()); }
 
-void TextEditor::textColor()
+void TextEditor::selectTextFGColor()
 {
     QColor col = QColorDialog::getColor(e->textColor(), this);
     if (!col.isValid())
         return;
     e->setTextColor(col);
+    /*
+    QPixmap pix( 16, 16 );
+    pix.fill( col );
+    actionTextColor->setIcon( pix );
+    */
+}
+
+void TextEditor::selectTextBGColor()
+{
+    QColor col = QColorDialog::getColor(e->textBackgroundColor(), this);
+    if (!col.isValid())
+        return;
+    e->setTextBackgroundColor(col);
     /*
     QPixmap pix( 16, 16 );
     pix.fill( col );
@@ -1024,19 +1061,38 @@ void TextEditor::fontChanged(const QFont &f)
     actionTextUnderline->setChecked(f.underline());
 }
 
-void TextEditor::colorChanged(const QColor &c)
+void TextEditor::colorFGChanged(const QColor &c)
 {
-    QPixmap pix(16, 16);
-    pix.fill(c);
-    actionTextColor->setIcon(pix);
+    QImage image("icons/color-text.svg");
+    QPainter painter;
+    painter.begin(&image);
+    painter.setBrush(c);
+    painter.drawRect(0,110,128,128);
+    painter.end();
+
+    actionTextFGColor->setIcon(QPixmap::fromImage(image));
+}
+
+void TextEditor::colorBGChanged(const QColor &c)
+{
+    QImage image("icons/draw-brush.svg");
+    QPainter painter;
+    painter.begin(&image);
+    painter.setBrush(c);
+    painter.drawRect(0,110,128,128);
+    painter.end();
+
+    actionTextBGColor->setIcon(QPixmap::fromImage(image));
 }
 
 void TextEditor::formatChanged(const QTextCharFormat &f)
 {
+    //qDebug() << "TE::formatChanged  fg=" << f.foreground().color() << " bg=" << f.background().color() << " valid=" << f.isValid();
     if (!actionFormatRichText->isChecked())
         return;
     fontChanged(f.font());
-    colorChanged(f.foreground().color());
+    colorFGChanged(f.foreground().color());
+    colorBGChanged(f.background().color());
     alignmentChanged(e->alignment());
     verticalAlignmentChanged(f.verticalAlignment());
 }
@@ -1091,11 +1147,13 @@ void TextEditor::updateActions()
         comboSize->setEnabled(false);
         fontToolBar->hide();
         formatToolBar->hide();
-        actionTextColor->setEnabled(false);
+        actionTextFGColor->setEnabled(false);
+        actionTextBGColor->setEnabled(false);
         actionTextBold->setEnabled(false);
         actionTextUnderline->setEnabled(false);
         actionTextItalic->setEnabled(false);
-        actionTextColor->setEnabled(false);
+        actionTextFGColor->setEnabled(false);
+        actionTextBGColor->setEnabled(false);
         actionAlignSubScript->setEnabled(false);
         actionAlignSuperScript->setEnabled(false);
         actionAlignLeft->setEnabled(false);
@@ -1108,11 +1166,13 @@ void TextEditor::updateActions()
         comboSize->setEnabled(true);
         fontToolBar->show();
         formatToolBar->show();
-        actionTextColor->setEnabled(true);
+        actionTextFGColor->setEnabled(true);
+        actionTextBGColor->setEnabled(true);
         actionTextBold->setEnabled(true);
         actionTextUnderline->setEnabled(true);
         actionTextItalic->setEnabled(true);
-        actionTextColor->setEnabled(true);
+        actionTextFGColor->setEnabled(true);
+        actionTextBGColor->setEnabled(true);
         actionAlignSubScript->setEnabled(true);
         actionAlignSuperScript->setEnabled(true);
         actionAlignLeft->setEnabled(true);
@@ -1131,17 +1191,18 @@ void TextEditor::setState(EditorState s)
     state = s;
     switch (state) {
         case emptyEditor:
-            if (actionFormatRichText->isChecked())
-                e->setTextColor(colorRichTextDefaultForeground);
-            else
+            if (actionFormatRichText->isChecked()) {
+                e->setTextColor(colorRichTextForeground);
+                e->setTextBackgroundColor(colorRichTextBackground);
+	    } else
                 e->setTextColor(p.color(QPalette::Text));
 
-        case filledEditor:
+        case activeEditor:
             if (actionFormatRichText->isChecked()) {
                 if (useColorMapBackground)
                     baseColor = colorMapBackground;
                 else
-                    baseColor = colorRichTextDefaultBackground;
+                    baseColor = colorRichTextEditorBackground;
             } else {
                 baseColor = p.color(QPalette::Base);
             }
@@ -1163,44 +1224,58 @@ void TextEditor::updateState()
     if (isEmpty())
         setState(emptyEditor);
     else
-        setState(filledEditor);
+        setState(activeEditor);
 }
 
-void TextEditor::selectColorRichTextDefaultBackground()
+void TextEditor::selectRichTextEditorBackgroundColor()
 {
-    QColor col = QColorDialog::getColor(colorRichTextDefaultBackground, nullptr);
+    QColor col = QColorDialog::getColor(colorRichTextEditorBackground, nullptr);
     if (!col.isValid())
         return;
-    colorRichTextDefaultBackground = col;
+    colorRichTextEditorBackground = col;
     QPixmap pix(16, 16);
-    pix.fill(colorRichTextDefaultBackground);
-    actionFilledEditorColor->setIcon(pix);
+    pix.fill(colorRichTextEditorBackground);
+    actionActiveEditorBGColor->setIcon(pix);
 }
 
-void TextEditor::selectColorRichTextDefaultForeground()
+void TextEditor::selectRichTextForegroundColor()
 {
-    QColor col = QColorDialog::getColor(colorRichTextDefaultForeground, nullptr);
-    if (!col.isValid())
-        return;
-    setColorRichTextDefaultForeground(col);
+    QColor col = QColorDialog::getColor(colorRichTextForeground, nullptr);
+    setRichTextForegroundColor(col);
 }
 
-void TextEditor::setColorRichTextDefaultForeground(const QColor &col)
+void TextEditor::selectRichTextBackgroundColor()
+{
+    QColor col = QColorDialog::getColor(colorRichTextBackground, nullptr);
+    setRichTextBackgroundColor(col);
+}
+
+void TextEditor::setRichTextForegroundColor(const QColor &col)
 {
     if (!col.isValid()) return;
 
-    colorRichTextDefaultForeground = col;
+    colorRichTextForeground = col;
     QPixmap pix(16, 16);
-    pix.fill(colorRichTextDefaultForeground);
-    actionFontColor->setIcon(pix);
+    pix.fill(colorRichTextForeground);
+    actionRichTextFGColor->setIcon(pix);
 }
 
-void TextEditor::setColorMapBackground(const QColor &col)
+void TextEditor::setRichTextBackgroundColor(const QColor &col)
+{
+    if (!col.isValid()) return;
+
+    colorRichTextBackground = col;
+    QPixmap pix(16, 16);
+    pix.fill(colorRichTextBackground);
+    actionRichTextBGColor->setIcon(pix);
+}
+
+void TextEditor::setMapBackgroundColor(const QColor &col)
 {
     colorMapBackground = col;
 }
 
-void TextEditor::setUseColorMapBackground(bool b)
+void TextEditor::setUseMapBackgroundColor(bool b)
 {
     useColorMapBackground = b;
 }

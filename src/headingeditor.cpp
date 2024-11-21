@@ -9,7 +9,7 @@ HeadingEditor::HeadingEditor(QString scope) : TextEditor()
     editorName = tr("Heading Editor", "Name of editor shown as window title");
     setWindowTitle("");
 
-    setUseColorMapBackground(true);
+    setUseMapBackgroundColor(true);
 
     // Load Settings
     init(scope);

@@ -15,7 +15,7 @@ NoteEditor::NoteEditor(QString scope) : TextEditor()
 
     menuBar()->show();
 
-    setUseColorMapBackground(false);
+    setUseMapBackgroundColor(false);
 
     // Load Settings
     init(scope);

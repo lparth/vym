@@ -2271,7 +2271,7 @@ void VymModel::updateNoteText(const VymText &vt)
 void VymModel::setNote(const VymNote &note_new, BranchItem *bi, bool senderIsNoteEditor)
 {
     BranchItem *selbi = getSelectedBranch(bi);
-    qDebug() << "VM::setNote  selbi=" << selbi->headingText() << " n=" << note_new.getText();
+    //qDebug() << "VM::setNote  selbi=" << selbi->headingText() << " n=" << note_new.getText();
     if (selbi) {
         VymNote note_old;
         note_old = selbi->getNote();
@@ -2285,7 +2285,7 @@ void VymModel::setNote(const VymNote &note_new, BranchItem *bi, bool senderIsNot
                 editorStateChanged = true;
         }
 
-        qDebug() << "VM::setNote  selbi=" << selbi->headingText() << " n=" << note_new.getText();
+        //qDebug() << "VM::setNote  selbi=" << selbi->headingText() << " n=" << note_new.getText();
 
         // branch variable in script
         QString bv = setBranchVar(selbi) + "b.";
