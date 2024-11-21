@@ -324,7 +324,7 @@ void TextEditor::setupFileActions()
     actionFileLoad = a;
 
     fileMenu->addSeparator();
-    a = new QAction(QPixmap(":/filesave.png"), tr("&Export..."), this);
+    a = new QAction(QPixmap(":/filesave.svg"), tr("&Export..."), this);
     a->setShortcut(Qt::CTRL | Qt::Key_S);
     a->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     switchboard.addSwitch("textSave", shortcutScope, a, tag);
@@ -347,7 +347,7 @@ void TextEditor::setupFileActions()
     actionFileSaveAs = a;
 
     fileMenu->addSeparator();
-    a = new QAction(QPixmap(":/fileprint.png"), tr("&Print..."), this);
+    a = new QAction(QPixmap(":/fileprint.svg"), tr("&Print..."), this);
     a->setShortcut(Qt::CTRL | Qt::Key_P);
     switchboard.addSwitch("textPrint", shortcutScope, a, tag);
     connect(a, SIGNAL(triggered()), this, SLOT(textPrint()));
@@ -355,7 +355,7 @@ void TextEditor::setupFileActions()
     fileMenu->addAction(a);
     actionFilePrint = a;
 
-    a = new QAction(QPixmap(":/edittrash.png"), tr("&Delete All"), this);
+    a = new QAction(QPixmap(":/user-trash.svg"), tr("&Delete All"), this);
     connect(a, SIGNAL(triggered()), this, SLOT(deleteAll()));
     fileMenu->addAction(a);
     tb->addAction(a);
@@ -501,7 +501,7 @@ void TextEditor::setupFormatActions()
     connect(a, SIGNAL(triggered()), this, SLOT(selectTextBGColor()));
     actionTextBGColor = a;
 
-    a = new QAction(QPixmap(":/text_bold.png"), tr("&Bold"), this);
+    a = new QAction(QPixmap(":/dark-format-text-bold.svg"), tr("&Bold"), this);
     a->setShortcut(Qt::CTRL | Qt::Key_B);
 //    a->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     switchboard.addSwitch("textToggleBold", shortcutScope, a, tag);
@@ -511,7 +511,7 @@ void TextEditor::setupFormatActions()
     a->setCheckable(true);
     actionTextBold = a;
 
-    a = new QAction(QPixmap(":/text_italic.png"), tr("&Italic"), this);
+    a = new QAction(QPixmap(":/dark-format-text-italic.svg"), tr("&Italic"), this);
     a->setShortcut(Qt::CTRL | Qt::Key_I);
 //    a->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     switchboard.addSwitch("textToggleItalic", shortcutScope, a, tag);
@@ -521,7 +521,7 @@ void TextEditor::setupFormatActions()
     a->setCheckable(true);
     actionTextItalic = a;
 
-    a = new QAction(QPixmap(":/text_under.png"), tr("&Underline"), this);
+    a = new QAction(QPixmap(":/dark-text-format-underline.svg"), tr("&Underline"), this);
     a->setShortcut(Qt::CTRL | Qt::Key_U);
 //    a->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     switchboard.addSwitch("textToggleUnderline", shortcutScope, a, tag);
@@ -535,7 +535,7 @@ void TextEditor::setupFormatActions()
 
     QActionGroup *actGrp2 = new QActionGroup(this);
     actGrp2->setExclusive(true);
-    a = new QAction(QPixmap(":/text_sub.png"), tr("Subs&cript"), actGrp2);
+    a = new QAction(QPixmap(":/dark-text-format-subscript.svg"), tr("Subs&cript"), actGrp2);
     a->setShortcut(Qt::CTRL | Qt::SHIFT | Qt::Key_B);
 //    a->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     a->setCheckable(true);
@@ -545,7 +545,7 @@ void TextEditor::setupFormatActions()
     connect(a, SIGNAL(triggered()), this, SLOT(textVAlign()));
     actionAlignSubScript = a;
 
-    a = new QAction(QPixmap(":/text_super.png"), tr("Su&perscript"), actGrp2);
+    a = new QAction(QPixmap(":/dark-text-format-superscript.svg"), tr("Su&perscript"), actGrp2);
     a->setShortcut(Qt::CTRL | Qt::SHIFT | Qt::Key_P);
 //    a->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     a->setCheckable(true);
@@ -560,25 +560,25 @@ void TextEditor::setupFormatActions()
 
     formatMenu->addSeparator();
 
-    a = new QAction(QPixmap(":/text_left.png"), tr("&Left"), grp);
+    a = new QAction(QPixmap(":/dark-format-justify-left.svg"), tr("&Left"), grp);   // FIXME-2 "dark" is hardcoded here, needs to consider setting!
     // a->setShortcut( Qt::CTRL+Qt::Key_L );
     a->setCheckable(true);
     formatToolBar->addAction(a);
     formatMenu->addAction(a);
     actionAlignLeft = a;
-    a = new QAction(QPixmap(":/text_center.png"), tr("C&enter"), grp);
+    a = new QAction(QPixmap(":/dark-format-justify-center.svg"), tr("C&enter"), grp);
     // a->setShortcut(  Qt::CTRL | Qt::Key_E);
     a->setCheckable(true);
     formatToolBar->addAction(a);
     formatMenu->addAction(a);
     actionAlignCenter = a;
-    a = new QAction(QPixmap(":/text_right.png"), tr("&Right"), grp);
+    a = new QAction(QPixmap(":/dark-format-justify-right.svg"), tr("&Right"), grp);
     // a->setShortcut(Qt::CTRL | Qt::Key_R );
     a->setCheckable(true);
     formatToolBar->addAction(a);
     formatMenu->addAction(a);
     actionAlignRight = a;
-    a = new QAction(QPixmap(":/text_block.png"), tr("&Justify"), grp);
+    a = new QAction(QPixmap(":/dark-format-justify-fill.svg"), tr("&Justify"), grp);
     // a->setShortcut(Qt::CTRL | Qt::Key_J );
     a->setCheckable(true);
     formatToolBar->addAction(a);

@@ -43,7 +43,7 @@ SlideControlWidget::SlideControlWidget(QWidget *)
     connect(editButton, SIGNAL(clicked()), this, SLOT(editPressed()));
 
     deleteButton = new QPushButton;
-    deleteButton->setIcon(QPixmap(":/edittrash.png"));
+    deleteButton->setIcon(QPixmap(":/user-trash.svg"));
     connect(deleteButton, SIGNAL(clicked()), this, SLOT(deletePressed()));
 
     row2Layout->addWidget(previousButton);
