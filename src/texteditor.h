@@ -99,6 +99,7 @@ class TextEditor : public QMainWindow {
     void selectRichTextEditorBackgroundColor();
     void selectRichTextForegroundColor();
     void selectRichTextBackgroundColor();
+    void insertImage();
 
   public:
     void setRichTextEditorBackgroundColor(const QColor &);
@@ -109,7 +110,7 @@ class TextEditor : public QMainWindow {
 
   protected:
     QString shortcutScope; // used for settings and shortcut scopes
-    QTextEdit *e;
+    QTextEdit *editor;
     QPoint lastPos;     // save last position of window
     QString editorName; // Name of editor, e.g. note editor, heading editor, ...
     QString editorTitle; // window title: Editor name + selected branch

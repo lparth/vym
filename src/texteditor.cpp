@@ -41,15 +41,15 @@ TextEditor::TextEditor()    // FIXME-0 feature insert images
 {
     statusBar()->hide(); // Hide sizeGrip on default, which comes with statusBar
 
-    e = new QTextEdit(this);
-    e->setFocus();
-    e->setTabStopDistance(20); // unit is pixel, default would be 80
-    e->setAutoFillBackground(true);
-    e->installEventFilter(this);
-    connect(e, SIGNAL(textChanged()), this, SLOT(editorChanged()));
-    setCentralWidget(e);
+    editor = new QTextEdit(this);
+    editor->setFocus();
+    editor->setTabStopDistance(20); // unit is pixel, default would be 80
+    editor->setAutoFillBackground(true);
+    editor->installEventFilter(this);
+    connect(editor, SIGNAL(textChanged()), this, SLOT(editorChanged()));
+    setCentralWidget(editor);
 
-    connect(e, SIGNAL(currentCharFormatChanged(const QTextCharFormat &)), this,
+    connect(editor, SIGNAL(currentCharFormatChanged(const QTextCharFormat &)), this,
             SLOT(formatChanged(const QTextCharFormat &)));
 
     // Don't show menubar per default
@@ -109,11 +109,11 @@ void TextEditor::init(const QString &scope)
         settings.value(n + "fonts/fonthintDefault", "variable").toString();
     if (s == "fixed") {
         actionSettingsFonthintDefault->setChecked(true);
-        e->setCurrentFont(fixedFont);
+        editor->setCurrentFont(fixedFont);
     }
     else {
         actionSettingsFonthintDefault->setChecked(false);
-        e->setCurrentFont(varFont);
+        editor->setCurrentFont(varFont);
     }
 
     // Default colors for RichText
@@ -141,7 +141,7 @@ void TextEditor::init(const QString &scope)
 
 bool TextEditor::isEmpty()
 {
-    if (e->toPlainText().length() > 0)
+    if (editor->toPlainText().length() > 0)
         return false;
     else
         return true;
@@ -166,7 +166,7 @@ void TextEditor::setFont(const QFont &font)
 {
     blockChangedSignal = true;
 
-    QTextCursor tc = e->textCursor();
+    QTextCursor tc = editor->textCursor();
     QTextCharFormat format = tc.charFormat();
 
     tc.select(QTextCursor::Document);
@@ -182,12 +182,12 @@ void TextEditor::setFontHint(const QString &fh)
 {
     if (fh == "fixed") {
         actionFormatUseFixedFont->setChecked(true);
-        e->setCurrentFont(fixedFont);
+        editor->setCurrentFont(fixedFont);
         setFont(fixedFont);
     }
     else {
         actionFormatUseFixedFont->setChecked(false);
-        e->setCurrentFont(varFont);
+        editor->setCurrentFont(varFont);
         setFont(varFont);
     }
 }
@@ -233,13 +233,13 @@ QString TextEditor::getFilenameHint() { return filenameHint; }
 
 QString TextEditor::getText()
 {
-    if (e->toPlainText().isEmpty())
+    if (editor->toPlainText().isEmpty())
         return QString();
 
     if (actionFormatRichText->isChecked())
-        return e->toHtml();
+        return editor->toHtml();
     else
-        return e->toPlainText();
+        return editor->toPlainText();
 }
 
 VymText TextEditor::getVymText()
@@ -248,7 +248,7 @@ VymText TextEditor::getVymText()
 
     if (actionFormatRichText->isChecked()) {
         // Remove some QTextEdit specific tags and markers from RichText
-        QString t = e->toHtml();
+        QString t = editor->toHtml();
 
         // Remove <!DOCTYPE settings in the beginning
         QRegularExpression re("(<!DOCTYPE.*)<html>");
@@ -263,7 +263,7 @@ VymText TextEditor::getVymText()
         t.replace(re, "");
         vt.setRichText(t);
     } else
-        vt.setPlainText(e->toPlainText());
+        vt.setPlainText(editor->toPlainText());
 
     if (actionFormatUseFixedFont->isChecked())
         vt.setFontHint(getFontHint());
@@ -274,7 +274,7 @@ VymText TextEditor::getVymText()
 bool TextEditor::findText(const QString &t,
                           const QTextDocument::FindFlags &flags)
 {
-    if (e->find(t, flags))
+    if (editor->find(t, flags))
         return true;
     else
         return false;
@@ -284,14 +284,14 @@ bool TextEditor::findText(const QString &t,
                           const QTextDocument::FindFlags &flags, int i)
 {
     // Position at beginning
-    QTextCursor c = e->textCursor();
+    QTextCursor c = editor->textCursor();
     c.setPosition(0, QTextCursor::MoveAnchor);
-    e->setTextCursor(c);
+    editor->setTextCursor(c);
 
     // Search for t
     int j = 0;
     while (j <= i) {
-        if (!e->find(t, flags))
+        if (!editor->find(t, flags))
             return false;
         j++;
     }
@@ -300,12 +300,12 @@ bool TextEditor::findText(const QString &t,
 
 void TextEditor::setTextCursor(const QTextCursor &cursor)
 {
-    e->setTextCursor(cursor);
+    editor->setTextCursor(cursor);
 }
 
-QTextCursor TextEditor::getTextCursor() { return e->textCursor(); }
+QTextCursor TextEditor::getTextCursor() { return editor->textCursor(); }
 
-void TextEditor::setFocus() { e->setFocus(); }
+void TextEditor::setFocus() { editor->setFocus(); }
 
 void TextEditor::setupFileActions()
 {
@@ -376,7 +376,7 @@ void TextEditor::setupEditActions()
     a->setShortcut(Qt::CTRL | Qt::Key_Z);
     a->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     switchboard.addSwitch("textUndo", shortcutScope, a, tag);
-    connect(a, SIGNAL(triggered()), e, SLOT(undo()));
+    connect(a, SIGNAL(triggered()), editor, SLOT(undo()));
     editMenu->addAction(a);
     editToolBar->addAction(a);
     actionEditUndo = a;
@@ -385,7 +385,7 @@ void TextEditor::setupEditActions()
     a->setShortcut(Qt::CTRL | Qt::Key_Y);
     a->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     switchboard.addSwitch("textRedo", shortcutScope, a, tag);
-    connect(a, SIGNAL(triggered()), e, SLOT(redo()));
+    connect(a, SIGNAL(triggered()), editor, SLOT(redo()));
     editMenu->addAction(a);
     editToolBar->addAction(a);
     actionEditRedo = a;
@@ -403,7 +403,7 @@ void TextEditor::setupEditActions()
     a->setShortcut(Qt::CTRL | Qt::Key_C);
     a->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     switchboard.addSwitch("textCopy", shortcutScope, a, tag);
-    connect(a, SIGNAL(triggered()), e, SLOT(copy()));
+    connect(a, SIGNAL(triggered()), editor, SLOT(copy()));
     editMenu->addAction(a);
     editToolBar->addAction(a);
     actionEditCopy = a;
@@ -412,7 +412,7 @@ void TextEditor::setupEditActions()
     a->setShortcut(Qt::CTRL | Qt::Key_X);
     a->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     switchboard.addSwitch("textCut", shortcutScope, a, tag);
-    connect(a, SIGNAL(triggered()), e, SLOT(cut()));
+    connect(a, SIGNAL(triggered()), editor, SLOT(cut()));
     editMenu->addAction(a);
     editToolBar->addAction(a);
     actionEditCut = a;
@@ -421,10 +421,16 @@ void TextEditor::setupEditActions()
     a->setShortcut(Qt::CTRL | Qt::Key_V);
     a->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     switchboard.addSwitch("textPaste", shortcutScope, a, tag);
-    connect(a, SIGNAL(triggered()), e, SLOT(paste()));
+    connect(a, SIGNAL(triggered()), editor, SLOT(paste()));
     editMenu->addAction(a);
     editToolBar->addAction(a);
     actionEditPaste = a;
+
+    a = new QAction(tr("Insert image", "TextEditor") + "...", this);
+    editMenu->addAction(a);
+    connect(a, SIGNAL(triggered()), this, SLOT(insertImage()));
+    editMenu->addAction(a);
+    editToolBar->addAction(a);
 }
 
 void TextEditor::setupFormatActions()
@@ -488,14 +494,14 @@ void TextEditor::setupFormatActions()
     formatToolBar->setObjectName("noteEditorFormatToolBar");
 
     QPixmap pix(16, 16);
-    pix.fill(e->textColor());
+    pix.fill(editor->textColor());
     a = new QAction(pix, tr("&Text Color..."), this);
     formatMenu->addAction(a);
     formatToolBar->addAction(a);
     connect(a, SIGNAL(triggered()), this, SLOT(selectTextFGColor()));
     actionTextFGColor = a;
 
-    pix.fill(e->textBackgroundColor());
+    pix.fill(editor->textBackgroundColor());
     a = new QAction(pix, tr("&Text highlight color..."), this);
     formatMenu->addAction(a);
     formatToolBar->addAction(a);
@@ -676,7 +682,7 @@ void TextEditor::closeEvent(QCloseEvent *ce)
 
 bool TextEditor::eventFilter(QObject *obj, QEvent *ev)
 {
-    if (obj == e) {
+    if (obj == editor) {
         if (ev->type() == QEvent::KeyPress) {
             QKeyEvent *keyEvent = static_cast<QKeyEvent *>(ev);
             if (keyEvent == QKeySequence::Paste) {
@@ -717,8 +723,8 @@ void TextEditor::editorChanged()
 void TextEditor::setRichText(const QString &t)
 {
     blockChangedSignal = true;
-    e->setReadOnly(false);
-    e->setHtml(t);
+    editor->setReadOnly(false);
+    editor->setHtml(t);
     actionFormatRichText->setChecked(true);
 
     // Update state including colors
@@ -731,16 +737,16 @@ void TextEditor::setRichText(const QString &t)
 void TextEditor::setPlainText(const QString &t)
 {
     blockChangedSignal = true;
-    e->setReadOnly(false);
+    editor->setReadOnly(false);
 
-    e->setPlainText(t);
+    editor->setPlainText(t);
     actionFormatRichText->setChecked(false);
 
     // Reset also text format
     QTextCharFormat textformat;
     textformat.setForeground(qApp->palette().color(QPalette::WindowText));
     textformat.setFont(varFont);
-    e->setCurrentCharFormat(textformat);
+    editor->setCurrentCharFormat(textformat);
 
     // Update state including colors
     updateState();
@@ -779,8 +785,8 @@ void TextEditor::setInactive()
 
 void TextEditor::editCopyAll()
 {
-    e->selectAll();
-    e->copy();
+    editor->selectAll();
+    editor->copy();
 }
 
 void TextEditor::clear()
@@ -789,7 +795,7 @@ void TextEditor::clear()
     bool blockChangedOrg = blockChangedSignal;
 
     blockChangedSignal = true;
-    e->clear();
+    editor->clear();
     setState(emptyEditor);
 
     blockChangedSignal = blockChangedOrg;
@@ -797,12 +803,12 @@ void TextEditor::clear()
 
 void TextEditor::deleteAll()
 {
-    e->clear();
+    editor->clear();
 }
 
 void TextEditor::textSaveAs()
 {
-    QTextCharFormat f = e->currentCharFormat();
+    QTextCharFormat f = editor->currentCharFormat();
 
     QString caption = tr("Export Note to single file");
     QString fn = QFileDialog::getSaveFileName(
@@ -844,7 +850,7 @@ void TextEditor::textSave()
         return;
     }
 
-    QString text = e->toHtml(); // FIXME-4 or plaintext? check...
+    QString text = editor->toHtml(); // FIXME-4 or plaintext? check...
     QFile f(filename);
     if (!f.open(QIODevice::WriteOnly)) {
         mainWindow->statusMessage(QString("Could not write to %1").arg(filename));
@@ -855,7 +861,7 @@ void TextEditor::textSave()
     t << text;
     f.close();
 
-    e->document()->setModified(false);
+    editor->document()->setModified(false);
 
     mainWindow->statusMessage(QString("Note exported as %1").arg(filename));
 }
@@ -895,7 +901,7 @@ void TextEditor::textExportAsASCII()
 
 void TextEditor::textPrint()
 {
-    QTextDocument *document = e->document();
+    QTextDocument *document = editor->document();
 
     if (!printer)
         mainWindow->setupPrinter();
@@ -913,11 +919,11 @@ void TextEditor::textEditUndo() {}
 void TextEditor::toggleFonthint()
 {
     if (!actionFormatUseFixedFont->isChecked()) {
-        e->setCurrentFont(varFont);
+        editor->setCurrentFont(varFont);
         setFont(varFont);
     }
     else {
-        e->setCurrentFont(fixedFont);
+        editor->setCurrentFont(fixedFont);
         setFont(fixedFont);
     }
     emit textHasChanged(getVymText());
@@ -928,17 +934,17 @@ void TextEditor::setRichTextMode(bool b)
     //qDebug() << "TE::setRichTextMode b=" << b;
     actionFormatUseFixedFont->setEnabled(false);
     if (b) {
-        setRichText(e->toHtml());
+        setRichText(editor->toHtml());
 
         // Use default foreground color for all text when switching to RichText
-        QTextCursor cursor = e->textCursor();
-        e->selectAll();
-        e->setTextColor(colorRichTextForeground);
-        e->setTextBackgroundColor(colorRichTextBackground);
-        e->setTextCursor(cursor);
+        QTextCursor cursor = editor->textCursor();
+        editor->selectAll();
+        editor->setTextColor(colorRichTextForeground);
+        editor->setTextBackgroundColor(colorRichTextBackground);
+        editor->setTextCursor(cursor);
         
     } else {
-        setPlainText(e->toPlainText());
+        setPlainText(editor->toPlainText());
     }
     emit textHasChanged(getVymText());
 }
@@ -970,31 +976,31 @@ void TextEditor::setVarFont()
 void TextEditor::textBold()
 {
     if (actionTextBold->isChecked())
-        e->setFontWeight(QFont::Bold);
+        editor->setFontWeight(QFont::Bold);
     else
-        e->setFontWeight(QFont::Normal);
+        editor->setFontWeight(QFont::Normal);
 }
 
 void TextEditor::textUnderline()
 {
-    e->setFontUnderline(actionTextUnderline->isChecked());
+    editor->setFontUnderline(actionTextUnderline->isChecked());
 }
 
 void TextEditor::textItalic()
 {
-    e->setFontItalic(actionTextItalic->isChecked());
+    editor->setFontItalic(actionTextItalic->isChecked());
 }
 
-void TextEditor::textFamily(const QString &f) { e->setFontFamily(f); }
+void TextEditor::textFamily(const QString &f) { editor->setFontFamily(f); }
 
-void TextEditor::textSize(const QString &p) { e->setFontPointSize(p.toInt()); }
+void TextEditor::textSize(const QString &p) { editor->setFontPointSize(p.toInt()); }
 
 void TextEditor::selectTextFGColor()
 {
-    QColor col = QColorDialog::getColor(e->textColor(), this);
+    QColor col = QColorDialog::getColor(editor->textColor(), this);
     if (!col.isValid())
         return;
-    e->setTextColor(col);
+    editor->setTextColor(col);
     /*
     QPixmap pix( 16, 16 );
     pix.fill( col );
@@ -1004,10 +1010,10 @@ void TextEditor::selectTextFGColor()
 
 void TextEditor::selectTextBGColor()
 {
-    QColor col = QColorDialog::getColor(e->textBackgroundColor(), this);
+    QColor col = QColorDialog::getColor(editor->textBackgroundColor(), this);
     if (!col.isValid())
         return;
-    e->setTextBackgroundColor(col);
+    editor->setTextBackgroundColor(col);
     /*
     QPixmap pix( 16, 16 );
     pix.fill( col );
@@ -1017,16 +1023,16 @@ void TextEditor::selectTextBGColor()
 
 void TextEditor::textAlign(QAction *a)
 {
-    QTextCursor c = e->textCursor();
+    QTextCursor c = editor->textCursor();
 
     if (a == actionAlignLeft)
-        e->setAlignment(Qt::AlignLeft);
+        editor->setAlignment(Qt::AlignLeft);
     else if (a == actionAlignCenter)
-        e->setAlignment(Qt::AlignHCenter);
+        editor->setAlignment(Qt::AlignHCenter);
     else if (a == actionAlignRight)
-        e->setAlignment(Qt::AlignRight);
+        editor->setAlignment(Qt::AlignRight);
     else if (a == actionAlignJustify)
-        e->setAlignment(Qt::AlignJustify);
+        editor->setAlignment(Qt::AlignJustify);
 }
 
 void TextEditor::textVAlign()
@@ -1044,7 +1050,7 @@ void TextEditor::textVAlign()
     else {
         format.setVerticalAlignment(QTextCharFormat::AlignNormal);
     }
-    e->mergeCurrentCharFormat(format);
+    editor->mergeCurrentCharFormat(format);
 }
 
 void TextEditor::fontChanged(const QFont &f)
@@ -1092,7 +1098,7 @@ void TextEditor::formatChanged(const QTextCharFormat &f)
     fontChanged(f.font());
     colorFGChanged(f.foreground().color());
     colorBGChanged(f.background().color());
-    alignmentChanged(e->alignment());
+    alignmentChanged(editor->alignment());
     verticalAlignmentChanged(f.verticalAlignment());
 }
 
@@ -1191,10 +1197,10 @@ void TextEditor::setState(EditorState s)
     switch (state) {
         case emptyEditor:
             if (actionFormatRichText->isChecked()) {
-                e->setTextColor(colorRichTextForeground);
-                e->setTextBackgroundColor(colorRichTextBackground);
+                editor->setTextColor(colorRichTextForeground);
+                editor->setTextBackgroundColor(colorRichTextBackground);
 	    } else
-                e->setTextColor(p.color(QPalette::Text));
+                editor->setTextColor(p.color(QPalette::Text));
 
         case activeEditor:
             if (actionFormatRichText->isChecked()) {
@@ -1205,14 +1211,14 @@ void TextEditor::setState(EditorState s)
             } else {
                 baseColor = p.color(QPalette::Base);
             }
-            e->setReadOnly(false);
+            editor->setReadOnly(false);
             break;
         case inactiveEditor:
             baseColor = Qt::black;
-            e->setReadOnly(true);
+            editor->setReadOnly(true);
     }
     p.setColor(QPalette::Base, baseColor);
-    e->setPalette(p);
+    editor->setPalette(p);
 
     updateActions();
 }
@@ -1247,6 +1253,27 @@ void TextEditor::selectRichTextBackgroundColor()
 {
     QColor col = QColorDialog::getColor(colorRichTextBackground, nullptr);
     setRichTextBackgroundColor(col);
+}
+
+void TextEditor::insertImage()
+{
+    QString file = QFileDialog::getOpenFileName(this, tr("Select an image"),
+	  ".", tr("Bitmap Files (*.bmp)\n"
+	    "JPEG (*.jpg *jpeg)\n"
+	    "GIF (*.gif)\n"
+	    "SVG (*.svg)\n" // FIXME-0 check formats...
+	    "PNG (*.png)\n"));
+    QUrl Uri ( QString ( "file://%1" ).arg ( file ) );
+    QImage image = QImageReader ( file ).read();
+
+    QTextDocument * textDocument = editor->document();
+    textDocument->addResource( QTextDocument::ImageResource, Uri, QVariant ( image ) );
+    QTextCursor cursor = editor->textCursor();
+    QTextImageFormat imageFormat;
+    imageFormat.setWidth( image.width() );
+    imageFormat.setHeight( image.height() );
+    imageFormat.setName( Uri.toString() );
+    cursor.insertImage(imageFormat);
 }
 
 void TextEditor::setRichTextForegroundColor(const QColor &col)
