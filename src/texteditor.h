@@ -139,6 +139,7 @@ class TextEditor : public QMainWindow {
     QAction *actionFileLoad, *actionFileSave, *actionFileSaveAs,
         *actionFilePrint, *actionFileDeleteAll, *actionEditUndo,
         *actionEditRedo, *actionEditCopy, *actionEditCut, *actionEditPaste,
+	*actionInsertImage,
         *actionFormatUseFixedFont, *actionFormatRichText,
         *actionSettingsVarFont, *actionSettingsFixedFont,
         *actionSettingsFonthintDefault, *actionEmptyEditorBGColor,

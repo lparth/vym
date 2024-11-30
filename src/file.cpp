@@ -1,5 +1,6 @@
 #include <QDebug>
 #include <QDir>
+#include <QFileDialog>
 #include <QLabel>
 #include <QMessageBox>
 #include <QPixmap>
@@ -15,6 +16,9 @@
 #if defined(Q_OS_MACX)
 #include "unistd.h"
 #endif
+
+extern QString vymName;
+extern QDir lastImageDir;
 
 QString convertToRel(const QString &src, const QString &dst)
 {
@@ -59,7 +63,17 @@ QString basename(const QString &path) { return path.section('/', -1); }
 
 QString dirname(const QString &path) { return path.section('/', 0, -2); }
 
-extern QString vymName;
+QStringList openImageDialog()   // FIXME-2 Use for all places, where images are loaded
+{
+    QString filter = QString(QObject::tr("Images", "Filedialog") +
+                             " (*.png *.bmp *.xbm *.jpg *.png *.xpm *.gif "
+                             "*.pnm *.svg *.svgz);;" +
+                             QObject::tr("All", "Filedialog") + " (*.*)");
+    return QFileDialog::getOpenFileNames(
+        nullptr, vymName + " - " + QObject::tr("Load image"), lastImageDir.path(),
+        filter);
+}
+
 bool confirmDirectoryOverwrite(const QDir &dir)
 {
     if (!dir.exists()) {

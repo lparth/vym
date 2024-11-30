@@ -16,6 +16,7 @@
 #include <QTextEdit>
 #include <QToolBar>
 
+#include "file.h"
 #include "mainwindow.h"
 #include "settings.h"
 #include "shortcuts.h"
@@ -36,7 +37,7 @@ extern bool debug;
 ///////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////
 
-TextEditor::TextEditor()    // FIXME-0 feature insert images
+TextEditor::TextEditor()    // FIXME-2 feature insert images with drag & drop
 			    // https://stackoverflow.com/questions/3254652/several-ways-of-placing-an-image-in-a-qtextedit
 {
     statusBar()->hide(); // Hide sizeGrip on default, which comes with statusBar
@@ -426,11 +427,12 @@ void TextEditor::setupEditActions()
     editToolBar->addAction(a);
     actionEditPaste = a;
 
-    a = new QAction(tr("Insert image", "TextEditor") + "...", this);
+    a = new QAction(QPixmap(":/" + iconPrefix + "insert-image.svg"), tr("Insert image", "TextEditor") + "...", this);
     editMenu->addAction(a);
     connect(a, SIGNAL(triggered()), this, SLOT(insertImage()));
     editMenu->addAction(a);
     editToolBar->addAction(a);
+    actionInsertImage = a;
 }
 
 void TextEditor::setupFormatActions()
@@ -726,6 +728,7 @@ void TextEditor::setRichText(const QString &t)
     editor->setReadOnly(false);
     editor->setHtml(t);
     actionFormatRichText->setChecked(true);
+    actionInsertImage->setEnabled(true);
 
     // Update state including colors
     updateState();
@@ -741,6 +744,7 @@ void TextEditor::setPlainText(const QString &t)
 
     editor->setPlainText(t);
     actionFormatRichText->setChecked(false);
+    actionInsertImage->setEnabled(false);
 
     // Reset also text format
     QTextCharFormat textformat;
@@ -1257,23 +1261,27 @@ void TextEditor::selectRichTextBackgroundColor()
 
 void TextEditor::insertImage()
 {
-    QString file = QFileDialog::getOpenFileName(this, tr("Select an image"),
-	  ".", tr("Bitmap Files (*.bmp)\n"
-	    "JPEG (*.jpg *jpeg)\n"
-	    "GIF (*.gif)\n"
-	    "SVG (*.svg)\n" // FIXME-0 check formats...
-	    "PNG (*.png)\n"));
-    QUrl Uri ( QString ( "file://%1" ).arg ( file ) );
-    QImage image = QImageReader ( file ).read();
+    QStringList imagePaths = openImageDialog();
 
-    QTextDocument * textDocument = editor->document();
-    textDocument->addResource( QTextDocument::ImageResource, Uri, QVariant ( image ) );
-    QTextCursor cursor = editor->textCursor();
-    QTextImageFormat imageFormat;
-    imageFormat.setWidth( image.width() );
-    imageFormat.setHeight( image.height() );
-    imageFormat.setName( Uri.toString() );
-    cursor.insertImage(imageFormat);
+    foreach (QString path, imagePaths) {
+	QUrl Uri ( QString ( "file://%1" ).arg (path));
+	QImage image = QImageReader (path).read();
+
+	QBuffer buffer;
+	buffer.open(QIODevice::WriteOnly);
+	image.save(&buffer, "PNG");
+	QString encodedImage = buffer.data().toBase64();
+
+	QTextDocument * textDocument = editor->document();
+	textDocument->addResource( QTextDocument::ImageResource, Uri, QVariant (image));
+	QTextCursor cursor = editor->textCursor();
+	QTextImageFormat imageFormat;
+	imageFormat.setWidth(image.width());
+	imageFormat.setHeight(image.height());
+	imageFormat.setName(Uri.toString());
+	//cursor.insertImage(imageFormat);
+	cursor.insertHtml("<img src=\"data:image;base64," + encodedImage + "\"/>");
+    }
 }
 
 void TextEditor::setRichTextForegroundColor(const QColor &col)

@@ -115,6 +115,7 @@ extern QList<Command *> imageCommands;
 extern QList<Command *> xlinkCommands;
 
 extern bool usingDarkTheme;
+extern QString iconPrefix;
 
 extern bool useActionLog;
 extern QString actionLogPath;
@@ -2446,7 +2447,7 @@ void Main::setupEditActions()
     actionListFiles.append(a);
     actionMapInfo = a;
 
-    a = new QAction(tr("Add image...", "Edit menu"), this);
+    a = new QAction(QPixmap(":/" + iconPrefix + "insert-image.svg"), tr("Add image", "Edit and context menus") + "...", this);
     a->setShortcutContext(Qt::WindowShortcut);
     a->setShortcut(Qt::Key_I | Qt::SHIFT);
     addAction(a);
@@ -3629,6 +3630,7 @@ void Main::setupContextMenus()
     // Submenu "Add"
     branchAddContextMenu = branchContextMenu->addMenu(tr("Add"));
     branchAddContextMenu->addAction(actionPaste);
+    branchAddContextMenu->addAction(actionLoadImage);
     branchAddContextMenu->addAction(actionAddMapCenter);
     branchAddContextMenu->addAction(actionAddBranch);
     branchAddContextMenu->addAction(actionAddBranchBefore);
@@ -5730,7 +5732,7 @@ void Main::editLoadImage()
 {
     VymModel *m = currentModel();
     if (m) {
-        QString filter = QString(tr("Images") +
+        QString filter = QString(tr("Images", "Filedialog") +
                                  " (*.png *.bmp *.xbm *.jpg *.png *.xpm *.gif "
                                  "*.pnm *.svg *.svgz);;" +
                                  tr("All", "Filedialog") + " (*.*)");

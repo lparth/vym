@@ -112,6 +112,8 @@
     <file alias="formatrichtext.svg">icons/formatrichtext.svg</file>
     <file alias="headingeditor.png">icons/headingeditor.png</file>
     <file alias="history.png">icons/history.png</file>
+    <file alias="dark-insert-image.svg">icons/dark/insert-image.svg</file>
+    <file alias="bright-insert-image.svg">icons/bright/insert-image.svg</file>
     <file alias="linestyle-dash.png">icons/linestyle-dash.png</file>
     <file alias="linestyle-dashdot.png">icons/linestyle-dashdot.png</file>
     <file alias="linestyle-dashdotdot.png">icons/linestyle-dashdotdot.png</file>
