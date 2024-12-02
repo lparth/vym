@@ -116,6 +116,7 @@ extern QList<Command *> xlinkCommands;
 
 extern bool usingDarkTheme;
 extern QString iconPrefix;
+extern QString iconTheme;
 
 extern bool useActionLog;
 extern QString actionLogPath;
@@ -1777,7 +1778,7 @@ void Main::setupEditActions()
     actionRedo = a;
 
     editMenu->addSeparator();
-    a = new QAction(QPixmap(":/edit-copy.svg"), tr("&Copy", "Edit menu"), this);
+    a = new QAction(QPixmap(":/edit-copy.svg"), tr("&Copy", "Edit menu"), this);    // FIXME-2 breeze icon not committed yet!
     a->setShortcut(Qt::CTRL | Qt::Key_C);
     a->setShortcutContext(Qt::WidgetShortcut);
     a->setEnabled(false);

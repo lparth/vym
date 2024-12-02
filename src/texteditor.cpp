@@ -24,6 +24,7 @@
 extern Main *mainWindow;
 extern Settings settings;
 extern QString iconPrefix;
+extern QString iconTheme;
 
 extern QAction *actionViewToggleNoteEditor;
 
@@ -316,7 +317,7 @@ void TextEditor::setupFileActions()
 
     QString tag = tr("Texteditor", "Shortcuts");
     QAction *a;
-    a = new QAction(QPixmap(":/fileopen.png"), tr("&Import..."), this);
+    a = new QAction(QPixmap(QString(":/document-open-%1").arg(iconTheme)), tr("&Import..."), this);
     a->setShortcut(Qt::CTRL | Qt::Key_O);
     a->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     switchboard.addSwitch("textLoad", shortcutScope, a, tag);
@@ -326,7 +327,7 @@ void TextEditor::setupFileActions()
     actionFileLoad = a;
 
     fileMenu->addSeparator();
-    a = new QAction(QPixmap(":/filesave.svg"), tr("&Export..."), this);
+    a = new QAction(QPixmap(QString(":/document-save-%1").arg(iconTheme)), tr("&Export..."), this);
     a->setShortcut(Qt::CTRL | Qt::Key_S);
     a->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     switchboard.addSwitch("textSave", shortcutScope, a, tag);
@@ -349,7 +350,7 @@ void TextEditor::setupFileActions()
     actionFileSaveAs = a;
 
     fileMenu->addSeparator();
-    a = new QAction(QPixmap(":/fileprint.svg"), tr("&Print..."), this);
+    a = new QAction(QPixmap(QString(":/document-print-%1.svg").arg(iconTheme)), tr("&Print..."), this);
     a->setShortcut(Qt::CTRL | Qt::Key_P);
     switchboard.addSwitch("textPrint", shortcutScope, a, tag);
     connect(a, SIGNAL(triggered()), this, SLOT(textPrint()));
@@ -357,7 +358,7 @@ void TextEditor::setupFileActions()
     fileMenu->addAction(a);
     actionFilePrint = a;
 
-    a = new QAction(QPixmap(":/user-trash.svg"), tr("&Delete All"), this);
+    a = new QAction(QPixmap(QString(":/edit-delete-%1.svg").arg(iconTheme)), tr("&Delete All"), this);
     connect(a, SIGNAL(triggered()), this, SLOT(deleteAll()));
     fileMenu->addAction(a);
     tb->addAction(a);
