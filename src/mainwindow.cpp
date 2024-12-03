@@ -2475,7 +2475,7 @@ void Main::setupSelectActions()
     QAction *a;
 
     tag = tr("Search functions", "Shortcuts");
-    a = new QAction(QPixmap(":/find.svg"), tr("Find...", "Edit menu"), this);
+    a = new QAction(QPixmap(QString(":/edit-find-%1.svg").arg(iconTheme)), tr("Find...", "Edit menu"), this);
     a->setShortcut(Qt::CTRL | Qt::Key_F);
     selectMenu->addAction(a);
     switchboard.addSwitch("mapFind", shortcutScope, a, tag);
@@ -2483,7 +2483,7 @@ void Main::setupSelectActions()
     actionListFiles.append(a);
     actionFind = a;
 
-    a = new QAction(QPixmap(":/find.svg"), tr("Find...", "Edit menu"), this);
+    a = new QAction(QPixmap(QString(":/edit-find-%1.svg").arg(iconTheme)), tr("Find...", "Edit menu"), this);
     a->setShortcut(Qt::Key_Slash);
     selectMenu->addAction(a);
     switchboard.addSwitch("mapFindAlt", shortcutScope, a, tag);
@@ -2534,7 +2534,7 @@ void Main::setupSelectActions()
     actionListBranches.append(a);
     actionGoToTargetLinkedMap = a;
 
-    a = new QAction(QPixmap(":/selectprevious.png"),
+    a = new QAction(QPixmap(QString(":/go-previous-%1.svg").arg(iconTheme)),
                     tr("Select previous", "Edit menu"), this);
     a->setShortcut(Qt::CTRL | Qt::Key_O);
     a->setShortcutContext(Qt::WidgetShortcut);
@@ -2545,7 +2545,7 @@ void Main::setupSelectActions()
     connect(a, SIGNAL(triggered()), this, SLOT(editSelectPrevious()));
     actionSelectPrevious = a;
 
-    a = new QAction(QPixmap(":/selectnext.png"), tr("Select next", "Edit menu"),
+    a = new QAction(QPixmap(QString(":/go-next-%1.svg").arg(iconTheme)), tr("Select next", "Edit menu"),
                     this);
     a->setShortcut(Qt::CTRL | Qt::Key_I);
     a->setShortcutContext(Qt::WidgetShortcut);

@@ -132,7 +132,9 @@
     <file alias="document-save-as-bright.svg">icons/bright/document-save-as.svg</file>
     <file alias="document-save-as-classic.svg">icons/classic/document-save-as.svg</file>
     <file alias="document-save-as-dark.svg">icons/dark/document-save-as.svg</file>
-    <file alias="find.svg">icons/edit-find.svg</file>
+    <file alias="edit-find-bright.svg">icons/bright/edit-find.svg</file>
+    <file alias="edit-find-classic.svg">icons/classic/edit-find.svg</file>
+    <file alias="edit-find-dark.svg">icons/dark/edit-find.svg</file>
     <file alias="formatcolorbranch.png">icons/formatcolorbranch.png</file>
     <file alias="formatcolorpicker.png">icons/formatcolorpicker.png</file>
     <file alias="formatcolorsubtree.png">icons/formatcolorsubtree.png</file>
@@ -160,8 +162,12 @@
     <file alias="script-reload.svg">icons/script-reload.svg</file>
     <file alias="script-run.svg">icons/script-run.svg</file>
     <file alias="scripteditor.png">icons/scripteditor.png</file>
-    <file alias="selectnext.png">icons/selectnext.png</file>
-    <file alias="selectprevious.png">icons/selectprevious.png</file>
+    <file alias="go-next-bright.svg">icons/bright/go-next.svg</file>
+    <file alias="go-next-classic.svg">icons/classic/go-next.png</file>
+    <file alias="go-next-dark.svg">icons/dark/go-next.svg</file>
+    <file alias="go-previous-bright.svg">icons/bright/go-previous.svg</file>
+    <file alias="go-previous-classic.svg">icons/classic/go-previous.png</file>
+    <file alias="go-previous-dark.svg">icons/dark/go-previous.svg</file>
     <file alias="camera-photo-bright.svg">icons/bright/camera-photo.svg</file>
     <file alias="camera-photo-classic.svg">icons/classic/camera-photo.png</file>
     <file alias="camera-photo-dark.svg">icons/dark/camera-photo.svg</file>
