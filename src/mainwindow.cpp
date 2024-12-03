@@ -1720,7 +1720,7 @@ void Main::setupFileActions()
     unrestrictedMapActions.append(a);
     actionFilePrint = a;
 
-    a = new QAction(QPixmap(":/fileclose.png"), tr("&Close Map", "File menu"),
+    a = new QAction(QPixmap(QString(":/document-close-%1.svg").arg(iconTheme)), tr("&Close Map", "File menu"),
                     this);
     a->setShortcut(Qt::CTRL | Qt::Key_W);
     switchboard.addSwitch("fileMapClose", shortcutScope, a, tag);
@@ -1728,7 +1728,7 @@ void Main::setupFileActions()
     fileMenu->addAction(a);
     actionFileClose = a;
 
-    a = new QAction(QPixmap(":/exit.svg"), tr("E&xit", "File menu"), this);
+    a = new QAction(QPixmap(QString(":/application-exit-%1.svg").arg(iconTheme)), tr("E&xit", "File menu"), this);
     a->setShortcut(Qt::CTRL | Qt::Key_Q);
     switchboard.addSwitch("fileExit", shortcutScope, a, tag);
     connect(a, SIGNAL(triggered()), this, SLOT(fileExitVYM()));
@@ -2473,6 +2473,29 @@ void Main::setupSelectActions()
     QString tag = tr("Selections", "Shortcuts");
     QMenu *selectMenu = menuBar()->addMenu(tr("Select", "Select menu"));
     QAction *a;
+
+    tag = tr("Search functions", "Shortcuts");
+    a = new QAction(QPixmap(":/find.svg"), tr("Find...", "Edit menu"), this);
+    a->setShortcut(Qt::CTRL | Qt::Key_F);
+    selectMenu->addAction(a);
+    switchboard.addSwitch("mapFind", shortcutScope, a, tag);
+    connect(a, SIGNAL(triggered()), this, SLOT(editOpenFindResultWidget()));
+    actionListFiles.append(a);
+    actionFind = a;
+
+    a = new QAction(QPixmap(":/find.svg"), tr("Find...", "Edit menu"), this);
+    a->setShortcut(Qt::Key_Slash);
+    selectMenu->addAction(a);
+    switchboard.addSwitch("mapFindAlt", shortcutScope, a, tag);
+    connect(a, SIGNAL(triggered()), this, SLOT(editOpenFindResultWidget()));
+    actionListFiles.append(a);
+
+    a = new QAction(tr("Find duplicate URLs", "Edit menu") + " (test)", this);
+    a->setShortcut(Qt::SHIFT | Qt::Key_F);
+    switchboard.addSwitch("mapFindDuplicates", shortcutScope, a, tag);
+    if (settings.value("/mainwindow/showTestMenu", false).toBool())
+        selectMenu->addAction(a);
+    connect(a, SIGNAL(triggered()), this, SLOT(editFindDuplicateURLs()));
     a = new QAction(QPixmap(":/flag-target.svg"),
                     tr("Toggle target...", "Edit menu"), this);
     a->setShortcut(Qt::SHIFT | Qt::Key_T);
@@ -2541,28 +2564,6 @@ void Main::setupSelectActions()
     actionListFiles.append(a);
     actionSelectNothing = a;
 
-    tag = tr("Search functions", "Shortcuts");
-    a = new QAction(QPixmap(":/find.svg"), tr("Find...", "Edit menu"), this);
-    a->setShortcut(Qt::CTRL | Qt::Key_F);
-    selectMenu->addAction(a);
-    switchboard.addSwitch("mapFind", shortcutScope, a, tag);
-    connect(a, SIGNAL(triggered()), this, SLOT(editOpenFindResultWidget()));
-    actionListFiles.append(a);
-    actionFind = a;
-
-    a = new QAction(QPixmap(":/find.svg"), tr("Find...", "Edit menu"), this);
-    a->setShortcut(Qt::Key_Slash);
-    selectMenu->addAction(a);
-    switchboard.addSwitch("mapFindAlt", shortcutScope, a, tag);
-    connect(a, SIGNAL(triggered()), this, SLOT(editOpenFindResultWidget()));
-    actionListFiles.append(a);
-
-    a = new QAction(tr("Find duplicate URLs", "Edit menu") + " (test)", this);
-    a->setShortcut(Qt::SHIFT | Qt::Key_F);
-    switchboard.addSwitch("mapFindDuplicates", shortcutScope, a, tag);
-    if (settings.value("/mainwindow/showTestMenu", false).toBool())
-        selectMenu->addAction(a);
-    connect(a, SIGNAL(triggered()), this, SLOT(editFindDuplicateURLs()));
 }
 
 // Format Actions
@@ -2950,7 +2951,7 @@ void Main::setupModeActions()
 
     a = new QAction(
         QPixmap(":/mode-color.png"),
-        tr("Format painter: pick color from another branch and apply",
+        tr("Use modifier to pick color from another branch",
            "Mode modifier"),
         actionGroupModModes);
     a->setShortcut(Qt::Key_K);
@@ -3888,6 +3889,7 @@ void Main::setupToolbars()
     editActionsToolbar->addAction(actionToggleScroll);
     editActionsToolbar->addAction(actionToggleHideExport);
     editActionsToolbar->addAction(actionToggleTask);
+    editActionsToolbar->addAction(actionToggleTarget);
     // editActionsToolbar->addAction (actionExpandAll);
     // editActionsToolbar->addAction (actionExpandOneLevel);
     // editActionsToolbar->addAction (actionCollapseOneLevel);
@@ -3896,10 +3898,9 @@ void Main::setupToolbars()
     // Selections
     selectionToolbar = addToolBar(tr("Selection toolbar", "Toolbar name"));
     selectionToolbar->setObjectName("toolbar for selecting items");
-    selectionToolbar->addAction(actionToggleTarget);
+    selectionToolbar->addAction(actionFind);
     selectionToolbar->addAction(actionSelectPrevious);
     selectionToolbar->addAction(actionSelectNext);
-    selectionToolbar->addAction(actionFind);
 
     // URLs and vymLinks
     referencesToolbar = addToolBar(

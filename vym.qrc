@@ -107,11 +107,15 @@
     <file alias="edit-paste-bright.svg">icons/bright/edit-paste.svg</file>
     <file alias="edit-paste-classic.svg">icons/classic/edit-paste.svg</file>
     <file alias="edit-paste-dark.svg">icons/dark/edit-paste.svg</file>
-    <file alias="exit.svg">icons/system-shutdown.svg</file>
+    <file alias="application-exit-bright.svg">icons/bright/application-exit.svg</file>
+    <file alias="application-exit-classic.svg">icons/classic/application-exit.svg</file>
+    <file alias="application-exit-dark.svg">icons/dark/application-exit.svg</file>
+    <file alias="document-close-bright.svg">icons/bright/document-close.svg</file>
+    <file alias="document-close-classic.svg">icons/classic/document-close.png</file>
+    <file alias="document-close-dark.svg">icons/dark/document-close.svg</file>
     <file alias="document-export-bright.svg">icons/bright/document-export.svg</file>
     <file alias="document-export-classic.svg">icons/classic/document-export.svg</file>
     <file alias="document-export-dark.svg">icons/dark/document-export.svg</file>
-    <file alias="fileclose.png">icons/fileclose.png</file>
     <file alias="document-new-bright.svg">icons/bright/document-new.svg</file>
     <file alias="document-new-classic.svg">icons/classic/document-new.svg</file>
     <file alias="document-new-dark.svg">icons/dark/document-new.svg</file>
