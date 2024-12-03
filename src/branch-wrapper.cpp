@@ -211,18 +211,18 @@ bool BranchWrapper::cycleTask(bool reverse)
 #include "confluence-agent.h"
 void BranchWrapper::deleteConfluencePageLabel(const QString &labelName)
 {
-    qDebug() << __func__ << "called!";
+    // qDebug() << __func__ << "called!";
     AttributeItem *ai = model()->getAttributeByKey("Confluence.pageID", branchItemInt);
     if (ai) {
         QString pageID = ai->value().toString();
-        qDebug() << "  Found pageID in branch attributes: " << pageID;  // FIXME-2
+        // qDebug() << "  Found pageID in branch attributes: " << pageID;
         ConfluenceAgent *ca_setHeading = new ConfluenceAgent(branchItemInt);
         ca_setHeading->setPageID(pageID);
         ca_setHeading->setLabelName(labelName);
         ca_setHeading->setJobType(ConfluenceAgent::DeletePageLabel);
         ca_setHeading->startJob();
     } else {
-        qDebug() << "  No  pageID in branch attributes";    // FIXME-2
+        // qDebug() << "  No  pageID in branch attributes";
         mainWindow->abortScript(
                 QJSValue::GenericError,
                 "No pageID found in attributes of branch. Run getConfluencePageDetails first.");

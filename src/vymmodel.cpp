@@ -1711,7 +1711,7 @@ void VymModel::saveState(
     //
     bool repeatedCommand = false;
 
-    /* FIXME-2 Repeated command not supported yet in saveState
+    /* FIXME-3 Repeated command not supported yet in saveState
     // Undo Scripts start with "model.select" - do not consider these for repeated actions
     if (!undoCommand.startsWith("{")) {
         if (curStep > 0 && redoSelection == lastRedoSelection()) {
@@ -2934,24 +2934,24 @@ void VymModel::setScale(const qreal &f, const bool relative)
     setScaleImage(f, relative);
 }
 
-void VymModel::growSelectionSize()  // FIXME-2 missing saveState
+void VymModel::growSelectionSize()
 {
     setScale(0.05, true);
 }
 
-void VymModel::shrinkSelectionSize()    // FIXME-2 missing saveState
+void VymModel::shrinkSelectionSize()
 {
     setScale(- 0.05, true);
 }
 
-void VymModel::resetSelectionSize() // FIXME-2 missing saveState. Switch (back?) to autodesign?
+void VymModel::resetSelectionSize() // FIXME-3 missing saveState. Switch (back?) to autodesign?
 {
     ImageItem *selii = getSelectedImage();
     if (selii)
         setScale(1, false);
 }
 
-void VymModel::setBranchesLayout(const QString &s, BranchItem *bi)  // FIXME-2 no saveState yet (save: positions, auto, layout!)
+void VymModel::setBranchesLayout(const QString &s, BranchItem *bi)  // FIXME-3 no saveState yet (save: positions, auto, layout!)
 {
     qDebug() << "VM::setBranchesLayout for " << headingText(bi) << s;
     QList<BranchItem *> selbis = getSelectedBranches(bi);
@@ -2990,7 +2990,7 @@ void VymModel::setBranchesLayout(const QString &s, BranchItem *bi)  // FIXME-2 n
 
 }
 
-void VymModel::setImagesLayout(const QString &s, BranchItem *bi)  // FIXME-2 no saveState yet (save positions, too!)
+void VymModel::setImagesLayout(const QString &s, BranchItem *bi)  // FIXME-3 no saveState yet (save positions, too!)
 {
     BranchContainer *bc;
     QList<BranchItem *> selbis = getSelectedBranches(bi);
@@ -3875,7 +3875,7 @@ QString VymModel::getXLinkStyleEnd()
     else
         return QString();
 }
-AttributeItem *VymModel::setAttribute( // FIXME-2 saveState( missing. For bulk changes like Jira maybe save whole branch use Script...
+AttributeItem *VymModel::setAttribute( // FIXME-3 saveState( missing. For bulk changes like Jira maybe save whole branch use Script...
         BranchItem *dst,
         const QString &key,
         const QVariant &value,
@@ -5109,7 +5109,7 @@ QColor VymModel::getCurrentHeadingColor()
     return Qt::black;
 }
 
-void VymModel::note2URLs() // FIXME-2 No saveState yet
+void VymModel::note2URLs() // FIXME-3 No saveState yet
 {
     BranchItem *selbi = getSelectedBranch();
     if (selbi) {
@@ -6363,7 +6363,7 @@ void VymModel::applyDesignRecursively(
         applyDesign(updateMode, bi->getBranchNum(i));
 }
 
-void VymModel::setDefaultFont(const QFont &font)    // FIXME-2 no saveState, no updates of existing headings ("applyDesign")
+void VymModel::setDefaultFont(const QFont &font)    // FIXME-3 no saveState, no updates of existing headings ("applyDesign")
 {
     mapDesignInt->setFont(font);
 }
@@ -6467,7 +6467,7 @@ void VymModel::toggleLinkColorHint()
         setLinkColorHint(LinkObj::HeadingColor);
 }
 
-void VymModel::setBackgroundColor(QColor col)   // FIXME-2 Missing saveState command?
+void VymModel::setBackgroundColor(QColor col)   // FIXME-3 Missing saveState command?
 {
     QColor oldcol = mapDesignInt->backgroundColor();
     saveState(QString("map.setBackgroundColor (\"%1\");").arg(oldcol.name()),
@@ -6477,7 +6477,7 @@ void VymModel::setBackgroundColor(QColor col)   // FIXME-2 Missing saveState com
     vymView->updateColors();
 }
 
-bool VymModel::setBackgroundImage( const QString &fn)   // FIXME-2 missing saveState
+bool VymModel::setBackgroundImage( const QString &fn)   // FIXME-3 missing saveState
 {
     /*
     QColor oldcol=mapEditor->getScene()->backgroundBrush().color();
@@ -6496,12 +6496,12 @@ bool VymModel::setBackgroundImage( const QString &fn)   // FIXME-2 missing saveS
         return false;
 }
 
-void VymModel::setBackgroundImageName( const QString &s) // FIXME-2 missing saveState
+void VymModel::setBackgroundImageName( const QString &s) // FIXME-3 missing saveState
 {
     mapDesignInt->setBackgroundImageName(s);
 }
 
-void VymModel::unsetBackgroundImage()   // FIXME-2 missing saveState
+void VymModel::unsetBackgroundImage()   // FIXME-3 missing saveState
 {
     /*
     QColor oldcol=mapEditor->getScene()->backgroundBrush().color();

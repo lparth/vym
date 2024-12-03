@@ -27,7 +27,7 @@ VymWrapper::VymWrapper()
 
 VymWrapper::~VymWrapper()
 {
-    qDebug() << "Destr. VymWrapper";
+    // qDebug() << "Destr. VymWrapper";
 }
 
 void VymWrapper::clearConsole() { mainWindow->clearScriptOutput(); }
