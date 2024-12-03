@@ -1499,7 +1499,7 @@ void Main::setupFileActions()
     QMenu *fileMenu = menuBar()->addMenu(tag);
 
     QAction *a;
-    a = new QAction(QPixmap(":/filenew.svg"), tr("&New map", "File menu"),
+    a = new QAction(QPixmap(QString(":/document-new-%1.svg").arg(iconTheme)), tr("&New map", "File menu"),
                     this);
     switchboard.addSwitch("fileMapNew", shortcutScope, a, tag);
     connect(a, SIGNAL(triggered()), this, SLOT(fileNew()));
@@ -1515,7 +1515,7 @@ void Main::setupFileActions()
     fileMenu->addAction(a);
     actionFileNewCopy = a;
 
-    a = new QAction(QPixmap(":/fileopen.png"), tr("&Open...", "File menu"),
+    a = new QAction(QPixmap(QString(":/document-open-%1").arg(iconTheme)), tr("&Open...", "File menu"),
                     this);
     switchboard.addSwitch("fileMapOpen", shortcutScope, a, tag);
     connect(a, SIGNAL(triggered()), this, SLOT(fileLoad()));
@@ -1540,8 +1540,7 @@ void Main::setupFileActions()
     fileLastMapsMenu->addAction(a);
     actionClearRecent = a;
 
-    a = new QAction(QPixmap(":/filesave.svg"), tr("&Save...", "File menu"),
-                    this);
+    a = new QAction(QPixmap(QString(":/document-save-%1.svg").arg(iconTheme)), tr("&Save...", "File menu"), this);
     switchboard.addSwitch("fileMapSave", shortcutScope, a, tag);
     cloneActionMapEditor(a, Qt::CTRL | Qt::Key_S);
     fileMenu->addAction(a);
@@ -1549,7 +1548,7 @@ void Main::setupFileActions()
     connect(a, SIGNAL(triggered()), this, SLOT(fileSave()));
     actionFileSave = a;
 
-    a = new QAction(QPixmap(":/filesaveas.svg"), tr("Save &As...", "File menu"),
+    a = new QAction(QPixmap(QString(":/document-save-as-%1.svg").arg(iconTheme)), tr("Save &As...", "File menu"),
                     this);
     fileMenu->addAction(a);
     connect(a, SIGNAL(triggered()), this, SLOT(fileSaveAs()));
@@ -1602,7 +1601,7 @@ void Main::setupFileActions()
 
     fileExportMenu = fileMenu->addMenu(tr("Export", "File menu"));
 
-    a = new QAction(QPixmap(":/file-document-export.png"),
+    a = new QAction(QPixmap(QString(":/document-export-%1.svg").arg(iconTheme)),
                     tr("Repeat last export (%1)").arg("-"), this);
     switchboard.addSwitch("fileExportLast", shortcutScope, a, tag);
     connect(a, SIGNAL(triggered()), this, SLOT(fileExportLast()));
@@ -1712,7 +1711,7 @@ void Main::setupFileActions()
 
     fileMenu->addSeparator();
 
-    a = new QAction(QPixmap(":/fileprint.svg"), tr("&Print") + QString("..."),
+    a = new QAction(QPixmap(QString(":/document-print-%1.svg").arg(iconTheme)), tr("&Print") + QString("..."),
                     this);
     a->setShortcut(Qt::CTRL | Qt::Key_P);
     switchboard.addSwitch("fileMapPrint", shortcutScope, a, tag);
@@ -1778,7 +1777,7 @@ void Main::setupEditActions()
     actionRedo = a;
 
     editMenu->addSeparator();
-    a = new QAction(QPixmap(":/edit-copy.svg"), tr("&Copy", "Edit menu"), this);    // FIXME-2 breeze icon not committed yet!
+    a = new QAction(QPixmap(QString(":/edit-copy-%1.svg").arg(iconTheme)), tr("&Copy", "Edit menu"), this);    // FIXME-2 breeze icon not committed yet!
     a->setShortcut(Qt::CTRL | Qt::Key_C);
     a->setShortcutContext(Qt::WidgetShortcut);
     a->setEnabled(false);
@@ -1789,7 +1788,7 @@ void Main::setupEditActions()
     connect(a, SIGNAL(triggered()), this, SLOT(editCopy()));
     actionCopy = a;
 
-    a = new QAction(QPixmap(":/edit-cut.svg"), tr("Cu&t", "Edit menu"), this);
+    a = new QAction(QPixmap(QString(":/edit-cut-%1.svg").arg(iconTheme)), tr("Cu&t", "Edit menu"), this);
     // Multi key shortcuts https://bugreports.qt.io/browse/QTBUG-39127
     a->setShortcut(Qt::CTRL | Qt::Key_X);
     a->setEnabled(false);
@@ -1803,7 +1802,7 @@ void Main::setupEditActions()
     addAction(a);
     actionCut = a;
 
-    a = new QAction(QPixmap(":/edit-paste.svg"), tr("&Paste", "Edit menu"),
+    a = new QAction(QPixmap(QString(":/edit-paste-%1.svg").arg(iconTheme)), tr("&Paste", "Edit menu"),
                     this);
     connect(a, SIGNAL(triggered()), this, SLOT(editPaste()));
     a->setShortcut(Qt::CTRL | Qt::Key_V);
@@ -1969,8 +1968,7 @@ void Main::setupEditActions()
     actionListBranches.append(a);
     actionDetach = a;
 
-    a = new QAction(QPixmap(":/editsort.png"), tr("Sort children", "Edit menu"),
-                    this);
+    a = new QAction(QPixmap(QString(":/view-sort-ascending-name-%1.svg").arg(iconTheme)), tr("Sort children", "Edit menu"), this);
     a->setEnabled(true);
     a->setShortcut(Qt::Key_O);
     switchboard.addSwitch("mapSortBranches", shortcutScope, a, tag);
@@ -1979,8 +1977,7 @@ void Main::setupEditActions()
     actionListBranches.append(a);
     actionSortChildren = a;
 
-    a = new QAction(QPixmap(":/editsortback.png"),
-                    tr("Sort children backwards", "Edit menu"), this);
+    a = new QAction(QPixmap(QString(":/view-sort-descending-name-%1.svg").arg(iconTheme)), tr("Sort children backwards", "Edit menu"), this);
     a->setEnabled(true);
     a->setShortcut(Qt::SHIFT | Qt::Key_O);
     switchboard.addSwitch("mapSortBranchesReverse", shortcutScope, a, tag);

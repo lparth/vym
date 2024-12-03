@@ -22,7 +22,7 @@ extern bool usingDarkTheme;
 
 VymWrapper::VymWrapper()
 {
-    qDebug() << "Constr. VymWrapper";
+    // qDebug() << "Constr. VymWrapper";
 }
 
 VymWrapper::~VymWrapper()

@@ -10,6 +10,7 @@
 #include "slidecontrolwidget.h"
 
 extern Main *mainWindow;
+extern QString iconTheme;
 
 SlideControlWidget::SlideControlWidget(QWidget *)
 {
@@ -35,7 +36,7 @@ SlideControlWidget::SlideControlWidget(QWidget *)
     snapshotButton = new QPushButton;
     // snapshotButton->setIcon (QPixmap ( ":/sliderecord.png" ));
     // Original: /usr/share/icons/oxygen/32x32/devices/camera-photo.png
-    snapshotButton->setIcon(QPixmap(":/slide-camera.png"));
+    snapshotButton->setIcon(QPixmap(QString(":/camera-photo-%1.svg").arg(iconTheme)));
     connect(snapshotButton, SIGNAL(clicked()), this, SLOT(snapshotPressed()));
 
     editButton = new QPushButton;
@@ -43,7 +44,7 @@ SlideControlWidget::SlideControlWidget(QWidget *)
     connect(editButton, SIGNAL(clicked()), this, SLOT(editPressed()));
 
     deleteButton = new QPushButton;
-    deleteButton->setIcon(QPixmap(":/user-trash.svg"));
+    deleteButton->setIcon(QPixmap(QString(":/edit-delete-%1.svg").arg(iconTheme)));
     connect(deleteButton, SIGNAL(clicked()), this, SLOT(deletePressed()));
 
     row2Layout->addWidget(previousButton);
