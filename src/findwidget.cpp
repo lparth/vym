@@ -14,6 +14,7 @@
 
 extern Main *mainWindow;
 extern bool usingDarkTheme;
+extern QString iconTheme;
 
 FindWidget::FindWidget(QWidget *)
 {
@@ -35,7 +36,7 @@ FindWidget::FindWidget(QWidget *)
             SLOT(findTextChanged(const QString &)));
 
     nextButton = new QPushButton;
-    nextButton->setIcon(QPixmap(":/find.svg"));
+    nextButton->setIcon(QPixmap(QString(":/edit-find-%1.svg").arg(iconTheme)));
     // nextButton->setText (tr("Find","Find widget"));
     connect(nextButton, SIGNAL(clicked()), this, SLOT(nextPressed()));
 
