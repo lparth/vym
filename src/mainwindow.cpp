@@ -2,6 +2,7 @@
 
 #include <iostream>
 
+#define ADD_SHORTCUT a->setToolTip(a->toolTip() + QString(" (%1)").arg(a->shortcut().toString()));
 #if defined(VYM_DBUS)
 #include "adaptorvym.h"
 #endif
@@ -2703,65 +2704,70 @@ void Main::setupViewActions()
     connect(a, SIGNAL(triggered()), this, SLOT(togglePresentationMode()));
     actionTogglePresentationMode = a;
 
-    a = new QAction(QPixmap(":/viewmag+.png"), tr("Zoom in", "View action"),
+    a = new QAction(QPixmap(QString(":/zoom-in-%1.svg").arg(iconTheme)), tr("Zoom in", "View action"),
                     this);
     a->setShortcut(Qt::Key_Plus);
+    ADD_SHORTCUT
     viewMenu->addAction(a);
     switchboard.addSwitch("mapZoomIn", shortcutScope, a, tag);
     connect(a, SIGNAL(triggered()), this, SLOT(viewZoomIn()));
     actionZoomIn = a;
 
-    a = new QAction(QPixmap(":/viewmag-.png"), tr("Zoom out", "View action"),
-                    this);
+    a = new QAction(QPixmap(QString(":/zoom-out-%1.svg").arg(iconTheme)), tr("Zoom out", "View action"), this);
     a->setShortcut(Qt::Key_Minus);
+    ADD_SHORTCUT
     viewMenu->addAction(a);
     switchboard.addSwitch("mapZoomOut", shortcutScope, a, tag);
     connect(a, SIGNAL(triggered()), this, SLOT(viewZoomOut()));
     actionZoomOut = a;
 
-    a = new QAction(QPixmap(":/transform-rotate-ccw.svg"),
+    a = new QAction(QPixmap(QString(":/transform-rotate-ccw-%1.svg").arg(iconTheme)),
                     tr("Rotate counterclockwise", "View action"), this);
     a->setShortcut(Qt::SHIFT | Qt::Key_R);
+    ADD_SHORTCUT
     viewMenu->addAction(a);
     switchboard.addSwitch("mapRotateCounterClockwise", shortcutScope, a, tag);
     connect(a, SIGNAL(triggered()), this, SLOT(viewRotateCounterClockwise()));
     actionRotateCounterClockwise = a;
 
-    a = new QAction(QPixmap(":/transform-rotate-cw.svg"),
-                    tr("Rotate rclockwise", "View action"), this);
+    a = new QAction(QPixmap(QString(":/transform-rotate-cw-%1.svg").arg(iconTheme)),
+                    tr("Rotate clockwise", "View action"), this);
     a->setShortcut(Qt::Key_R);
+    ADD_SHORTCUT
     viewMenu->addAction(a);
     switchboard.addSwitch("mapRotateClockwise", shortcutScope, a, tag);
     connect(a, SIGNAL(triggered()), this, SLOT(viewRotateClockwise()));
     actionRotateClockwise = a;
 
-    a = new QAction(QPixmap(":/viewmag-reset.png"),
+    a = new QAction(QPixmap(QString(":/zoom-original-%1").arg(iconTheme)),
                     tr("reset Zoom", "View action"), this);
     a->setShortcut(Qt::Key_Comma);
+    ADD_SHORTCUT
     switchboard.addSwitch("mapZoomReset", shortcutScope, a, tag);
     viewMenu->addAction(a);
     connect(a, SIGNAL(triggered()), this, SLOT(viewZoomReset()));
     actionZoomReset = a;
 
-    a = new QAction(QPixmap(":/viewshowsel.png"),
+    a = new QAction(QPixmap(QString(":/zoom-fit-best-%1.svg").arg(iconTheme)),
                     tr("Center on selection", "View action"), this);
     a->setShortcut(Qt::Key_Period);
+    ADD_SHORTCUT
     viewMenu->addAction(a);
     switchboard.addSwitch("mapCenterOn", shortcutScope, a, tag);
     connect(a, SIGNAL(triggered()), this, SLOT(viewCenter()));
     actionCenterOn = a;
 
-    a = new QAction(QPixmap(),
-                    tr("Fit view to selection", "View action"), this);
+    a = new QAction(tr("Fit view to selection", "View action"), this);
     a->setShortcut(Qt::Key_Period | Qt::SHIFT);
+    ADD_SHORTCUT
     viewMenu->addAction(a);
     switchboard.addSwitch("mapCenterAndFitView", shortcutScope, a, tag);
     connect(a, SIGNAL(triggered()), this, SLOT(viewCenterScaled()));
     actionCenterOnScaled = a;
 
-    a = new QAction(QPixmap(),
-                    tr("Rotate view to selection", "View action"), this);
+    a = new QAction( tr("Rotate view to selection", "View action"), this);
     a->setShortcut(Qt::Key_NumberSign);
+    ADD_SHORTCUT
     viewMenu->addAction(a);
     switchboard.addSwitch("mapCenterAndRotateView", shortcutScope, a, tag);
     connect(a, SIGNAL(triggered()), this, SLOT(viewCenterRotated()));
