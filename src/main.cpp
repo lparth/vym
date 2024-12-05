@@ -352,19 +352,19 @@ int main(int argc, char *argv[])
     int bg_hsv_value = app.palette().color(QPalette::Base).value();
     systemSeemsDark = (text_hsv_value > bg_hsv_value);
     QString settingsDarkTheme = settings.value("/system/darkTheme", "system").toString();
-    usingDarkTheme = false; // FIXME-2 bright theme cannot be enforced (at least on Linux, KDE settings are used)
+    usingDarkTheme = false;
     iconPrefix = "bright-";
     iconTheme = "bright";
     if (settingsDarkTheme != "never") {
         if (settingsDarkTheme == "always" || (settingsDarkTheme == "system" && systemSeemsDark)) {
+            qDebug() << "Setting darkTheme...  usingDT=" << usingDarkTheme << "  settingsDT="<< settingsDarkTheme;
             usingDarkTheme = true;
             iconPrefix = "dark-";
             iconTheme = "dark";
         }
     }
 
-#if defined(Q_OS_WINDOWS)
-    if (usingDarkTheme) {
+    if (usingDarkTheme && settingsDarkTheme == "always") {
         qApp->setStyle(QStyleFactory::create("fusion"));
         //qApp->setStyle(QStyleFactory::create("Windows"));
         //qApp->setStyle(QStyleFactory::create("windowsvista"));
@@ -390,7 +390,6 @@ int main(int argc, char *argv[])
         //palette.setColor(QPalette::Midlight, Qt::red);
         qApp->setPalette(palette);
     }
-#endif
 
     // Prepare and check translations
     vymTranslationsDir = QDir(vymBaseDir.path() + "/translations");
