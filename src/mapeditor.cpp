@@ -75,6 +75,7 @@ MapEditor::MapEditor(VymModel *vm)
         mapScene->addItem(y_axis);
 
         // Add another cross
+        /*
         p = QPointF(200,0);
         size = 20;
         QGraphicsRectItem *x_axis2 = new QGraphicsRectItem(p.x() - size, p.y(), size * 2, 1 );
@@ -86,6 +87,7 @@ MapEditor::MapEditor(VymModel *vm)
 
         mapScene->addItem(x_axis2);
         mapScene->addItem(y_axis2);
+        */
     }
 
     zoomFactorInt = zoomFactorTargetInt = 1;
