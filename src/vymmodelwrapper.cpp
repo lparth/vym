@@ -22,7 +22,11 @@
 extern Main *mainWindow;
 
 ///////////////////////////////////////////////////////////////////////////
-VymModelWrapper::VymModelWrapper(VymModel *m) { model = m; }
+VymModelWrapper::VymModelWrapper(VymModel *m)
+{
+    qDebug() << "Constr VMWrapper";
+    model = m;
+}
 
 void VymModelWrapper::addMapCenterAtPos(qreal x, qreal y)
 {
