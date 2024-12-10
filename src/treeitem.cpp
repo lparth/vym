@@ -217,7 +217,7 @@ int TreeItem::depth()
 
 TreeItem *TreeItem::parent()
 {
-    // qDebug() << "TI::parent of "<<headingStd()<<"  is "<<parentItem;
+    // qDebug() << "TI::parent of " << headingStd() << "  is " << parentItem;
     return parentItem;
 }
 

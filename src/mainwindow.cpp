@@ -7269,9 +7269,6 @@ QVariant Main::runScript(const QString &script)
 
     scriptResult.clear();
 
-    qDebug() << "ok0";
-    qDebug() << __func__ << " vymWrapper=" << vymWrapper;
-
     QJSValue val2 = scriptEngine->newQObject(vymWrapper);
 
     // Make sure that deleting scriptEngine later does not delete vymWrapper, too

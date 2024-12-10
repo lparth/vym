@@ -95,7 +95,7 @@ void VymReader::readVymMap()
 
         if (loadMode == File::ImportReplace) {
             if (!lastBranch) {
-                xml.raiseError("readVymMap - Import/Replace map, but nothing selected!");
+                xml.raiseError("readVymMap - ImportReplace map, but nothing selected!");    // FIXME-2 not working, even if something is selected
                 return;
             }
 
@@ -106,7 +106,7 @@ void VymReader::readVymMap()
                 return;
             }
 
-            model->deleteItem(lastBranch);
+            model->deleteSelection(lastBranch->getID());
             lastBranch = pb;
             loadMode = File::ImportAdd;
         } else {
@@ -848,6 +848,7 @@ void VymReader::readXLink()
 
     QString beginID = xml.attributes().value("beginID").toString();
     QString endID = xml.attributes().value("endID").toString();
+    QString xlinkID = xml.attributes().value("uuid").toString();
     TreeItem *beginBI;
     TreeItem *endBI;
 

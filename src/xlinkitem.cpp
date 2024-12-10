@@ -25,8 +25,7 @@ XLinkItem::~XLinkItem()
     if (xlinkInt) {
         xlinkInt->unsetXLinkItem(this);
 
-        // This will remove both XLink and other XLinkItem
-        model->deleteXLinkInt(xlinkInt);
+        model->deleteXLinkLater(xlinkInt);
     }
 }
 

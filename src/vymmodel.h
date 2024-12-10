@@ -528,10 +528,13 @@ class VymModel : public TreeModel {
     TreeItem *deleteItem(
         TreeItem *); //!< Delete item and return parent (if parent!= rootItem)
 
-    void deleteXLink(XLink *); //!< Delete XLink and saveState
+    void deleteXLink(XLink *);      //!< Delete XLink and saveState
+    void deleteXLinkLater(XLink *); //!< Queue XLink for later deletion. Called from destructor of XLinkItem
 
   private:
-    void deleteXLinkInt(XLink *); //!< Delete XLink internal
+    QList <XLink*> xlinksTrash;
+    void emptyXLinksTrash();            //!< Remove unused XLinks
+    void deleteXLinkInt(XLink *);       //!< Delete XLink internal
 
   public:
     bool scrollBranch(BranchItem *);

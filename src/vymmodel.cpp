@@ -153,10 +153,14 @@ VymModel::~VymModel()
 
     // Delete rootItem already now, while VymModel is still around
     // ImageItems can ask VymModel for a path in their destructor then.
+    // Delete whole tree, XLinkItems will be queude for deletion in xlinksTrash
     delete rootItem;
+
+    emptyXLinksTrash();
 
     delete (wrapper);
     delete mapDesignInt;
+
 
     //qDebug() << "Destr VymModel end this=" << this;
 
@@ -4576,6 +4580,9 @@ void VymModel::deleteSelection(ulong selID)
                 qWarning("VymmModel::deleteSelection()  unknown type?!");
         } // ti found
     } // Loop over selectedIDs
+
+    emptyXLinksTrash();
+
     reposition();
 }
 
@@ -4623,6 +4630,9 @@ void VymModel::deleteKeepChildren(BranchItem *bi)
             }
         }
     }
+
+    emptyXLinksTrash();
+
 }
 
 void VymModel::deleteChildren(BranchItem *bi)
@@ -4650,6 +4660,7 @@ void VymModel::deleteChildren(BranchItem *bi)
         emitDataChanged(selbi);
         reposition();
     }
+    emptyXLinksTrash();
 }
 
 void VymModel::deleteChildrenBranches(BranchItem *bi)
@@ -4680,8 +4691,10 @@ void VymModel::deleteChildrenBranches(BranchItem *bi)
         }
     }
 
-    if (selbis.count() > 0)
+    if (selbis.count() > 0)  {
+        emptyXLinksTrash();
         reposition();
+    }
 }
 
 TreeItem *VymModel::deleteItem(TreeItem *ti)
@@ -4697,6 +4710,7 @@ TreeItem *VymModel::deleteItem(TreeItem *ti)
         emit layoutAboutToBeChanged();
 
         int n = ti->childNum();
+        //qDebug() << "TI::deleteItem " << ti << "  n=" << n << " px=" << parentIndex;
         beginRemoveRows(parentIndex, n, n);
         removeRows(n, 1, parentIndex);  // Deletes object!
         endRemoveRows();
@@ -4731,10 +4745,32 @@ void VymModel::deleteXLink(XLink *xlink)
     deleteXLinkInt(xlink);
 }
 
+void VymModel::deleteXLinkLater(XLink *xlink)
+{
+    //qDebug() << "VM::deleteXLinkLater: " << xlink;
+
+    if (!xlinksTrash.contains(xlink)) {
+        xlinksTrash << xlink;
+        xlinks.removeOne(xlink);
+    }
+}
+
+void VymModel::emptyXLinksTrash()
+{
+    //qDebug() << "*** VM::emptyXLinksTrash " << xlinksTrash;
+
+    foreach (XLink *xlink, xlinksTrash)
+        deleteXLinkInt(xlink);
+
+    xlinksTrash.clear();
+}
+
 void VymModel::deleteXLinkInt(XLink *xlink)
 {
+    //qDebug() << __func__ << xlink;
+
     if (!xlink) {
-        qWarning() << __FUNCTION__ << "No xlink ?!";
+        qWarning() << __func__ << "No xlink ?!";
         return;
     }
 
@@ -4742,18 +4778,26 @@ void VymModel::deleteXLinkInt(XLink *xlink)
     XLinkItem *xli;
     xli = xlink->beginXLinkItem();
     if (xli) {
+        //qDebug() << "  Deleting begin xli" << xli;
         xli->setXLink(nullptr);
         deleteItem(xli);
     }
     xli = xlink->endXLinkItem();
     if (xli) {
+        //qDebug() << "  Deleting end xli" << xli;
         xli->setXLink(nullptr);
         deleteItem(xli);
     }
 
     // Remove from list of items and delete xlink itself, including XLinkObj
-    if (xlinks.removeOne(xlink))
+    if (xlinks.removeOne(xlink)) {
+        //qDebug() << "  Removing xlink from xlinks";
         delete (xlink);
+    }
+    if (xlinksTrash.removeOne(xlink)) {
+        //qDebug() << "  Removing xlink from xlinksTrash";
+        delete (xlink);
+    }
 }
 
 bool VymModel::scrollBranch(BranchItem *bi)

@@ -24,7 +24,7 @@ XLink::XLink(VymModel *m)
 
 XLink::~XLink()
 {
-    // std::cout << "Destr XLink" << this << std::endl << std::flush;
+    //std::cout << "Destr XLink" << this << std::endl << std::flush;
 
     delete (xlo);
 
