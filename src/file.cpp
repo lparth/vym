@@ -22,6 +22,9 @@ extern QDir lastImageDir;
 
 QString convertToRel(const QString &src, const QString &dst)
 {
+    if (src.isEmpty())
+        return dst;
+
     // Creates a relative path pointing from src to dst
 
     QString s = src;
