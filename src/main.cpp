@@ -357,7 +357,6 @@ int main(int argc, char *argv[])
     iconTheme = "bright";
     if (settingsDarkTheme != "never") {
         if (settingsDarkTheme == "always" || (settingsDarkTheme == "system" && systemSeemsDark)) {
-            qDebug() << "Setting darkTheme...  usingDT=" << usingDarkTheme << "  settingsDT="<< settingsDarkTheme;
             usingDarkTheme = true;
             iconPrefix = "dark-";
             iconTheme = "dark";
