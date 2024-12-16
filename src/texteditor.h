@@ -9,7 +9,7 @@ class QComboBox;
 
 #include "vymtext.h"
 
-enum EditorState { inactiveEditor, emptyEditor, activeEditor };
+enum EditorState { inactiveEditor, emptyEditor, filledEditor };
 
 class TextEditor : public QMainWindow {
     Q_OBJECT
@@ -68,9 +68,9 @@ class TextEditor : public QMainWindow {
 
   private slots:
     void textLoad();
-    void textSaveAs();
-    void textSave();
-    void textExportAsASCII();
+    void textExportAs();
+    void textExport();
+    void textExportText();
     void textPrint();
     void textEditUndo();
     void toggleFonthint();
@@ -136,9 +136,20 @@ class TextEditor : public QMainWindow {
     QToolBar *fontHintsToolBar;
     QToolBar *formatToolBar;
 
-    QAction *actionFileLoad, *actionFileSave, *actionFileSaveAs,
+    // Filled editor only actions
+    QList <QAction*> filledEditorActions;
+
+    // Filled editor RichText actions
+    QList <QAction*> filledEditorRichTextActions;
+
+    // Empty editor actions
+    QList <QAction*> emptyEditorActions;
+
+    QAction *actionFileLoad,
+        *actionFileExport, *actionFileExportHtml, *actionFileExportText,
         *actionFilePrint, *actionFileDeleteAll, *actionEditUndo,
         *actionEditRedo, *actionEditCopy, *actionEditCut, *actionEditPaste,
+        *actionSelectAll,
 	*actionInsertImage,
         *actionFormatUseFixedFont, *actionFormatRichText,
         *actionSettingsVarFont, *actionSettingsFixedFont,

@@ -212,7 +212,7 @@ QString TextEditor::getFontHintDefault()
 
 void TextEditor::setFilename(const QString &fn)
 {
-    if (state == activeEditor) {
+    if (state == filledEditor) {
         if (fn.isEmpty()) {
             filename = "";
             mainWindow->statusMessage(
@@ -327,27 +327,30 @@ void TextEditor::setupFileActions()
     actionFileLoad = a;
 
     fileMenu->addSeparator();
-    a = new QAction(QPixmap(QString(":/document-save-%1").arg(iconTheme)), tr("&Export..."), this);
+    a = new QAction(QPixmap(QString(":/document-export-%1").arg(iconTheme)), tr("&Export..."), this);
     a->setShortcut(Qt::CTRL | Qt::Key_S);
     a->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     switchboard.addSwitch("textSave", shortcutScope, a, tag);
-    connect(a, SIGNAL(triggered()), this, SLOT(textSave()));
+    connect(a, SIGNAL(triggered()), this, SLOT(textExport()));
     tb->addAction(a);
     fileMenu->addAction(a);
     addAction(a);
-    actionFileSave = a;
+    filledEditorActions << a;
+    actionFileExport = a;
 
     a = new QAction(tr("Export &As... (HTML)"), this);
-    connect(a, SIGNAL(triggered()), this, SLOT(textSaveAs()));
+    connect(a, SIGNAL(triggered()), this, SLOT(textExportHtml()));
     fileMenu->addAction(a);
-    actionFileSaveAs = a;
+    filledEditorActions << a;
+    actionFileExportHtml = a;
 
     a = new QAction(tr("Export &As...(ASCII)"), this);
     switchboard.addSwitch("textExportAsASCII", shortcutScope, a, tag);
-    connect(a, SIGNAL(triggered()), this, SLOT(textExportAsASCII()));
+    connect(a, SIGNAL(triggered()), this, SLOT(textExportText()));
     fileMenu->addAction(a);
     addAction(a);
-    actionFileSaveAs = a;
+    filledEditorActions << a;
+    actionFileExportText = a;
 
     fileMenu->addSeparator();
     a = new QAction(QPixmap(QString(":/document-print-%1.svg").arg(iconTheme)), tr("&Print..."), this);
@@ -356,12 +359,14 @@ void TextEditor::setupFileActions()
     connect(a, SIGNAL(triggered()), this, SLOT(textPrint()));
     tb->addAction(a);
     fileMenu->addAction(a);
+    filledEditorActions << a;
     actionFilePrint = a;
 
     a = new QAction(QPixmap(QString(":/edit-delete-%1.svg").arg(iconTheme)), tr("&Delete All"), this);
     connect(a, SIGNAL(triggered()), this, SLOT(deleteAll()));
     fileMenu->addAction(a);
     tb->addAction(a);
+    filledEditorActions << a;
     actionFileDeleteAll = a;
 }
 
@@ -381,6 +386,7 @@ void TextEditor::setupEditActions()
     connect(a, SIGNAL(triggered()), editor, SLOT(undo()));
     editMenu->addAction(a);
     editToolBar->addAction(a);
+    // filledEditorActions << a;  // FIXME-2  Use undoAvailable instead?
     actionEditUndo = a;
 
     a = new QAction(QPixmap(":/redo.png"), tr("&Redo"), this);
@@ -390,6 +396,7 @@ void TextEditor::setupEditActions()
     connect(a, SIGNAL(triggered()), editor, SLOT(redo()));
     editMenu->addAction(a);
     editToolBar->addAction(a);
+    filledEditorActions << a;
     actionEditRedo = a;
 
     editMenu->addSeparator();
@@ -399,6 +406,8 @@ void TextEditor::setupEditActions()
     switchboard.addSwitch("textCopyAll", shortcutScope, a, tag);
     connect(a, SIGNAL(triggered()), this, SLOT(editCopyAll()));
     editMenu->addAction(a);
+    filledEditorActions << a;
+    actionSelectAll = a;
 
     editMenu->addSeparator();
     a = new QAction(QPixmap(":/editcopy.svg"), tr("&Copy"), this);
@@ -408,6 +417,7 @@ void TextEditor::setupEditActions()
     connect(a, SIGNAL(triggered()), editor, SLOT(copy()));
     editMenu->addAction(a);
     editToolBar->addAction(a);
+    filledEditorActions << a;
     actionEditCopy = a;
 
     a = new QAction(QPixmap(":/editcut.png"), tr("Cu&t"), this);
@@ -417,6 +427,7 @@ void TextEditor::setupEditActions()
     connect(a, SIGNAL(triggered()), editor, SLOT(cut()));
     editMenu->addAction(a);
     editToolBar->addAction(a);
+    filledEditorActions << a;
     actionEditCut = a;
 
     a = new QAction(QPixmap(":/editpaste.png"), tr("&Paste"), this);
@@ -426,6 +437,7 @@ void TextEditor::setupEditActions()
     connect(a, SIGNAL(triggered()), editor, SLOT(paste()));
     editMenu->addAction(a);
     editToolBar->addAction(a);
+    filledEditorActions << a;
     actionEditPaste = a;
 
     a = new QAction(QPixmap(":/" + iconPrefix + "insert-image.svg"), tr("Insert image", "TextEditor") + "...", this);
@@ -433,6 +445,7 @@ void TextEditor::setupEditActions()
     connect(a, SIGNAL(triggered()), this, SLOT(insertImage()));
     editMenu->addAction(a);
     editToolBar->addAction(a);
+    filledEditorActions << a;
     actionInsertImage = a;
 }
 
@@ -455,6 +468,7 @@ void TextEditor::setupFormatActions()
     connect(a, SIGNAL(triggered()), this, SLOT(toggleFonthint()));
     formatMenu->addAction(a);
     fontHintsToolBar->addAction(a);
+    filledEditorActions << a;
     actionFormatUseFixedFont = a;
 
     // Original icon: ./share/icons/oxygen/22x22/actions/format-text-color.png
@@ -466,6 +480,7 @@ void TextEditor::setupFormatActions()
     connect(a, SIGNAL(triggered()), this, SLOT(toggleRichText()));
     formatMenu->addAction(a);
     fontHintsToolBar->addAction(a);
+    filledEditorActions << a;
     actionFormatRichText = a;
 
     fontToolBar = addToolBar(tr("Fonts", "toolbar in texteditor"));
@@ -502,6 +517,7 @@ void TextEditor::setupFormatActions()
     formatMenu->addAction(a);
     formatToolBar->addAction(a);
     connect(a, SIGNAL(triggered()), this, SLOT(selectTextFGColor()));
+    filledEditorRichTextActions << a;
     actionTextFGColor = a;
 
     pix.fill(editor->textBackgroundColor());
@@ -509,6 +525,7 @@ void TextEditor::setupFormatActions()
     formatMenu->addAction(a);
     formatToolBar->addAction(a);
     connect(a, SIGNAL(triggered()), this, SLOT(selectTextBGColor()));
+    filledEditorRichTextActions << a;
     actionTextBGColor = a;
 
     a = new QAction(QPixmap(":/" + iconPrefix + "format-text-bold.svg"), tr("&Bold"), this);
@@ -519,6 +536,7 @@ void TextEditor::setupFormatActions()
     formatToolBar->addAction(a);
     formatMenu->addAction(a);
     a->setCheckable(true);
+    filledEditorRichTextActions << a;
     actionTextBold = a;
 
     a = new QAction(QPixmap(":/" + iconPrefix + "format-text-italic.svg"), tr("&Italic"), this);
@@ -529,6 +547,7 @@ void TextEditor::setupFormatActions()
     formatToolBar->addAction(a);
     formatMenu->addAction(a);
     a->setCheckable(true);
+    filledEditorRichTextActions << a;
     actionTextItalic = a;
 
     a = new QAction(QPixmap(":/" + iconPrefix + "text-format-underline.svg"), tr("&Underline"), this);
@@ -538,6 +557,7 @@ void TextEditor::setupFormatActions()
     connect(a, SIGNAL(triggered()), this, SLOT(textUnderline()));
     formatToolBar->addAction(a);
     formatMenu->addAction(a);
+    filledEditorRichTextActions << a;
     a->setCheckable(true);
     // richTextWidgets.append((QWidget*)a);
     actionTextUnderline = a;
@@ -553,6 +573,7 @@ void TextEditor::setupFormatActions()
     formatMenu->addAction(a);
     switchboard.addSwitch("textToggleSub", shortcutScope, a, tag);
     connect(a, SIGNAL(triggered()), this, SLOT(textVAlign()));
+    filledEditorRichTextActions << a;
     actionAlignSubScript = a;
 
     a = new QAction(QPixmap(":/" + iconPrefix + "text-format-superscript.svg"), tr("Su&perscript"), actGrp2);
@@ -563,6 +584,7 @@ void TextEditor::setupFormatActions()
     formatMenu->addAction(a);
     switchboard.addSwitch("textToggleSuper", shortcutScope, a, tag);
     connect(a, SIGNAL(triggered()), this, SLOT(textVAlign()));
+    filledEditorRichTextActions << a;
     actionAlignSuperScript = a;
     QActionGroup *grp = new QActionGroup(this);
     connect(grp, SIGNAL(triggered(QAction *)), this,
@@ -575,24 +597,28 @@ void TextEditor::setupFormatActions()
     a->setCheckable(true);
     formatToolBar->addAction(a);
     formatMenu->addAction(a);
+    filledEditorRichTextActions << a;
     actionAlignLeft = a;
     a = new QAction(QPixmap(":/" + iconPrefix + "format-justify-center.svg"), tr("C&enter"), grp);
     // a->setShortcut(  Qt::CTRL | Qt::Key_E);
     a->setCheckable(true);
     formatToolBar->addAction(a);
     formatMenu->addAction(a);
+    filledEditorRichTextActions << a;
     actionAlignCenter = a;
     a = new QAction(QPixmap(":/" + iconPrefix + "format-justify-right.svg"), tr("&Right"), grp);
     // a->setShortcut(Qt::CTRL | Qt::Key_R );
     a->setCheckable(true);
     formatToolBar->addAction(a);
     formatMenu->addAction(a);
+    filledEditorRichTextActions << a;
     actionAlignRight = a;
     a = new QAction(QPixmap(":/" + iconPrefix + "format-justify-fill.svg"), tr("&Justify"), grp);
     // a->setShortcut(Qt::CTRL | Qt::Key_J );
     a->setCheckable(true);
     formatToolBar->addAction(a);
     formatMenu->addAction(a);
+    filledEditorRichTextActions << a;
     actionAlignJustify = a;
 }
 
@@ -709,7 +735,7 @@ void TextEditor::editorChanged()
     if (isEmpty())
         state = emptyEditor;
     else
-        state = activeEditor;
+        state = filledEditor;
 
     if (!blockChangedSignal) {
         blockTextUpdate = true;
@@ -811,7 +837,7 @@ void TextEditor::deleteAll()
     editor->clear();
 }
 
-void TextEditor::textSaveAs()
+void TextEditor::textExportAs()
 {
     QTextCharFormat f = editor->currentCharFormat();
 
@@ -835,12 +861,12 @@ void TextEditor::textSaveAs()
 
             // save
             filename = fn;
-            textSave();
+            textExport();
             return;
         }
         else {
             filename = fn;
-            textSave();
+            textExport();
             return;
         }
     }
@@ -848,14 +874,19 @@ void TextEditor::textSaveAs()
         tr("Couldn't export note ", "dialog 'save note as'") + fn);
 }
 
-void TextEditor::textSave()
+void TextEditor::textExport()
 {
     if (filename.isEmpty()) {
-        textSaveAs();
+        textExportAs();
         return;
     }
 
-    QString text = editor->toHtml(); // FIXME-4 or plaintext? check...
+    QString text;
+    if (actionFormatRichText->isChecked())
+        text = editor->toHtml();
+    else
+        text = editor->toPlainText();
+
     QFile f(filename);
     if (!f.open(QIODevice::WriteOnly)) {
         mainWindow->statusMessage(QString("Could not write to %1").arg(filename));
@@ -871,7 +902,7 @@ void TextEditor::textSave()
     mainWindow->statusMessage(QString("Note exported as %1").arg(filename));
 }
 
-void TextEditor::textExportAsASCII()
+void TextEditor::textExportText()
 {
     QString fn, s;
     if (!filenameHint.isEmpty()) {
@@ -1136,61 +1167,30 @@ void TextEditor::verticalAlignmentChanged(QTextCharFormat::VerticalAlignment a)
 
 void TextEditor::updateActions()
 {
-    bool b;
-    b = (state == inactiveEditor) ? false : true;
-
-    actionFileLoad->setEnabled(b);
-    actionFileSave->setEnabled(b);
-    actionFileSaveAs->setEnabled(b);
-    actionFilePrint->setEnabled(b);
-    actionFileDeleteAll->setEnabled(b);
-    actionEditUndo->setEnabled(b);
-    actionEditRedo->setEnabled(b);
-    actionEditCopy->setEnabled(b);
-    actionEditCut->setEnabled(b);
-    actionEditPaste->setEnabled(b);
-    actionFormatUseFixedFont->setEnabled(b);
-    actionFormatRichText->setEnabled(b);
-
-    if (!actionFormatRichText->isChecked() || !b) {
-        comboFont->setEnabled(false);
-        comboSize->setEnabled(false);
-        fontToolBar->hide();
-        formatToolBar->hide();
-        actionTextFGColor->setEnabled(false);
-        actionTextBGColor->setEnabled(false);
-        actionTextBold->setEnabled(false);
-        actionTextUnderline->setEnabled(false);
-        actionTextItalic->setEnabled(false);
-        actionTextFGColor->setEnabled(false);
-        actionTextBGColor->setEnabled(false);
-        actionAlignSubScript->setEnabled(false);
-        actionAlignSuperScript->setEnabled(false);
-        actionAlignLeft->setEnabled(false);
-        actionAlignCenter->setEnabled(false);
-        actionAlignRight->setEnabled(false);
-        actionAlignJustify->setEnabled(false);
+    if (state == inactiveEditor) {
+        actionFileLoad->setEnabled(false);
+        foreach (QAction* a, filledEditorActions)
+            a->setEnabled(false);
+        foreach (QAction* a, filledEditorActions)
+            a->setEnabled(false);
+        foreach (QAction* a, filledEditorRichTextActions)
+            a->setEnabled(false);
+        return;
     }
-    else {
-        comboFont->setEnabled(true);
-        comboSize->setEnabled(true);
-        fontToolBar->show();
-        formatToolBar->show();
-        actionTextFGColor->setEnabled(true);
-        actionTextBGColor->setEnabled(true);
-        actionTextBold->setEnabled(true);
-        actionTextUnderline->setEnabled(true);
-        actionTextItalic->setEnabled(true);
-        actionTextFGColor->setEnabled(true);
-        actionTextBGColor->setEnabled(true);
-        actionAlignSubScript->setEnabled(true);
-        actionAlignSuperScript->setEnabled(true);
-        actionAlignLeft->setEnabled(true);
-        actionAlignCenter->setEnabled(true);
-        actionAlignRight->setEnabled(true);
-        actionAlignJustify->setEnabled(true);
-        actionFormatUseFixedFont->setEnabled(false);
-    }
+
+    actionFileLoad->setEnabled(true);
+
+    // editorState is filledEditor or emptyEditor
+    foreach (QAction* a, emptyEditorActions)
+        a->setEnabled(true);
+
+    bool b = (state == filledEditor) ? true : false;
+    foreach (QAction* a, filledEditorActions)
+        a->setEnabled(b);
+
+    b = (state == filledEditor && actionFormatRichText->isChecked()) ? true : false;
+    foreach (QAction* a, filledEditorRichTextActions)
+        a->setEnabled(b);
 }
 
 void TextEditor::setState(EditorState s)
@@ -1207,7 +1207,7 @@ void TextEditor::setState(EditorState s)
 	    } else
                 editor->setTextColor(p.color(QPalette::Text));
 
-        case activeEditor:
+        case filledEditor:
             if (actionFormatRichText->isChecked()) {
                 if (useColorMapBackground)
                     baseColor = colorMapBackground;
@@ -1234,7 +1234,7 @@ void TextEditor::updateState()
     if (isEmpty())
         setState(emptyEditor);
     else
-        setState(activeEditor);
+        setState(filledEditor);
 }
 
 void TextEditor::selectRichTextEditorBackgroundColor()
