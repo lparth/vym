@@ -248,18 +248,12 @@ int TreeItem::num(TreeItem *item)
     if (!childItems.contains(item))
         return -1;
     switch (item->getType()) {
-    case MapCenter:
-        return childItems.indexOf(item) - branchOffset;
-    case Branch:
-        return childItems.indexOf(item) - branchOffset;
-    case Image:
-        return childItems.indexOf(item) - imageOffset;
-    case Attribute:
-        return childItems.indexOf(item) - attributeOffset;
-    case XLinkItemType:
-        return childItems.indexOf(item) - xlinkOffset;
-    default:
-        return -1;
+        case MapCenter: return childItems.indexOf(item) - branchOffset;
+        case Branch: return childItems.indexOf(item) - branchOffset;
+        case Image: return childItems.indexOf(item) - imageOffset;
+        case Attribute: return childItems.indexOf(item) - attributeOffset;
+        case XLinkItemType: return childItems.indexOf(item) - xlinkOffset;
+        default: return -1;
     }
 }
 void TreeItem::setType(const Type t)
