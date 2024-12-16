@@ -5623,7 +5623,7 @@ void VymModel::setExportMode(bool b)
         setHideTmpMode(TreeItem::HideNone);
 }
 
-QPointF VymModel::exportImage(QString fname, bool askName, QString format)
+QPointF VymModel::exportImage(QString fname, bool askName, QString format)  // FIXME-2 Ignores hiddenExportParent
 {
     QPointF offset; // set later, when getting image from MapEditor
 

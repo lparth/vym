@@ -1360,6 +1360,8 @@ if (TIactiveFlagUids.count() == 0) {
 
 void BranchContainer::reposition()
 {
+    // if (branchItem->hasHiddenExportParent()) return; // FIXME-2 not working
+
 // Set orientation based layout or
 // in the process of being (temporary) relinked
 BranchContainer *pbc = parentBranchContainer();

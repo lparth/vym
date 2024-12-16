@@ -42,7 +42,7 @@ void ExportConfluence::setPageName(const QString &t) { pageName = t;}
 
 QString ExportConfluence::getBranchText(BranchItem *current)
 {
-    if (current) {
+    if (current && !current->hasHiddenExportParent()) {
         QString id = model->getSelectString(current);
         QString heading = quoteMeta(current->headingPlain());
 
@@ -110,12 +110,7 @@ QString ExportConfluence::getBranchText(BranchItem *current)
             url = current->url();
 
             if (!url.isEmpty()) {
-                if (url.contains(settings.value("/atlassian/confluence/url",
-                       "---undefined---").toString()) && url.contains("&")) {
-
-                    // Fix ampersands in URL to Confluence itself
-                    url = quoteMeta(url);
-                }
+                url = quoteMeta(url);
 
                 s += QString("<a href=\"%1\">%2</a>")
                          .arg(url)
