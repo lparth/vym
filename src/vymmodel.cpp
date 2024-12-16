@@ -4710,7 +4710,8 @@ TreeItem *VymModel::deleteItem(TreeItem *ti)
         emit layoutAboutToBeChanged();
 
         int n = ti->childNum();
-        //qDebug() << "TI::deleteItem " << ti << "  n=" << n << " px=" << parentIndex;
+        qDebug() << "TI::deleteItem " << ti << "  n=" << n << " px=" << parentIndex;    // FIXME-2 Debugging
+        qDebug() << "               " << ti->headingText();
         beginRemoveRows(parentIndex, n, n);
         removeRows(n, 1, parentIndex);  // Deletes object!
         endRemoveRows();
