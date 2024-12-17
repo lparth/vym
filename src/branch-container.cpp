@@ -1319,43 +1319,43 @@ return r;
 
 void BranchContainer::updateVisuals()
 {
-// Update heading
-if (!branchItem)
-    return;
+    // Update heading
+    if (!branchItem)
+        return;
 
-headingContainer->setHeading(branchItem->heading());
+    headingContainer->setHeading(branchItem->heading());
 
-// Update standard flags active in TreeItem
-QList<QUuid> TIactiveFlagUids = branchItem->activeFlagUids();
-if (TIactiveFlagUids.count() == 0) {
-    if (standardFlagRowContainer) {
-        delete standardFlagRowContainer;
-        standardFlagRowContainer = nullptr;
+    // Update standard flags active in TreeItem
+    QList<QUuid> TIactiveFlagUids = branchItem->activeFlagUids();
+    if (TIactiveFlagUids.count() == 0) {
+        if (standardFlagRowContainer) {
+            delete standardFlagRowContainer;
+            standardFlagRowContainer = nullptr;
+        }
+    } else {
+        if (!standardFlagRowContainer) {
+            standardFlagRowContainer = new FlagRowContainer;
+            ornamentsContainer->addContainer(standardFlagRowContainer, Z_STANDARD_FLAGS);
+        }
+        standardFlagRowContainer->updateActiveFlagContainers(
+                TIactiveFlagUids, standardFlagsMaster, userFlagsMaster);
     }
-} else {
-    if (!standardFlagRowContainer) {
-        standardFlagRowContainer = new FlagRowContainer;
-        ornamentsContainer->addContainer(standardFlagRowContainer, Z_STANDARD_FLAGS);
-    }
-    standardFlagRowContainer->updateActiveFlagContainers(
-        TIactiveFlagUids, standardFlagsMaster, userFlagsMaster);
-}
 
-// Add missing system flags active in TreeItem
-TIactiveFlagUids = branchItem->activeSystemFlagUids();
-if (TIactiveFlagUids.count() == 0) {
-    if (systemFlagRowContainer) {
-        delete systemFlagRowContainer;
-        systemFlagRowContainer = nullptr;
+    // Add missing system flags active in TreeItem
+    TIactiveFlagUids = branchItem->activeSystemFlagUids();
+    if (TIactiveFlagUids.count() == 0) {
+        if (systemFlagRowContainer) {
+            delete systemFlagRowContainer;
+            systemFlagRowContainer = nullptr;
+        }
+    } else {
+        if (!systemFlagRowContainer) {
+            systemFlagRowContainer = new FlagRowContainer;
+            ornamentsContainer->addContainer(systemFlagRowContainer, Z_SYSTEM_FLAGS);
+        }
+        systemFlagRowContainer->updateActiveFlagContainers(
+                TIactiveFlagUids, systemFlagsMaster);
     }
-} else {
-    if (!systemFlagRowContainer) {
-        systemFlagRowContainer = new FlagRowContainer;
-        ornamentsContainer->addContainer(systemFlagRowContainer, Z_SYSTEM_FLAGS);
-    }
-    systemFlagRowContainer->updateActiveFlagContainers(
-        TIactiveFlagUids, systemFlagsMaster);
-}
 }
 
 void BranchContainer::reposition()
