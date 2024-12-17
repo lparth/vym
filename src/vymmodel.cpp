@@ -232,7 +232,7 @@ void VymModel::init()
 
     hasContextPos = false;
 
-    hidemode = TreeItem::HideNone;
+    hideMode = TreeItem::HideNone;
 
     // Animation in MapEditor
     zoomFactor = 1;
@@ -805,6 +805,10 @@ void VymModel::saveMap(const File::SaveMode &savemode)
     // Create mapName and fileDir
     makeSubDirs(fileDir);
 
+    // Real saving (not exporting) needs to save also temporary hidden parts
+    TreeItem::HideTmpMode hideModeOrg = hideMode;
+    setHideTmpMode(TreeItem::HideNone);
+
     QString mapStringData;
     if (savemode == File::CompleteMap || selModel->selection().isEmpty()) {
         // Save complete map    // FIXME-3 prefix still needed? all treeItems from all models have unique number in filename already...
@@ -829,6 +833,9 @@ void VymModel::saveMap(const File::SaveMode &savemode)
                                  QPointF(), getSelectedBranch());
         // FIXME-3 take care of multiselections when saving parts
     }
+
+    // Restore original mode
+    setHideTmpMode(hideModeOrg);
 
     QString saveFileName;
     if (zipped)
@@ -1993,6 +2000,17 @@ BranchItem* VymModel::findBranchByAttribute(const QString &key, const QString &v
 
 void VymModel::test()
 {
+    // Toggle HideExport
+    if (hideMode == TreeItem::HideNone) {
+        setHideTmpMode(TreeItem::HideExport);
+        qDebug() << "Hide export mode on";
+    } else {
+        setHideTmpMode(TreeItem::HideNone);
+        qDebug() << "Hide export mode off";
+    }
+    return;
+
+
     // Print item structure
     foreach (TreeItem *ti, getSelectedItems()) {
         if (ti->hasTypeBranch()) {
@@ -3047,8 +3065,8 @@ void VymModel::setHideExport(bool b, BranchItem *bi)
     QList <BranchItem*> selbis = getSelectedBranches(bi);
 
     foreach (BranchItem *selbi, selbis) {
-        if (selbi->hideInExport() != b) {
-            selbi->setHideInExport(b);
+        if (selbi->hideTemporary() != b) {
+            selbi->setHideTemporary(b);
             QString u = toS(!b);
             QString r = toS(b);
 
@@ -3068,7 +3086,7 @@ void VymModel::toggleHideExport()
 {
     QList<BranchItem *> selbis = getSelectedBranches();
     foreach (BranchItem *selbi, selbis) {
-        bool b = !selbi->hideInExport();
+        bool b = !selbi->hideTemporary();
         setHideExport(b, selbi);
     }
 }
@@ -6879,14 +6897,19 @@ BranchItem* VymModel::nextBranchIterator(const QString &itname)
 
 void VymModel::setHideTmpMode(TreeItem::HideTmpMode mode)
 {
-    hidemode = mode;
+    if (hideMode == mode)
+        return;
+
+    hideMode = mode;
     for (int i = 0; i < rootItem->branchCount(); i++)
-        rootItem->getBranchNum(i)->setHideTmp(mode);
+        rootItem->getBranchNum(i)->setHideMode(mode);
     reposition();
     if (mode == TreeItem::HideExport)
         unselectAll();
     else
         reselect();
+
+    reposition();
 
     qApp->processEvents();
 }

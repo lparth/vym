@@ -65,7 +65,7 @@ void ExportAO::doExport()
             // Make indentstring
             curIndent = indent(cur->depth() - 4, true);
 
-            if (!cur->hasHiddenExportParent()) {
+            if (!cur->hasHiddenParent()) {
                 col = cur->headingColor();
                 if (col == QColor(255, 0, 0))
                     colString = "[R] ";

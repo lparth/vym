@@ -7122,7 +7122,7 @@ void Main::updateActions()
 
                 if (selbi) {
                     actionToggleHideExport->setEnabled(true);
-                    actionToggleHideExport->setChecked(selbi->hideInExport());
+                    actionToggleHideExport->setChecked(selbi->hideTemporary());
 
                     actionToggleTask->setEnabled(true);
                     if (!selbi->getTask())
@@ -7160,7 +7160,7 @@ void Main::updateActions()
                 actionOpenVymLinkBackground->setEnabled(false);
                 actionDeleteVymLink->setEnabled(false);
                 actionToggleHideExport->setEnabled(true);
-                actionToggleHideExport->setChecked(selti->hideInExport());
+                actionToggleHideExport->setChecked(selti->hideTemporary());
 
                 actionToggleTarget->setEnabled(true);
 

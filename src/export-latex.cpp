@@ -85,7 +85,7 @@ void ExportLaTeX::doExport()
     BranchItem *prev = nullptr;
     model->nextBranch(cur, prev);
     while (cur) {
-        if (!cur->hasHiddenExportParent()) {
+        if (!cur->hasHiddenParent()) {
             int d = cur->depth();
             s = escapeLaTeX(cur->headingPlain());
             if (sectionNames.at(d).isEmpty() || d >= sectionNames.count())

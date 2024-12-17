@@ -1113,7 +1113,7 @@ void MapEditor::toggleWinter()
         BranchItem *prev = nullptr;
         model->nextBranch(cur, prev);
         while (cur) {
-            if (!cur->hasHiddenExportParent()) {
+            if (!cur->hasHiddenParent()) { // FIXME-2 avoid recursive calls here in winter
                 // Branches
                 bc = cur->getBranchContainer();
                 if (bc->isVisible()) {
@@ -2835,7 +2835,7 @@ void MapEditor::updateData(const QModelIndex &sel)
         BranchItem *prev = nullptr;
         model->nextBranch(cur, prev);
         while (cur) {
-            if (!cur->hasHiddenExportParent()) {
+            if (!cur->hasHiddenParent()) { // FIXME-2 avoid recursive calls here in winter
                 // Branches
                 bc = cur->getBranchContainer();
                 if (bc && bc->isVisible()) {

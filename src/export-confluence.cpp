@@ -42,7 +42,7 @@ void ExportConfluence::setPageName(const QString &t) { pageName = t;}
 
 QString ExportConfluence::getBranchText(BranchItem *current)
 {
-    if (current && !current->hasHiddenExportParent()) {
+    if (current && !current->hasHiddenParent()) {
         QString id = model->getSelectString(current);
         QString heading = quoteMeta(current->headingPlain());
 
@@ -235,7 +235,7 @@ QString ExportConfluence::buildList(BranchItem *current)
     }
 
     while (bi) {
-        if (bi && !bi->hasHiddenExportParent() && !bi->isHidden()) {
+        if (bi && !bi->hasHiddenParent() && !bi->isHidden()) {
             r += ind + sectionBegin;
             if ( bi && bi->isScrolled())
             {
@@ -250,7 +250,7 @@ QString ExportConfluence::buildList(BranchItem *current)
                 expandEnd   = "";
             }
 
-            if (!bi->hasHiddenExportParent() && !bi->isHidden() ) {
+            if (!bi->hasHiddenParent() && !bi->isHidden() ) {
                 visChilds++;
                 r += ind;
                 r += itemBegin;
@@ -299,7 +299,7 @@ QString ExportConfluence::createTOC()
     BranchItem *prev = nullptr;
     model->nextBranch(cur, prev);
     while (cur) {
-        if (!cur->hasHiddenExportParent() && !cur->hasScrolledParent()) {
+        if (!cur->hasHiddenParent() && !cur->hasScrolledParent()) {
             if (dia.useNumbering())
                 number = getSectionString(cur);
             toc +=

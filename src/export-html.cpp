@@ -235,10 +235,10 @@ QString ExportHTML::buildList(BranchItem *current)
         break;
     }
 
-    if (bi && !bi->hasHiddenExportParent() && !bi->isHidden()) {
+    if (bi && !bi->hasHiddenParent() && !bi->isHidden()) {
         r += ind + sectionBegin;
         while (bi) {
-            if (!bi->hasHiddenExportParent() && !bi->isHidden()) {
+            if (!bi->hasHiddenParent() && !bi->isHidden()) {
                 visChilds++;
                 r += ind + itemBegin;
                 r += getBranchText(bi);
@@ -271,7 +271,7 @@ QString ExportHTML::createTOC()
     BranchItem *prev = nullptr;
     model->nextBranch(cur, prev);
     while (cur) {
-        if (!cur->hasHiddenExportParent() && !cur->hasScrolledParent()) {
+        if (!cur->hasHiddenParent() && !cur->hasScrolledParent()) {
             if (dia.useNumbering)
                 number = getSectionString(cur);
             toc +=

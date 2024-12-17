@@ -42,7 +42,7 @@ void ExportCSV::doExport()
     BranchItem *prev = nullptr;
     model->nextBranch(cur, prev);
     while (cur) {
-        if (!cur->hasHiddenExportParent()) {
+        if (!cur->hasHiddenParent()) {
             // If necessary, write note
             if (!cur->isNoteEmpty()) {
                 s = cur->getNoteASCII(0, 0);

@@ -31,7 +31,7 @@ QString ExportImpress::buildList(TreeItem *current)
         // Start list
         r += "<text:list text:style-name=\"vym-list\">\n";
         while (bi) {
-            if (!bi->hasHiddenExportParent()) {
+            if (!bi->hasHiddenParent()) {
                 r += "<text:list-item><text:p >";
                 r += quoteMeta(bi->headingPlain());
                 // If necessary, write note
@@ -89,7 +89,7 @@ void ExportImpress::exportPresentation()
         sectionBI = firstMCO->getFirstBranch();
 
     // Walk sections
-    while (sectionBI && !sectionBI->hasHiddenExportParent()) {
+    while (sectionBI && !sectionBI->hasHiddenParent()) {
         if (useSections) {
             // Add page with section title
             onePage = sectionTemplate;
@@ -106,7 +106,7 @@ void ExportImpress::exportPresentation()
         }
 
         j = 0;
-        while (pagesBI && !pagesBI->hasHiddenExportParent()) {
+        while (pagesBI && !pagesBI->hasHiddenParent()) {
             // Add page with list of items
             onePage = pageTemplate;
             onePage.replace("<!-- INSERT PAGE HEADING -->",

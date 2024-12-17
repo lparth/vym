@@ -1256,7 +1256,7 @@ void VymReader::readOrnamentsAttr()
     s = attributeToString("hideInExport");
     if (!s.isEmpty())
         if (s == "true")
-            lastMI->setHideInExport(true);
+            lastMI->setHideTemporary(true);
 
     s = attributeToString("hideLink");
     if (!s.isEmpty()) {

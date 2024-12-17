@@ -48,7 +48,7 @@ void ExportASCII::doExport()
     while (cur) {
         if (cur->getType() == TreeItem::Branch ||
             cur->getType() == TreeItem::MapCenter) {
-            if (!cur->hasHiddenExportParent()) {
+            if (!cur->hasHiddenParent()) {
                 // qDebug() << "ExportASCII::
                 // "<<curIndent.toStdString()<<cur->headingPlain().toStdString();
 

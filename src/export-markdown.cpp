@@ -65,7 +65,7 @@ void ExportMarkdown::doExport()
             if (cur->hasUrl())
                 curHeading = "[" + curHeading + "](" + cur->url() + ")";
 
-            if (!cur->hasHiddenExportParent()) {
+            if (!cur->hasHiddenParent()) {
                 // qDebug() << "ExportMarkdown::
                 // "<<curIndent.toStdString()<<cur->curHeading.toStdString();
 

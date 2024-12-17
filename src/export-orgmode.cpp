@@ -36,7 +36,7 @@ void ExportOrgMode::doExport()
     BranchItem *prev = nullptr;
     model->nextBranch(cur, prev);
     while (cur) {
-        if (!cur->hasHiddenExportParent()) {
+        if (!cur->hasHiddenParent()) {
             for (i = 0; i <= cur->depth(); i++)
                 ts << ("*");
             ts << (" " + cur->headingPlain() + "\n");

@@ -195,10 +195,25 @@ void BranchContainer::setOriginalScenePos()
     originalPos = scenePos();
 }
 
-void BranchContainer::updateVisibilityOfChildren()
+void BranchContainer::updateVisibility()
 {
-    if (branchesContainer && branchItem)
-    {
+    if (branchItem) {
+        // Check own visibility for hidden export mode
+        if (branchItem->isHidden()) {
+            // Hide myself (and potential child branches or images) completely
+            setVisible(false);
+            upLink->setVisible(false);
+            return;
+        }
+
+        // Ensure I am visible myself
+        setVisible(true);
+        upLink->setVisible(true);
+
+        if (!branchesContainer)
+            return;
+
+        // We have children now
         if (branchItem->isScrolled()) {
             branchesContainer->setVisible(false);
             linkContainer->setVisible(false);
@@ -261,7 +276,7 @@ void BranchContainer::addToBranchesContainer(BranchContainer *bc)
 
         branchesContainer->addContainer(bc);
         updateChildrenStructure();
-        updateVisibilityOfChildren();   // children might be scrolled and invisible
+        updateVisibility();   // children might be scrolled and invisible
     } else
         branchesContainer->addContainer(bc);
 }
@@ -1360,8 +1375,6 @@ void BranchContainer::updateVisuals()
 
 void BranchContainer::reposition()
 {
-    // if (branchItem->hasHiddenExportParent()) return; // FIXME-2 not working
-
 // Set orientation based layout or
 // in the process of being (temporary) relinked
 BranchContainer *pbc = parentBranchContainer();

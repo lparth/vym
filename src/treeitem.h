@@ -208,13 +208,13 @@ class TreeItem : public XMLObj {
     virtual XLinkObj* getXLinkObjNum(const int &n);
 
   protected:
-    bool hideExport; //! Hide this item in export
-    bool hidden;     //! Hidden in export if true
+    bool hideTemporaryInt;  //! Hide this item e.g. during export if set
+    bool hidden;            //! Currently hidden if true
   public:
-    virtual void setHideTmp(HideTmpMode);
-    virtual bool hasHiddenExportParent();
-    virtual void setHideInExport(bool); // set export of object (and children)
-    virtual bool hideInExport();
+    virtual void setHideMode(HideTmpMode);
+    virtual bool hasHiddenParent();
+    virtual void setHideTemporary(bool); // set export of object (and children)
+    virtual bool hideTemporary();
     virtual bool isHidden();
 
     virtual QString getGeneralAttr();

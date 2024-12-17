@@ -292,7 +292,7 @@ bool BranchItem::toggleScroll()
     }
 
     branchContainer->updateChildrenStructure();     // needed to insert linkSpaceContainer
-    branchContainer->updateVisibilityOfChildren();
+    branchContainer->updateVisibility();
     return true;
 }
 
@@ -452,6 +452,12 @@ TreeItem *BranchItem::findMapItem(QPointF p, QList <TreeItem*> excludedItems)
         return this;
 
     return nullptr;
+}
+
+void BranchItem::setHideMode(HideTmpMode mode)
+{
+    TreeItem::setHideMode(mode);
+    branchContainer->updateVisibility();
 }
 
 void BranchItem::updateVisuals()

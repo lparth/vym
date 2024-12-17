@@ -66,7 +66,7 @@ void TreeItem::init()
     note.setText("");
 
     hidden = false;
-    hideExport = false;
+    hideTemporaryInt = false;
 
     itemData.clear();
     itemData << "";
@@ -727,44 +727,48 @@ XLinkObj *TreeItem::getXLinkObjNum(const int &n)
     return nullptr;
 }
 
-void TreeItem::setHideTmp(HideTmpMode mode) 
+void TreeItem::setHideMode(HideTmpMode mode) 
 {
+    // Note: Overloaded in BranchItem
+    // Will updateVisibility() of BranchContainer there
+
     if (type == Image || type == Branch || type == MapCenter)
     {
         if (mode == HideExport &&
-            (hideExport ||
-             hasHiddenExportParent())) // FIXME-4  try to avoid calling
+            (hideTemporaryInt ||
+             hasHiddenParent())) // FIXME-4  try to avoid calling
                                        // hasScrolledParent repeatedly
 
-            // Hide stuff according to hideExport flag and parents
+            // Hide stuff according to hideTemporaryInt flag and parents
             hidden = true;
         else
             // Do not hide, but still take care of scrolled status
             hidden = false;
+
         // And take care of my children
         for (int i = 0; i < branchCount(); ++i)
-            getBranchNum(i)->setHideTmp(mode);
+            getBranchNum(i)->setHideMode(mode);
     }
 }
 
-bool TreeItem::hasHiddenExportParent()
+bool TreeItem::hasHiddenParent()
 {
     // Calls parents recursivly to
     // find out, if we or parents are temp. hidden
 
-    if (hidden || hideExport)
+    if (hidden || hideTemporaryInt)
         return true;
 
     if (parentItem)
-        return parentItem->hasHiddenExportParent();
+        return parentItem->hasHiddenParent();
     else
         return false;
 }
 
-void TreeItem::setHideInExport(bool b)
+void TreeItem::setHideTemporary(bool b)
 {
     if (type == MapCenter || type == Branch || type == Image) {
-        hideExport = b;
+        hideTemporaryInt = b;
         if (b)
             systemFlags.activate(QString("system-hideInExport"));
         else
@@ -772,14 +776,14 @@ void TreeItem::setHideInExport(bool b)
     }
 }
 
-bool TreeItem::hideInExport() { return hideExport; }
+bool TreeItem::hideTemporary() { return hideTemporaryInt; }
 
 bool TreeItem::isHidden() { return hidden; }
 
 QString TreeItem::getGeneralAttr()
 {
     QString s;
-    if (hideExport)
+    if (hideTemporaryInt)
         s += attribute("hideInExport", "true");
     if (!urlInt.isEmpty())
         s += attribute("url", urlInt);
