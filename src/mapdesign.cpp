@@ -246,7 +246,7 @@ void MapDesign::init()
 
     scaleSubtreeInt << 1.0;
 
-    // XLinks
+    // Links
     linkStyles << LinkObj::NoLink;
     linkStyles << LinkObj::PolyParabel;
     linkStyles << LinkObj::Parabel;
