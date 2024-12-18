@@ -704,6 +704,7 @@ class VymModel : public TreeModel {
     void reposition(bool force = false);           //!< Call reposition for all MCs and update XLinks
     void repositionXLinks();     //!< Call updateXLink for all xlinks
     void setHideTmpMode(TreeItem::HideTmpMode mode);
+    void toggleHideTmpMode();
 
     void emitNoteChanged(TreeItem *ti);
     void emitDataChanged(TreeItem *ti);

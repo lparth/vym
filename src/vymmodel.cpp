@@ -2000,17 +2000,6 @@ BranchItem* VymModel::findBranchByAttribute(const QString &key, const QString &v
 
 void VymModel::test()
 {
-    // Toggle HideExport
-    if (hideMode == TreeItem::HideNone) {
-        setHideTmpMode(TreeItem::HideExport);
-        qDebug() << "Hide export mode on";
-    } else {
-        setHideTmpMode(TreeItem::HideNone);
-        qDebug() << "Hide export mode off";
-    }
-    return;
-
-
     // Print item structure
     foreach (TreeItem *ti, getSelectedItems()) {
         if (ti->hasTypeBranch()) {
@@ -6912,6 +6901,13 @@ void VymModel::setHideTmpMode(TreeItem::HideTmpMode mode)
     reposition();
 
     qApp->processEvents();
+}
+
+void VymModel::toggleHideTmpMode() {
+    if (hideMode == TreeItem::HideNone)
+        setHideTmpMode(TreeItem::HideExport);
+    else
+        setHideTmpMode(TreeItem::HideNone);
 }
 
 //////////////////////////////////////////////

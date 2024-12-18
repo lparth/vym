@@ -406,6 +406,7 @@ class Main : public QMainWindow {
     void checkUpdates();
     void escapePressed();
     void togglePresentationMode();
+    void toggleHideTmpMode();
 
   private:
     QString shortcutScope; //! For listing shortcuts
@@ -517,6 +518,7 @@ class Main : public QMainWindow {
     QAction *actionAddTimestamp;
     QAction *actionToggleTask;
     QAction *actionTogglePresentationMode;
+    QAction *actionToggleHideTmpMode;
     QAction *actionCycleTaskStatus;
     QAction *actionTaskResetDeltaPrio;
     QAction *actionTaskSleep0;

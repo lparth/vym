@@ -2752,11 +2752,23 @@ void Main::setupViewActions()
             tr("Toggle Presentation mode", "View action") + " " +
             tr("(still experimental)"),
             this);
-    // a->setShortcut(Qt::Key_Plus);
+    a->setShortcut(Qt::Key_Plus);
+    ADD_SHORTCUT
     viewMenu->addAction(a);
     switchboard.addSwitch ("presentationMode", shortcutScope, a, tag);
     connect(a, SIGNAL(triggered()), this, SLOT(togglePresentationMode()));
     actionTogglePresentationMode = a;
+
+    a = new QAction(QPixmap(QString(":/folder-cloud-%1.svg").arg(iconTheme)),
+            tr("Toggle mode to temporary hide parts", "View action"),
+            this);
+    a->setShortcut(Qt::Key_H | Qt::SHIFT);
+    ADD_SHORTCUT
+    viewMenu->addAction(a);
+    viewMenu->addAction(a);
+    switchboard.addSwitch ("tmpHideMode", shortcutScope, a, tag);
+    connect(a, SIGNAL(triggered()), this, SLOT(toggleHideTmpMode()));
+    actionToggleHideTmpMode = a;
 
     a = new QAction(QPixmap(QString(":/zoom-in-%1.svg").arg(iconTheme)), tr("Zoom in", "View action"),
                     this);
@@ -4026,6 +4038,7 @@ void Main::setupToolbars()
     zoomToolbar = addToolBar(tr("View toolbar", "View Toolbar name"));
     zoomToolbar->setObjectName("viewTB");
     zoomToolbar->addAction(actionTogglePresentationMode);
+    zoomToolbar->addAction(actionToggleHideTmpMode);
     zoomToolbar->addAction(actionZoomIn);
     zoomToolbar->addAction(actionZoomOut);
     zoomToolbar->addAction(actionZoomReset);
@@ -7946,4 +7959,13 @@ void Main::togglePresentationMode()
         }
         menuBar()->show();
     }
+
 }
+
+void Main::toggleHideTmpMode()
+{
+    VymModel *m = currentModel();
+    if (m)
+        m->toggleHideTmpMode();
+}
+
