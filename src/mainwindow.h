@@ -296,6 +296,7 @@ class Main : public QMainWindow {
     void downloadFinished();
     void settingsPDF();
     void settingsURL();
+    void settingsActionLog();
     void settingsMacroPath();
     void settingsUndoLevels();
     void settingsDefaultMapPath();

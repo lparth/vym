@@ -20,6 +20,7 @@
 #include <QTextStream>
 
 #include "aboutdialog.h"
+#include "actionlog-dialog.h"
 #include "attributeitem.h"
 #include "background-dialog.h"
 #include "branch-container.h"
@@ -3543,6 +3544,10 @@ void Main::setupSettingsActions()
     settingsMenu->addAction(a);
     actionSettingsWriteBackupFile = a;
 
+    a = new QAction(tr("Logfile settings", "Settings action") + "...", this);
+    connect(a, SIGNAL(triggered()), this, SLOT(settingsActionLog()));
+    settingsMenu->addAction(a);
+
     settingsMenu->addSeparator();
 
     a = new QAction(tr("Select branch after adding it", "Settings action"),
@@ -6377,6 +6382,12 @@ void Main::settingsURL()
         settings.setValue("/system/readerURL", s);
 }
 
+void Main::settingsActionLog()
+{
+    ActionLogDialog dia;
+    dia.exec();
+}
+
 void Main::settingsMacroPath()
 {
     QString macroPath = macros.getPath();
@@ -7962,7 +7973,7 @@ void Main::togglePresentationMode()
 
 }
 
-void Main::toggleHideTmpMode()
+void Main::toggleHideTmpMode()  // FIXME-2 does not update yet state of PushButton in toolbar
 {
     VymModel *m = currentModel();
     if (m)

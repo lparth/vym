@@ -13,11 +13,11 @@ class ActionLogDialog : public QDialog {
     int  exec();
 
   public slots:
-    void toggleBackgroundImage();
-    void setLogPath();
+    void toggleUseLogFile();
+    void pathChanged(const QString &);
+    void selectLogPathDialog();
 
   private:
-    void updateBackgroundColorButton();
     void updateControls();
     Ui::ActionLogDialog ui;
 };

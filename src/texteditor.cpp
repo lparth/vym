@@ -338,11 +338,13 @@ void TextEditor::setupFileActions()
     filledEditorActions << a;
     actionFileExport = a;
 
+    /*
     a = new QAction(tr("Export &As... (HTML)"), this);
     connect(a, SIGNAL(triggered()), this, SLOT(textExportHtml()));  //FIXME-2 slot not available??? Difference to textEport???
     fileMenu->addAction(a);
     filledEditorActions << a;
     actionFileExportHtml = a;
+    */
 
     a = new QAction(tr("Export &As...(ASCII)"), this);
     switchboard.addSwitch("textExportAsASCII", shortcutScope, a, tag);

@@ -22,11 +22,12 @@ ActionLogDialog::ActionLogDialog()
 
     updateControls();
 
-    //ui.selectImageButton->setIcon(QIcon::fromTheme("document-new"));
     ui.setPathButton->setIcon(QPixmap(QString(":/document-open-%1.svg").arg(iconTheme)));
-    connect(ui.setPathButton, SIGNAL(pressed()), this, SLOT(setLogPath()));
+    connect(ui.setPathButton, SIGNAL(pressed()), this, SLOT(selectLogPathDialog()));
 
-    connect(ui.useBackgroundImageCheckbox, SIGNAL(clicked()), this, SLOT(toggleBackgroundImage()));
+    connect(ui.useLogFileCheckbox, SIGNAL(clicked()), this, SLOT(toggleUseLogFile()));
+    connect(ui.logFilePathLineEdit, SIGNAL(textEdited(const QString &)), 
+            this, SLOT(pathChanged(const QString &)));
 }
 
 int ActionLogDialog::exec()
@@ -39,18 +40,18 @@ int ActionLogDialog::exec()
     return r;
 }
 
-void ActionLogDialog::toggleBackgroundImage()
+void ActionLogDialog::toggleUseLogFile()
 {
-    /*
-    if (!ui.useBackgroundImageCheckbox->isChecked()) {
-        model->unsetBackgroundImage();
-        updateBackgroundImageControls();
-    } else
-        selectBackgroundImage();
-    */
+    useActionLog = ui.useLogFileCheckbox->isChecked();
+    updateControls();
 }
 
-void ActionLogDialog::setLogPath()
+void ActionLogDialog::pathChanged(const QString &s)
+{
+    actionLogPath = ui.logFilePathLineEdit->text();
+}
+
+void ActionLogDialog::selectLogPathDialog()
 {
     QStringList filters;
     filters << tr("Logfiles") + " (*.log)";
@@ -67,24 +68,10 @@ void ActionLogDialog::setLogPath()
     }
 }
 
-void ActionLogDialog::updateBackgroundColorButton()
-{
-    /*
-    QPixmap pix(16, 16);
-    pix.fill(model->mapDesign()->backgroundColor());
-    */
-}
-
 void ActionLogDialog::updateControls()
 {
     ui.logFilePathLineEdit->setText(actionLogPath);
-    /*
-    if (model->hasBackgroundImage()) {
-        ui.imageNameLineEdit->setText(model->backgroundImageName());
-        ui.useBackgroundImageCheckbox->setChecked(true);
-    } else {
-        ui.imageNameLineEdit->setText("");
-        ui.useBackgroundImageCheckbox->setChecked(false);
-    }
-    */
+    ui.useLogFileCheckbox->setChecked(useActionLog);
+    ui.logFilePathLineEdit->setEnabled(useActionLog);
+    ui.setPathButton->setEnabled(useActionLog);
 }

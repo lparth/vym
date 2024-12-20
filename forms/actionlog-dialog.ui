@@ -29,7 +29,7 @@
     </widget>
    </item>
    <item row="0" column="0">
-    <widget class="QCheckBox" name="useBackgroundImageCheckbox">
+    <widget class="QCheckBox" name="useLogFileCheckbox">
      <property name="layoutDirection">
       <enum>Qt::RightToLeft</enum>
      </property>
