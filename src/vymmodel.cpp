@@ -4529,7 +4529,7 @@ void VymModel::deleteSelection(ulong selID)
     unselectAll();
     QString fn;
 
-    mapEditor->stopAllAnimation();  // FIXME-5 better tell ME about deleted items, so that ME can take care of race conditions, e.g. also deleting while moving objects
+    mapEditor->stopContainerAnimations();  // FIXME-5 better tell ME about deleted items, so that ME can take care of race conditions, e.g. also deleting while moving objects
 
     foreach (ulong id, selectedIDs) {
         TreeItem *ti = findID(id);

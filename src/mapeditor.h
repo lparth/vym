@@ -77,8 +77,9 @@ class MapEditor : public QGraphicsView {
   public:
     void startAnimation(Container *c, const QPointF &v);
     void startAnimation(Container *c, const QPointF &start, const QPointF &dest);
-    void stopAnimation(Container *c);
-    void stopAllAnimation();
+    void stopContainerAnimation(Container *c);
+    void stopContainerAnimations();
+    void stopViewAnimations();
 
     // Animation of zoom
     Q_PROPERTY(qreal zoomFactorInt READ zoomFactor WRITE setZoomFactor)

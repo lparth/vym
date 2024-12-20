@@ -227,7 +227,8 @@ MapEditor::~MapEditor()
         winter = nullptr;
     }
 
-    stopAllAnimation();
+    stopViewAnimations();
+    stopContainerAnimations();
 }
 
 VymModel *MapEditor::getModel() { return model; }
@@ -540,14 +541,14 @@ void MapEditor::startAnimation(Container *c, const QPointF &start,
     }
 }
 
-void MapEditor::stopAnimation(Container *c)
+void MapEditor::stopContainerAnimation(Container *c)
 {
     int i = animatedContainers.indexOf(c);
     if (i >= 0)
         animatedContainers.removeAt(i);
 }
 
-void MapEditor::stopAllAnimation()
+void MapEditor::stopContainerAnimations()
 {
     animationTimer->stop();
 
@@ -556,6 +557,16 @@ void MapEditor::stopAllAnimation()
         c = animatedContainers.takeFirst();
         c->stopAnimation();
     }
+}
+
+void MapEditor::stopViewAnimations()
+{
+    if (viewCenterAnimation.state() == QAbstractAnimation::Running)
+        viewCenterAnimation.stop();
+    if (rotationAnimation.state() == QAbstractAnimation::Running)
+        rotationAnimation.stop();
+    if (zoomAnimation.state() == QAbstractAnimation::Running)
+            zoomAnimation.stop();
 }
 
 void MapEditor::zoomIn()
@@ -645,12 +656,7 @@ void MapEditor::setViewCenterTarget(const QPointF &p, const qreal &zft,
 
     viewCenter = mapToScene(viewport()->geometry()).boundingRect().center();
 
-    if (viewCenterAnimation.state() == QAbstractAnimation::Running)
-        viewCenterAnimation.stop();
-    if (rotationAnimation.state() == QAbstractAnimation::Running)
-        rotationAnimation.stop();
-    if (zoomAnimation.state() == QAbstractAnimation::Running)
-        zoomAnimation.stop();
+    stopViewAnimations();
 
     if (settings.value("/animation/use/", true).toBool()) {
         viewCenterAnimation.setTargetObject(this);
@@ -2594,7 +2600,7 @@ void MapEditor::wheelEvent(QWheelEvent *e)
         setViewCenterTarget(vp_center, zoomFactorTargetInt * f_zf, rotationTargetInt);
     }
     else {
-        scrollBarPosAnimation.stop();
+        stopViewAnimations();
         QGraphicsView::wheelEvent(e);
     }
 }
