@@ -7,8 +7,9 @@ project(ViewYourMind-develop VERSION 2.9.518 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-if (UNIX)
+if (CMAKE_SYSTEM_NAME EQUAL Linux)
     set(CMAKE_CXX_COMPILER g++-10)
+    message(STATUS "using UNIX in cmake")
 endif()
 
 set(QtComponents
@@ -47,7 +48,7 @@ set(CMAKE_AUTORCC ON)
 # On Linux DBUS is used for IPC with vym
 # On openSUSE install it using:  zypper install dbus-1-devel
 
-if (UNIX)
+if (CMAKE_SYSTEM_NAME EQUAL Linux)
     find_package(DBus1)
 
     if(DBus1_FOUND)
