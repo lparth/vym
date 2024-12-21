@@ -1823,7 +1823,11 @@ void Main::setupEditActions()
 
     // Shortcut to delete selection
     a = new QAction(tr("Delete Selection", "Edit menu"), this);
+#if defined(Q_OS_MACX)
+    a->setShortcut(Qt::Key_Backspace);
+#elif
     a->setShortcut(Qt::Key_Delete);
+#endif
     ADD_SHORTCUT
     a->setShortcutContext(Qt::WindowShortcut);
     switchboard.addSwitch("mapDelete", shortcutScope, a, tag);
@@ -2966,9 +2970,9 @@ void Main::setupViewActions()
     switchboard.addSwitch("mapNextSlide", shortcutScope, a, tag);
     connect(a, SIGNAL(triggered()), this, SLOT(nextSlide()));
 
-    a = new QAction(tr("Previous slide", "View action"), this);
+    a = new QAction(tr("Previous slide", "View action"), this); //FIXME-2 no shortcut yet
     a->setStatusTip(a->text());
-    a->setShortcut(Qt::Key_Backspace);
+    //a->setShortcut(Qt::Key_Backspace);
     viewMenu->addAction(a);
     switchboard.addSwitch("mapPreviousSlide", shortcutScope, a, tag);
     connect(a, SIGNAL(triggered()), this, SLOT(previousSlide()));
