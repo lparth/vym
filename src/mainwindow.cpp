@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-#define ADD_SHORTCUT a->setToolTip(a->toolTip() + QString(" (%1)").arg(a->shortcut().toString()));
+#define ADD_SHORTCUT a->setToolTip(a->toolTip() + QString(" (%1)").arg(a->shortcut().toString())); a->setShortcutVisibleInContextMenu(true);
 #if defined(VYM_DBUS)
 #include "adaptorvym.h"
 #endif
