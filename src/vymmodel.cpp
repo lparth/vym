@@ -4717,20 +4717,27 @@ TreeItem *VymModel::deleteItem(TreeItem *ti)
         emit layoutAboutToBeChanged();
 
         int n = ti->childNum();
-        qDebug() << "TI::deleteItem " << ti << "  n=" << n << " px=" << parentIndex;    // FIXME-2 Debugging
-        qDebug() << "               " << ti->headingText();
+        qDebug() << "TI::deleteItem a) ti=" << ti << headingText(ti) << " pi=" << headingText(pi) << "  n=" << n << " px=" << parentIndex;    // FIXME-2 Debugging
         beginRemoveRows(parentIndex, n, n);
+        qDebug() << "TI::deleteItem b) ";
         removeRows(n, 1, parentIndex);  // Deletes object!
+        qDebug() << "TI::deleteItem c) ";
         endRemoveRows();
+        qDebug() << "TI::deleteItem d) ";
 
         emit layoutChanged();
+        qDebug() << "TI::deleteItem e) ";
+
         emitUpdateQueries();
 
+        qDebug() << "TI::deleteItem f) ";
         if (wasAttribute) {
             updateJiraFlag(parentItem);
             emitDataChanged(parentItem);
         }
+        qDebug() << "TI::deleteItem g) ";
         reposition();
+        qDebug() << "TI::deleteItem h) ";
 
         if (pi->depth() >= 0)
             return pi;
