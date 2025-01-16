@@ -1570,6 +1570,7 @@ void MapEditor::editHeading(BranchItem *selbi)
         // FIXME-3-FT get total rotation XXX for BC in scene and do "proxyWidget->setRotation(XXX);
         lineEdit->setCursor(Qt::IBeamCursor);
         lineEdit->setCursorPosition(1);
+        lineEdit->grabKeyboard();
 
 #if defined(Q_OS_WINDOWS)
         QFont font = lineEdit->font();
@@ -1623,6 +1624,7 @@ void MapEditor::editHeadingFinished()
         qWarning() << "ME::editHeadingFinished not editing heading!";
     } else {
         lineEdit->clearFocus();
+        lineEdit->releaseKeyboard();
         QString s = lineEdit->text();
         s.replace(QRegularExpression("\\n"), " "); // Don't paste newline chars
         if (s.length() == 0)
