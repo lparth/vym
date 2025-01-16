@@ -2757,7 +2757,7 @@ void Main::setupViewActions()
             tr("Toggle Presentation mode", "View action") + " " +
             tr("(still experimental)"),
             this);
-    a->setShortcut(Qt::Key_Plus);
+    //a->setShortcut(Qt::Key_Asterisk); // FIXME-2 + is used for zoom, maybe Key_Asterisk + shift instead?
     ADD_SHORTCUT
     viewMenu->addAction(a);
     switchboard.addSwitch ("presentationMode", shortcutScope, a, tag);
