@@ -101,7 +101,7 @@ void TextEditor::init(const QString &scope)
     restoreState(settings.value(n + "state", 0).toByteArray());
     filenameHint = "";
     fixedFont.fromString(
-        settings.value(n + "fonts/fixedFont", "Courier,12,-1,5,48,0,0,0,1,0")
+        settings.value(n + "fonts/fixedFont", "Courier,12,-1,5,48,0,0,0,1,0")// FIXME-2 Replace all occurences of Courier on Mac
             .toString());
     varFont.fromString(
         settings
