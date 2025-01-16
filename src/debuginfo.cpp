@@ -32,6 +32,7 @@ extern QTranslator vymTranslator;
 extern bool useActionLog;
 extern QString actionLogPath;
 
+extern QStringList lastSessionFiles;
 extern QString zipToolPath;
 
 QString debugInfo()
@@ -77,6 +78,8 @@ QString debugInfo()
     s += QString("Available translations: %1\n").arg(translations.count());
     foreach (QString qm_file, translations)
         s += QString("                        %1\n").arg(qm_file);
+
+    s += QString("      lastSessionFiles: %1\n").arg(lastSessionFiles.join(", "));
 
     return s;
 }
