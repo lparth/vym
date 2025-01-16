@@ -4456,6 +4456,7 @@ File::ErrorCode Main::fileLoad(QString fn, const File::LoadMode &lmode,
                 updateTabName(vm);
             }
 	    lastMapDir.setPath(vm->getFileDir());
+        // FIXME-2 lastMapDir might be empty after loading default map  qDebug() << __FILE_NAME__ << "Loaded fn=" << fn << "setting lastMapDIr="<< lastMapDir;
 
             editorChanged();
             vm->emitShowSelection();
@@ -6789,8 +6790,6 @@ void Main::changeSelection(VymModel *model, const QItemSelection &,
     branchPropertyEditor->setModel(model);
 
     if (model && model == currentModel()) {
-        int selectedCount = model->getSelectionModel()->selectedIndexes().count();
-
         BranchItem *selbi = model->getSelectedBranch();
 
         // Update satellites
