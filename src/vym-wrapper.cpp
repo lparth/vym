@@ -5,16 +5,16 @@
 #include "branchitem.h"
 #include "confluence-agent.h"
 #include "file.h"
-#include "imageitem.h"
 #include "mainwindow.h"
 #include "mapeditor.h"
 #include "misc.h"
-#include "vymtext.h"
 #include "xlink.h"
 
 
 extern Main *mainWindow;
+extern QDir vymBaseDir;
 extern QString vymVersion;
+extern QString vymHome;
 
 extern bool usingDarkTheme;
 
@@ -153,9 +153,12 @@ QString VymWrapper::loadFile(
     return r;
 }
 
-bool VymWrapper::loadMap(const QString &filename)
+bool VymWrapper::loadMap(QString filename)
 {
     bool r;
+    if (!filename.startsWith("/"))
+        filename = vymHome + "/" + filename;
+
     if (File::Success == mainWindow->fileLoad(filename, File::NewMap, File::VymMap))
         r = true;
     else
@@ -233,7 +236,10 @@ QString VymWrapper::version() {
     return r;
 }
 
-// See also http://doc.qt.io/qt-5/qscriptengine.html#newFunction
+QString VymWrapper::vymBaseDir() {
+    return ::vymBaseDir.path();
+}
+
 Selection::Selection() { modelWrapper = nullptr; }  // FIXME-2 needed?
 
 void Selection::test()

@@ -28,7 +28,7 @@ class VymWrapper : public QObject {
     void gotoMap(uint n);
     bool isConfluenceAgentAvailable();
     QString loadFile(const QString &filename);
-    bool loadMap(const QString &filename);
+    bool loadMap(QString filename);
     int mapCount();
     bool mkdir(const QString &dirName);
     void print(const QString &s);
@@ -40,6 +40,7 @@ class VymWrapper : public QObject {
     void toggleTreeEditor();
     bool usesDarkTheme();
     QString version();
+    QString vymBaseDir();
 };
 
 class Selection : public QObject {

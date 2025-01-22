@@ -4,14 +4,17 @@
 
 vym.clearConsole();
 
+
 var tests_total  = 0;
 var tests_passed = 0;
 var tests_failed = 0;
 
-var testDir = "selftests";
+var vymBaseDir = vym.vymBaseDir();
+
+var testDir = vymBaseDir + "/selftests";
 var currentMapPath = "undefined."
-var testMapDefault = "test/maps/test-default.vym";
-var testMapFrames  = "test/maps/test-frames.vym";
+var testMapDefault = vymBaseDir + "/test/maps/test-default.vym";
+var testMapFrames  = vymBaseDir + "/test/maps/test-frames.vym";
 
 const  center_0_string = "mc:0";
 const  main_A_string = "mc:0,bo:0";
@@ -74,6 +77,9 @@ function initMap(mapPath)  // FIXME not fully ported yet: files parameter missin
       postfix = ".vym";
   else
       postfix = ".xml";
+
+  if (!mapPath.startsWith("/"))
+	    mapPath = "/Users/uwe/vym/branches/develop/" + mapPath;  //FIXME-2 use VYMHOME
 
   currentMapPath = testDir + "/maps/current-map" + postfix;
 
@@ -775,8 +781,8 @@ function test_load_legacy_maps()
 
 
   files = [
-    "test/maps/legacy/external-note-plaintext.txt",
-    "test/maps/legacy/external-note-richtext.html" ];
+    vymBaseDir + "/test/maps/legacy/external-note-plaintext.txt",
+    vymBaseDir + "/test/maps/legacy/external-note-richtext.html" ];
 
   for (i in files) {
     vym.fileCopy(files[i], testDir + "/maps/");
@@ -904,10 +910,10 @@ function test_modify_images()
   b = map.findBranchBySelection(branch_0Aa_string);
   n = b.imageCount();
 
-  success = b.loadImage("icons/vym.png");
+  success = b.loadImage(vymBaseDir + "/icons/vym.png");
   expect("loadImage() returns true for existing image", success, true);
 
-  success = b.loadImage("foobar");
+  success = b.loadImage(vymBaseDir + "/foobar");
   expect("loadImage() returns false for not existing image", success, false);
 
   i = map.findImageBySelection(branch_0Aa_string + ",fi:0");
@@ -1522,7 +1528,7 @@ function test_xlinks()
 test_basics();
 //test_adding_branches();
 //test_adding_maps();
-  //test_attributes();        // FIXME not nported yet
+  //test_attributes();        // FIXME not ported yet
 //test_copy_paste();
 //test_delete_parts();
   //test_export();            // FIXME WIP
@@ -1531,7 +1537,7 @@ test_basics();
   //test_history();           // FIXME not ported yet
 //test_load_legacy_maps();
 //test_modify_branches();
-//test_modify_images();
+test_modify_images();
 //test_moving_parts();
   //test_notes();             // FIXME not ported yet
 //test_references();

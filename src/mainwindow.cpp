@@ -357,7 +357,7 @@ Main::Main(QWidget *parent) : QMainWindow(parent)
     // FIXME -0 connect (taskEditor, SIGNAL (focusReleased() ), this, SLOT
     // (setFocusMapEditor()));
 
-    if (options.isOn("shortcutsLaTeX"))
+    if (options.isActive("shortcutsLaTeX"))
         switchboard.printLaTeX();
 
     if (settings.value("/mainwindow/showTestMenu", false).toBool())

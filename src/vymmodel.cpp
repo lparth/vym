@@ -4105,7 +4105,7 @@ BranchItem *VymModel::addNewBranchInt(BranchItem *dst, int pos)
     emit layoutChanged();
 
     // Create Container
-    BranchContainer *bc = newbi->createBranchContainer(getScene());
+    newbi->createBranchContainer(getScene());
 
     // Update parent item and stacking order of container to match order in model
     newbi->updateContainerStackingOrder();
@@ -6611,7 +6611,6 @@ void VymModel::setPos(const QPointF &pos_new, TreeItem *selti)
         if (ti->hasTypeBranch() || ti->hasTypeImage())
         {
             Container *c = ((MapItem*)ti)->getContainer();
-            QPointF pos_old = c->getOriginalPos();
             QString pos_new_str = toS(pos_new);
 
             QString uc, rc, itemVar;
@@ -6946,7 +6945,6 @@ void VymModel::updateSelection(QItemSelection newsel, QItemSelection dsel)
             if (mi->hasTypeXLink()) {
                 ((XLinkItem*)mi)->getXLinkObj()->unselect();
                 XLink *li = ((XLinkItem *)mi)->getXLink();
-                XLinkObj *xlo = li->getXLinkObj();
 
                 do_reposition =
                     do_reposition || li->getBeginBranch()->resetTmpUnscroll();
@@ -7638,8 +7636,8 @@ void VymModel::deleteSlide(SlideItem *si)  // FIXME-3 missing saveState
 {
     if (si) {
         QString s = "<vymmap>" + si->saveToDir() + "</vymmap>";
-        int pos = si->childNumber();
         /*
+        int pos = si->childNumber();
         saveStateold(File::PartOfMap, getSelectString(),    // FIXME deleteAddSlide
                   QString("addMapInsert (\"PATH\",%1)").arg(pos),
                   getSelectString(), QString("removeSlide (%1)").arg(pos),

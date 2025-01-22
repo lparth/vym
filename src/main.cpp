@@ -87,6 +87,8 @@ QTranslator vymTranslator;
 QDir lastImageDir;
 QDir lastMapDir;
 QDir lastExportDir;
+QDir lastScriptDir;
+
 #if defined(Q_OS_WINDOWS)
 QDir vymInstallDir;
 #endif
@@ -235,7 +237,7 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    if (options.isOn("version")) {
+    if (options.isActive("version")) {
         QString s = QString("VYM - View Your Mind (c) 2004-%1").arg(QDate::currentDate().year());
         s += " Uwe Drechsel\n";
         s += "   Version: " + vymVersion;
@@ -251,9 +253,9 @@ int main(int argc, char *argv[])
 
     taskModel = new TaskModel();
 
-    debug = options.isOn("debug");
+    debug = options.isActive("debug");
 
-    testmode = options.isOn("testmode");
+    testmode = options.isActive("testmode");
 
     QString pidString = QString::number(QCoreApplication::applicationPid());
 
@@ -268,7 +270,7 @@ int main(int argc, char *argv[])
     }
 #endif
 
-    if (options.isOn("name"))
+    if (options.isActive("name"))
         vymInstanceName = options.getArg("name");
     else
         vymInstanceName = pidString;
@@ -280,29 +282,26 @@ int main(int argc, char *argv[])
 
     // Use /usr/share/vym or /usr/local/share/vym or . ?
     // First try options
-    if (options.isOn("local")) {
+    if (options.isActive("local")) {
         vymBaseDir.setPath(vymBaseDir.currentPath());
-    }
-    else
+    } else
         // then look for environment variable
         if (getenv("VYMHOME") != 0) {
-        vymBaseDir.setPath(getenv("VYMHOME"));
-    }
-    else
-    // ok, let's find my way on my own
-    {
+            vymBaseDir.setPath(getenv("VYMHOME"));
+        } else {
+            // ok, let's find vymBaseDir on my own
 
 #if defined(Q_OS_MACX)
-        // Executable is in vym.app/Contents/MacOS, so go up first:
-        vymBaseDir.setPath(QCoreApplication::applicationDirPath());
-        vymBaseDir.cdUp();
-        vymBaseDir.cd("Resources");
+            // Executable is in vym.app/Contents/MacOS, so go up first:
+            vymBaseDir.setPath(QCoreApplication::applicationDirPath());
+            vymBaseDir.cdUp();
+            vymBaseDir.cd("Resources");
 #elif defined(Q_OS_WINDOWS)
-        vymBaseDir.setPath(QCoreApplication::applicationDirPath());
+            vymBaseDir.setPath(QCoreApplication::applicationDirPath());
 #else
-        vymBaseDir.setPath(VYMBASEDIR);
+            vymBaseDir.setPath(VYMBASEDIR);
 #endif
-    }
+        }
 
     // Platform specific settings
     vymPlatform = QSysInfo::prettyProductName();
@@ -320,7 +319,7 @@ int main(int argc, char *argv[])
     flagsPath = vymBaseDir.path() + "/flags/";
 
     // When running locally, use local macros. Otherwise settings are used
-    if (options.isOn("local"))
+    if (options.isActive("local"))
         macros.setPath(vymBaseDir.path() + "/macros/macros.vys");
     else
         macros.setPath(
@@ -330,21 +329,26 @@ int main(int argc, char *argv[])
 
     // Some directories
     QDir useDir;
-    if (options.isOn("local"))
+    if (options.isActive("local"))
         useDir = QDir().current();
     else
-        useDir = QDir().home();
+        if (getenv("VYMHOME") != 0)
+            useDir = vymBaseDir;
+        else
+            useDir = QDir().home();
+
     lastImageDir = useDir;
     lastMapDir = useDir;
     lastExportDir = useDir;
+    lastScriptDir = useDir;
 
-    if (options.isOn("help")) {
+    if (options.isActive("help")) {
         std::cout << qPrintable(options.getHelpText()) << std::endl;
         return 0;
     }
 
     // Initialize translations
-    if (options.isOn("locale"))
+    if (options.isActive("locale"))
         localeName = options.getArg("locale");
 
     // Use dark theme depending on system appearance and preferences
@@ -492,7 +496,7 @@ int main(int argc, char *argv[])
         // Show debug info AFTER creating MainWindow
         std::cout << debugInfo().toStdString() << std::endl;
 
-    if (options.isOn("commands")) { // FIXME-2 Merge with Main::helpScriptingCommands
+    if (options.isActive("commands")) { // FIXME-2 Merge with Main::helpScriptingCommands
         std::cout << "Available commands in vym:\n";
         std::cout << "=========================:\n";
         foreach (Command *c, vymCommands)
@@ -511,7 +515,7 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    if (options.isOn("commandslatex")) {
+    if (options.isActive("commandslatex")) {
         foreach (Command *c, vymCommands)
             std::cout << c->descriptionLaTeX().toStdString() << std::endl;
         foreach (Command *c, modelCommands)
@@ -523,7 +527,7 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    if (options.isOn("batch"))
+    if (options.isActive("batch"))
         m.hide();
     else {
         // Paint Mainwindow first time
@@ -534,7 +538,7 @@ int main(int argc, char *argv[])
     // Show release notes and afterwards updates
     m.checkReleaseNotesAndUpdates();
 
-    if (options.isOn("shortcuts"))
+    if (options.isActive("shortcuts"))
         switchboard
             .printASCII(); // FIXME-5 global switchboard and exit after listing
 
@@ -543,16 +547,16 @@ int main(int argc, char *argv[])
     //m.resize(1600, 900);    // only for screencasts
 
     // Restore last session
-    if (options.isOn("restore"))
+    if (options.isActive("restore"))
         m.fileRestoreSession();
 
     // Load script
-    if (options.isOn("load")) {
+    if (options.isActive("load")) {
         QString fn = options.getArg("load");
         if (!scriptEditor->loadScript(fn)) {
             QString error(QObject::tr("Error"));
             QString msg(QObject::tr("Couldn't open \"%1\"\n.").arg(fn));
-            if (options.isOn("batch"))
+            if (options.isActive("batch"))
                 qWarning() << error + ": " + msg;
             else
                 QMessageBox::warning(0, error, msg);
@@ -561,12 +565,12 @@ int main(int argc, char *argv[])
     }
 
     // Run script
-    if (options.isOn("run")) {
+    if (options.isActive("run")) {
         QString fn = options.getArg("run");
         if (!scriptEditor->loadScript(fn)) {
             QString error(QObject::tr("Error"));
             QString msg(QObject::tr("Couldn't open \"%1\"\n.").arg(fn));
-            if (options.isOn("batch"))
+            if (options.isActive("batch"))
                 qWarning() << error + ": " + msg;
             else
                 QMessageBox::warning(0, error, msg);
@@ -576,7 +580,7 @@ int main(int argc, char *argv[])
     }
 
     // For benchmarking we may want to quit instead of entering event loop
-    if (options.isOn("quit"))
+    if (options.isActive("quit"))
         return 0;
 
     // Enable some last minute cleanup
