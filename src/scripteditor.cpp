@@ -20,7 +20,7 @@ extern QList<Command *> vymCommands;
 extern QList<Command *> modelCommands;
 extern QList<Command *> branchCommands;
 extern QList<Command *> imageCommands;
-extern QDir lastMapDir;
+extern QDir lastScriptDir;
 extern Macros macros;
 extern Main *mainWindow;
 extern Options options;
@@ -162,10 +162,10 @@ bool ScriptEditor::loadScript(QString fn)
 {
     if (fn.isEmpty()) {
         QString filter("VYM scripts (*.vys);;All (*)");
-        qDebug() << "SE::loadScript lastMapDir=" << lastMapDir;  // FIXME-2 debugging...
+        qDebug() << "SE::loadScript lastScriptDir=" << lastScriptDir;  // FIXME-2 debugging...
         fn = QFileDialog::getOpenFileName(this,
                                           vymName + " - " + tr("Load script"),
-                                          lastMapDir.path(), filter);
+                                          lastScriptDir.path(), filter);
     }
 
     if (!fn.isEmpty()) {
@@ -174,7 +174,7 @@ bool ScriptEditor::loadScript(QString fn)
         if (loadStringFromDisk(filename, s)) {
             codeEditor->setPlainText(s);
             ui.scriptPathLineEdit->setText(filename);
-            lastMapDir.setPath(filename.left(filename.lastIndexOf("/")));
+            lastScriptDir.setPath(filename.left(filename.lastIndexOf("/")));
             return true;
         }
         else {
@@ -196,7 +196,7 @@ bool ScriptEditor::reloadScript()
         if (loadStringFromDisk(filename, s)) {
             codeEditor->setPlainText(s);
             ui.scriptPathLineEdit->setText(filename);
-            lastMapDir.setPath(filename.left(filename.lastIndexOf("/")));
+            lastScriptDir.setPath(filename.left(filename.lastIndexOf("/")));
             return true;
         }
         else {
@@ -238,7 +238,7 @@ void ScriptEditor::saveScriptAs()
 
         filename = fn;
         ui.scriptPathLineEdit->setText(filename);
-        lastMapDir.setPath(filename.left(filename.lastIndexOf("/")));
+        lastScriptDir.setPath(filename.left(filename.lastIndexOf("/")));
         saveScript();
     }
 }
