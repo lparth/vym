@@ -4308,7 +4308,9 @@ File::ErrorCode Main::fileLoad(QString fn, const File::LoadMode &lmode,
     QString mapfile;
 
     // Make fn absolute (needed for unzip)
+    qDebug() << "fileLoad  fn0=" << fn;
     fn = QDir(fn).absolutePath();
+    qDebug() << "fileLoad  fn1=" << fn;
 
     VymModel *vm;
 

@@ -78,16 +78,22 @@ function initMap(mapPath)  // FIXME not fully ported yet: files parameter missin
   else
       postfix = ".xml";
 
-  if (!mapPath.startsWith("/"))
-	    mapPath = "/Users/uwe/vym/branches/develop/" + mapPath;  //FIXME-2 use VYMHOME
+  if (!mapPath.startsWith("/") && mapPath[1] != ":") {
+			// No absolute path, add vymBaseDir as prefix
+	    mapPath = vymBaseDir + "/" + mapPath;
+	}
+
 
   currentMapPath = testDir + "/maps/current-map" + postfix;
 
   if (vym.fileExists(currentMapPath)) {
-      vym.print("# Removing existing map: " + currentMapPath);
-      vym.fileRemove(currentMapPath);
+      if (vym.fileRemove(currentMapPath))
+				  vym.print("# Removed existing map: " + currentMapPath);
+			else
+				  vym.print("# Failed to remove existing map: " + currentMapPath);
   }
 
+  // vym.print("# Copying " + mapPath + " to " + currentMapPath);
   vym.fileCopy(mapPath, currentMapPath);
 
     /*  Copy additional files, not yet implemented here

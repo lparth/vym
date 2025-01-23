@@ -479,9 +479,8 @@ bool BranchWrapper::loadImage(const QString &filename)
     mainWindow->setScriptResult(r);
     if (ii)
         return true;
-
-    mainWindow->abortScript("Failed to load " + filename);
-    return false;
+    else
+        return false;
 }
 
 bool BranchWrapper::loadNote(const QString &filename)

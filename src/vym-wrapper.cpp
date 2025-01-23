@@ -14,7 +14,6 @@
 extern Main *mainWindow;
 extern QDir vymBaseDir;
 extern QString vymVersion;
-extern QString vymHome;
 
 extern bool usingDarkTheme;
 
@@ -156,8 +155,9 @@ QString VymWrapper::loadFile(
 bool VymWrapper::loadMap(QString filename)
 {
     bool r;
-    if (!filename.startsWith("/"))
-        filename = vymHome + "/" + filename;
+    QFileInfo fi(filename);
+    if (fi.isRelative())
+        filename = ::vymBaseDir.path() + "/" + filename;
 
     if (File::Success == mainWindow->fileLoad(filename, File::NewMap, File::VymMap))
         r = true;
