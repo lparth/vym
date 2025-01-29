@@ -251,7 +251,7 @@ QPointF Container::bottomCenter() {return QPointF((rect().right() + rect().left(
 
 QPointF Container::bottomRight() {return rect().bottomRight();}
 
-qreal Container::distance(Container *other)
+qreal Container::distance(Container *other) // FIXME-3 not the real distance between polygons, only considers corners
 {
     QList <QPointF> p_list;
     p_list << mapToScene(topLeft());
