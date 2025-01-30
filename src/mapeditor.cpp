@@ -1167,6 +1167,7 @@ TreeItem* MapEditor::getItemInDirection(TreeItem *ti, RadarDirection radarDir)
 {
     SelectionMode selMode = currentSelectionMode(ti);
 
+    qDebug() << "ME::getItemInDir  selMode=" << selMode;
     if (selMode == GeometricSelection)
         return getItemFromGeometry(ti, radarDir);
 
@@ -1176,7 +1177,7 @@ TreeItem* MapEditor::getItemInDirection(TreeItem *ti, RadarDirection radarDir)
     return getItemFromClassicMap(ti, radarDir);
 }
 
-TreeItem* MapEditor::getItemFromGeometry(TreeItem *ti, RadarDirection radarDir)
+TreeItem* MapEditor::getItemFromGeometry(TreeItem *ti, RadarDirection radarDir) // FIXME-2 does not really work
 {
     TreeItem *nearestItem = nullptr;
     if (ti) {

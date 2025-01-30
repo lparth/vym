@@ -10,7 +10,7 @@ class VymModel;
 class ImageWrapper : public QObject {
     Q_OBJECT
   public:
-    ImageWrapper(ImageItem*);
+    Q_INVOKABLE ImageWrapper(ImageItem*);
     ~ImageWrapper();
     VymModel* model();
     ImageItem* imageItem();

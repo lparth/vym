@@ -365,7 +365,7 @@ Main::Main(QWidget *parent) : QMainWindow(parent)
     setupHelpActions();
 
     // Scripting interface
-    vymWrapper = new VymWrapper;
+    // FIXME-0 vymWrapper = new VymWrapper;
 
     // Status bar and progress bar there
     statusBar();
@@ -459,7 +459,7 @@ Main::~Main()
     delete userFlagsMaster;
     delete systemFlagsMaster;
 
-    delete vymWrapper;
+    // FIXME-0 delete vymWrapper;
 
     // Remove temporary directory
     removeDir(tmpVymDir);
@@ -7282,7 +7282,12 @@ void Main::scriptPrint(const QString &s)
 
 QVariant Main::runScript(const QString &script)
 {
+    // Setup new scriptEngine
+    scriptEngine = new QJSEngine();
+    VymWrapper *vymWrapper = new VymWrapper;
+    //scriptEngine->installExtensions(QJSEngine::ConsoleExtension);
     if (debug) {
+        std::cout << "Created new scriptengine " << scriptEngine << endl;
         std::cout << "MainWindow::runScript starting to execute:" << endl;
         std::cout << qPrintable("----------\n" + script + "\n----------") << endl;
     }
@@ -7290,30 +7295,32 @@ QVariant Main::runScript(const QString &script)
 
     // Run script
 
-    // Setup local scriptEngine
-    QJSEngine *scriptEngine = new QJSEngine(this);
-    scriptEngines << scriptEngine;
-
-    //scriptEngine->installExtensions(QJSEngine::ConsoleExtension);
-
     scriptResult.clear();
-
-    QJSValue val2 = scriptEngine->newQObject(vymWrapper);
 
     // Make sure that deleting scriptEngine later does not delete vymWrapper, too
     scriptEngine->setObjectOwnership(vymWrapper, QJSEngine::CppOwnership);
+    //scriptEngine->setObjectOwnership(vymWrapper, QJSEngine::JavaScriptOwnership);   // FIXME-0 really?
 
-    scriptEngine->globalObject().setProperty("vym", val2);
+    if (debug)
+        std:cout << "      vymWrapper: " << vymWrapper << "  " << vymWrapper->mapCount() << " maps   version:" << vymWrapper->version().toStdString() << endl;
 
+    QJSValue vwrapper = scriptEngine->newQObject(vymWrapper);
+
+    scriptEngine->globalObject().setProperty("vym", vwrapper);
+
+    QJSEngine *scriptEngineOrg = scriptEngine;
     QJSValue result = scriptEngine->evaluate(script);
+
+    // Nested scripts (undo/redo) would reset global scriptEngine pointer
+    // Global pointer is required for Main::abortScript()
+    scriptEngine = scriptEngineOrg;
 
     logInfo("Finished executing: " + script.left(30), __func__);
 
     if (debug) {
-        qDebug() << "MainWindow::runScript finished:";
-        qDebug() << "       hasError: " << result.isError();
-        qDebug() << "     lastResult: "
-            << scriptEngine->globalObject().property("lastResult").toVariant();
+        std::cout << "MainWindow::runScript finished scriptEngine: " << scriptEngine << endl;
+        std::cout << "       hasError: " << result.isError() << endl;
+        //std::cout << "     lastResult: " << scriptEngine->globalObject().property("lastResult").toVariant().toString() << endl;
     }
 
     if (result.isError()) {
@@ -7326,35 +7333,27 @@ QVariant Main::runScript(const QString &script)
         scriptOutput->append(QString("uncaught exception at line %1: %2")
                                  .arg(lineNumber).arg(result.toString()));
     }
-    else
-        return scriptResult;
+    //else
+    //    return scriptResult; // FIXME-0 scriptEngine never deleted! scriptResult never defined??
 
-    if (debug) qDebug() << "Main::runScript finished.";
 
-    if (scriptEngines.last() != scriptEngine)
-        QMessageBox::warning(0, "Warning", "scriptEnginge is not last element in scriptEngines");
-    if (scriptEngines.isEmpty())
-        qWarning() << "MainWindow::runScript  has empty scriptEngines!";
-    else {
-        if (!scriptEngines.removeOne(scriptEngine))
-            QMessageBox::warning(0, "Warning", "Failed to remove scriptEnginge from scriptEngines!");
-        else {
-            scriptEngine->disconnect();
-            delete scriptEngine;
-        }
+    if (debug) {
+        std::cout << "Main::runScript finished  scriptEngine: " << scriptEngine << endl;
+        std::cout << "Deleting scriptEngine " << scriptEngine << endl;
     }
+    vymWrapper->deleteLater();
+    scriptEngine->deleteLater();
+    scriptEngine = nullptr;
 
-    return QVariant("");
+    return scriptResult;
 }
 
 void Main::abortScript(const QJSValue::ErrorType &err, const QString &msg)
 {
-    if (scriptEngines.isEmpty()) {
-        qWarning() << "MainWindow::abortScript  has empty scriptEngines!";
-        return;
-    }
-
-    scriptEngines.last()->throwError(err, msg);
+    if (!scriptEngine)
+        qWarning() << "MainWindow::abortScript  has no scriptEngine!";
+    else
+        scriptEngine->throwError(err, msg);
 }
 
 void Main::abortScript(const QString &msg)
@@ -7372,6 +7371,7 @@ QObject *Main::getCurrentModelWrapper()
 {
     // Called from VymWrapper to find out current model in a script
     VymModel *m = currentModel();
+    std:cout << "Main::getCurrentModelWrapper  mw=" << m->getWrapper() << endl;
     if (m)
         return m->getWrapper();
     else

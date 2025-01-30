@@ -13,6 +13,7 @@
 #include "settings.h"
 
 class QPrinter;
+class QJSEngine;
 
 class HistoryWindow;
 class MapEditor;
@@ -357,8 +358,7 @@ class Main : public QMainWindow {
     QVariant setScriptResult(const QVariant &r);
 
   private:
-    VymWrapper *vymWrapper;
-    QList <QJSEngine*> scriptEngines;
+    QJSEngine *scriptEngine;
     QVariant scriptResult;
 
   public slots:

@@ -22,10 +22,10 @@ class BranchWrapper : public QObject {
     qreal v_animY();
     void setV_anim(qreal, qreal);
 
-    BranchWrapper* addBranch();
-    BranchWrapper* addBranchAt(int pos);
-    BranchWrapper* addBranchBefore();
-    XLinkWrapper* addXLink(BranchWrapper *bwEnd, int width,
+    Q_INVOKABLE BranchWrapper* addBranch();
+    Q_INVOKABLE BranchWrapper* addBranchAt(int pos);
+    Q_INVOKABLE BranchWrapper* addBranchBefore();
+    Q_INVOKABLE XLinkWrapper* addXLink(BranchWrapper *bwEnd, int width,
                   const QString &color, const QString &penstyle);
     int attributeAsInt(const QString &key);
     QString attributeAsString(const QString &key);
@@ -71,7 +71,7 @@ class BranchWrapper : public QObject {
     bool loadNote(const QString &filename);
     void moveDown();
     void moveUp();
-    BranchWrapper* parentBranch();
+    Q_INVOKABLE BranchWrapper* parentBranch();
     bool relinkToBranch(BranchWrapper*);
     bool relinkToBranchAt(BranchWrapper*, int pos);
     void removeChildren();

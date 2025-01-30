@@ -1554,12 +1554,14 @@ void VymModel::undo()
     QString errMsg;
     QString undoScript;
     if (!undoCommand.contains("currentMap()"))
-        // "Old" saveState without complete command
+        // "Old" saveState without complete command // FIXME-2 saveState: remove finally old syntax
         undoScript = QString("map = vym.currentMap();%1").arg(undoCommand);
     else
         undoScript = undoCommand;
 
-    errMsg = QVariant(execute(undoScript)).toString();
+    // FIXME-0 errMsg = QVariant(execute(undoScript)).toString();
+    errMsg = mainWindow->runScript(undoScript).toString();
+    // FIXME-0 errMsg = QVariant(execute(undoScript)).toString();
 
     undosAvail--;
     curStep--;
@@ -4717,27 +4719,27 @@ TreeItem *VymModel::deleteItem(TreeItem *ti)
         emit layoutAboutToBeChanged();
 
         int n = ti->childNum();
-        qDebug() << "TI::deleteItem a) ti=" << ti << headingText(ti) << " pi=" << headingText(pi) << "  n=" << n << " px=" << parentIndex;    // FIXME-2 Debugging
+        // qDebug() << "TI::deleteItem a) ti=" << ti << headingText(ti) << " pi=" << headingText(pi) << "  n=" << n << " px=" << parentIndex;    // FIXME-2 Debugging
         beginRemoveRows(parentIndex, n, n);
-        qDebug() << "TI::deleteItem b) ";
+        //qDebug() << "TI::deleteItem b) ";
         removeRows(n, 1, parentIndex);  // Deletes object!
-        qDebug() << "TI::deleteItem c) ";
+        //qDebug() << "TI::deleteItem c) ";
         endRemoveRows();
-        qDebug() << "TI::deleteItem d) ";
+        //qDebug() << "TI::deleteItem d) ";
 
         emit layoutChanged();
-        qDebug() << "TI::deleteItem e) ";
+        //qDebug() << "TI::deleteItem e) ";
 
         emitUpdateQueries();
 
-        qDebug() << "TI::deleteItem f) ";
+        //qDebug() << "TI::deleteItem f) ";
         if (wasAttribute) {
             updateJiraFlag(parentItem);
             emitDataChanged(parentItem);
         }
-        qDebug() << "TI::deleteItem g) ";
+        //qDebug() << "TI::deleteItem g) ";
         reposition();
-        qDebug() << "TI::deleteItem h) ";
+        //qDebug() << "TI::deleteItem h) ";
 
         if (pi->depth() >= 0)
             return pi;
@@ -5612,8 +5614,7 @@ void VymModel::setXLinkWidth(int new_width, XLink *xl)
 // Scripting
 //////////////////////////////////////////////
 
-QVariant VymModel::execute(
-    const QString &script) // FIXME-3 still required???
+QVariant VymModel::execute( const QString &script) // FIXME-0 really still needed?
                            // Called from these places:
                            //
                            // scripts/vym-ruby.rb  (and adaptormodel) used for

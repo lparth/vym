@@ -1,6 +1,7 @@
 #include "vymmodelwrapper.h"
 
 #include <QMessageBox>
+#include <QQmlEngine>
 
 #include "attributeitem.h"
 #include "attribute-wrapper.h"
@@ -14,18 +15,22 @@
 #include "vym-wrapper.h"
 #include "scripting-xlink-wrapper.h"
 #include "vymmodel.h"
-#include "vymtext.h"
 #include "xlink.h"
 #include "xlinkitem.h"
-#include "xmlobj.h" // include quoteQuotes
 
 extern Main *mainWindow;
 
 ///////////////////////////////////////////////////////////////////////////
 VymModelWrapper::VymModelWrapper(VymModel *m)
 {
-    qDebug() << "Constr VMWrapper";
+    std::cout << "Constr VMWrapper" << this << endl;
+    QQmlEngine::setObjectOwnership(this, QQmlEngine::CppOwnership);
     model = m;
+}
+
+VymModelWrapper::~VymModelWrapper()
+{
+    std::cout << "Destr VMWrapper" << this << endl;
 }
 
 void VymModelWrapper::addMapCenterAtPos(qreal x, qreal y)

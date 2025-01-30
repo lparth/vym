@@ -21,12 +21,12 @@ extern bool usingDarkTheme;
 
 VymWrapper::VymWrapper()
 {
-    qDebug() << "Constr. VymWrapper";
+    //std:cout << "Constr. VymWrapper " << this << endl;
 }
 
 VymWrapper::~VymWrapper()
 {
-    qDebug() << "Destr. VymWrapper";
+    //std:cout << "Destr. VymWrapper " << this << endl;
 }
 
 void VymWrapper::clearConsole() { mainWindow->clearScriptOutput(); }

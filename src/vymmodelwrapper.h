@@ -16,7 +16,8 @@ class XLinkWrapper;
 class VymModelWrapper : public QObject {
     Q_OBJECT
   public:
-    VymModelWrapper(VymModel *m);
+    Q_INVOKABLE VymModelWrapper(VymModel *m);
+    ~VymModelWrapper();
 
   public slots:
     void addMapCenterAtPos(qreal x, qreal y);
@@ -28,13 +29,13 @@ class VymModelWrapper : public QObject {
     int depth();        // FIXME-3 move to BranchWrapper
     void detach();      // FIXME-3 move to BranchWrapper
     bool exportMap(QJSValueList args);
-    BranchWrapper* findBranchByAttribute(const QString &key, const QString &value);
-    AttributeWrapper* findAttributeById(const QString &);
-    BranchWrapper* findBranchById(const QString &);
-    BranchWrapper* findBranchBySelection(const QString &);
-    ImageWrapper* findImageById(const QString &);
-    ImageWrapper* findImageBySelection(const QString &);
-    XLinkWrapper* findXLinkById(const QString &);
+    Q_INVOKABLE BranchWrapper* findBranchByAttribute(const QString &key, const QString &value);
+    Q_INVOKABLE AttributeWrapper* findAttributeById(const QString &);
+    Q_INVOKABLE BranchWrapper* findBranchById(const QString &);
+    Q_INVOKABLE BranchWrapper* findBranchBySelection(const QString &);
+    Q_INVOKABLE ImageWrapper* findImageById(const QString &);
+    Q_INVOKABLE ImageWrapper* findImageBySelection(const QString &);
+    Q_INVOKABLE XLinkWrapper* findXLinkById(const QString &);
     QString getDestPath();
     QString getFileDir();
     QString getFileName();
@@ -51,7 +52,7 @@ class VymModelWrapper : public QObject {
     void moveSlideUp(int n);
     void moveSlideUp();
     void newBranchIterator(const QString &itname, bool deepLevelsFirst = false);
-    BranchWrapper* nextBranch(const QString &itname);
+    Q_INVOKABLE BranchWrapper* nextBranch(const QString &itname);
     void note2URLs();       // FIXME-3 move to BranchWrapper
     void paste();
     void redo();
@@ -67,9 +68,9 @@ class VymModelWrapper : public QObject {
     void saveNote(const QString &filename); // FIXME-3 move to BranchWrapper
     void saveSelection(const QString &filename);
     bool select(const QString &s);
-    AttributeWrapper* selectedAttribute();
-    BranchWrapper* selectedBranch();
-    XLinkWrapper* selectedXLink();
+    Q_INVOKABLE AttributeWrapper* selectedAttribute();
+    Q_INVOKABLE BranchWrapper* selectedBranch();
+    Q_INVOKABLE XLinkWrapper* selectedXLink();
     bool selectUids(QJSValueList args);
     bool selectLatestAdded();
     bool selectToggle(const QString &selectString); // FIXME-3 move to BranchWrapper and ImageWrapper

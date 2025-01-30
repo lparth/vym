@@ -17,7 +17,7 @@ class VymWrapper : public QObject {
     void clearConsole();
     bool closeMapWithID(uint n);
     QString currentColor();
-    QObject *currentMap();
+    Q_INVOKABLE QObject *currentMap();
     uint currentMapID();
     void editHeading();
     bool directoryIsEmpty(const QString &dirName);

@@ -1,5 +1,7 @@
 #include "branch-wrapper.h"
 
+#include <QQmlEngine>
+
 #include "attributeitem.h"
 #include "branchitem.h"
 #include "branch-container.h"
@@ -16,13 +18,14 @@ extern Main *mainWindow;
 
 BranchWrapper::BranchWrapper(BranchItem *bi)
 {
-    // qDebug() << "Constr BranchWrapper (BI)";
+    //std:cout << "Constr BranchWrapper (BI) " << this << endl;
+    QQmlEngine::setObjectOwnership(this, QQmlEngine::CppOwnership);
     branchItemInt = bi;
 }
 
 BranchWrapper::~BranchWrapper()
 {
-    // qDebug() << "Destr BranchWrapper";
+    //std:cout << "Destr BranchWrapper " << this << endl;
 }
 
 BranchItem* BranchWrapper::branchItem()

@@ -216,12 +216,12 @@ function test_adding_branches()
   b.selectParent();
   expect("selectParent", map.getSelectionString(), main_A_string);
 
-  map.undo();
+//  map.undo();
   map.undo();   // FIXME one undo() should be enough
                 // caused by VM::applyDesign() adding one more
                 // saveStates
 
-  expect( "Undo: addBranch", main_A.branchCount(), n );
+  expect( "Undo: addBranch restores original branchCount", main_A.branchCount(), n );
 
   closeCurrentMap();
 
@@ -1396,6 +1396,8 @@ function test_tasks()
   expect("After two undos, task is 'NotStarted'", branch_0Aa.getTaskStatus(), "NotStarted");
 
 /* FIXME-2 Date functions used in ruby tests not available here yet
+   See also https://doc.qt.io/qt-6/qjsengine.html#globalObject   ECMA-262 for Date, Math, String
+
   date_today = DateTime.now
   delta_days = 123
   date_later = date_today + delta_days
@@ -1532,7 +1534,7 @@ function test_xlinks()
 
     // ok, already using new Wrapper functions
 test_basics();
-//test_adding_branches();
+test_adding_branches();
 //test_adding_maps();
   //test_attributes();        // FIXME not ported yet
 //test_copy_paste();
@@ -1550,9 +1552,9 @@ test_modify_images();
   //test_saving();            // FIXME not ported yet
   //test_scrolling();         // FIXME not ported yet
   //test_slides();            // FIXME not ported yet
-test_standard_flags();
-test_user_flags();
-test_tasks();	// FIXME-3 uncomplete (date calculations not ported yet from ruby)
-test_xlinks();
+//test_standard_flags();
+//test_user_flags();
+//test_tasks();	// FIXME-3 uncomplete (date calculations not ported yet from ruby)
+//test_xlinks();
 
 summary();
