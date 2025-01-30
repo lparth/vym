@@ -23,14 +23,14 @@ extern Main *mainWindow;
 ///////////////////////////////////////////////////////////////////////////
 VymModelWrapper::VymModelWrapper(VymModel *m)
 {
-    std::cout << "Constr VMWrapper" << this << endl;
+    // std::cout << "Constr VMWrapper" << this << endl;
     QQmlEngine::setObjectOwnership(this, QQmlEngine::CppOwnership);
     model = m;
 }
 
 VymModelWrapper::~VymModelWrapper()
 {
-    std::cout << "Destr VMWrapper" << this << endl;
+    // std::cout << "Destr VMWrapper" << this << endl;
 }
 
 void VymModelWrapper::addMapCenterAtPos(qreal x, qreal y)
@@ -191,8 +191,7 @@ bool VymModelWrapper::exportMap(QJSValueList args)
             mainWindow->abortScript(
                     QJSValue::GenericError,
                     QString("%1 not one of the known export formats: ")
-                         .arg(imgFormat)
-                         .arg(formats.join(",")));
+                         .arg(imgFormat, formats.join(",")));
             mainWindow->setScriptResult(r);
 	    return r;
         }

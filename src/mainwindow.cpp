@@ -4275,10 +4275,8 @@ void Main::fileNew()
         // Set name to "unnamed"
         updateTabName(vm);
     }
-    else {
-        vm = currentModel();
+    else
         update();
-    }
 
     // Switch to new tab    
     tabWidget->setCurrentIndex(tabWidget->count() - 1);
@@ -4286,7 +4284,6 @@ void Main::fileNew()
 
 void Main::fileNewCopy()
 {
-    QString fn = "unnamed";
     VymModel *srcModel = currentModel();
     if (srcModel) {
         srcModel->copy();
@@ -4305,12 +4302,9 @@ File::ErrorCode Main::fileLoad(QString fn, const File::LoadMode &lmode,
     File::ErrorCode err = File::Success;
 
     // fn is usually the archive, mapfile the file after uncompressing
-    QString mapfile;
 
     // Make fn absolute (needed for unzip)
-    qDebug() << "fileLoad  fn0=" << fn;
     fn = QDir(fn).absolutePath();
-    qDebug() << "fileLoad  fn1=" << fn;
 
     VymModel *vm;
 
@@ -4678,8 +4672,7 @@ void Main::fileSaveAs(const File::SaveMode &savemode)
             QMessageBox::critical(0, tr("Critical Error"),
                                   tr("Couldn't save %1,\nbecause of "
                                      "existing lockfile:\n\n%2")
-                                      .arg(fn)
-                                      .arg(lockFile.fileName()));
+                                      .arg(fn, lockFile.fileName()));
             return;
         }
 
@@ -4749,7 +4742,7 @@ void Main::fileSaveAsDefault()
 
             // Save now as new default
             VymModel *m = currentModel();
-            QString fn_org = m->getFilePath(); // Restore fn later, if savemode
+            // FIXME-2 unused QString fn_org = m->getFilePath(); // Restore fn later, if savemode
                                                // != File::CompleteMap
             // Check for existing lockfile
             QFile lockFile(fn + ".lock");
@@ -4757,8 +4750,7 @@ void Main::fileSaveAsDefault()
                 QMessageBox::critical(
                     0, tr("Critical Error"),
                     tr("Couldn't save %1,\nbecause of existing lockfile:\n\n%2")
-                        .arg(fn)
-                        .arg(lockFile.fileName()));
+                        .arg(fn, lockFile.fileName()));
                 return;
             }
 
@@ -4767,7 +4759,7 @@ void Main::fileSaveAsDefault()
                                       tr("Couldn't save as default, failed to rename to\n%1").arg(fn));
                 return;
             }
-	    lastMapDir.setPath(m->getFileDir());
+            lastMapDir.setPath(m->getFileDir());
 
             fileSave(m, File::CompleteMap);
 
@@ -5410,7 +5402,6 @@ void Main::editOpenVymLinkBackground() { editOpenVymLink(true); }
 
 void Main::editOpenMultipleVymLinks()
 {
-    QString currentVymLink;
     VymModel *m = currentModel();
     if (m) {
         QStringList vl = m->getVymLinks();
@@ -5436,7 +5427,6 @@ void Main::editVymLink()
                 fd.selectFile(bi->vymLink());
             fd.show();
 
-            QString fn;
             if (fd.exec() == QDialog::Accepted &&
                 !fd.selectedFiles().isEmpty()) {
                 QString fn = fd.selectedFiles().first();
@@ -6409,7 +6399,6 @@ void Main::settingsMacroPath()
     fd.setWindowTitle(vymName + " - " + tr("Load vym script"));
     fd.setAcceptMode(QFileDialog::AcceptOpen);
 
-    QString fn;
     if (fd.exec() == QDialog::Accepted) {
         if (macros.setPath( fd.selectedFiles().first()))
             settings.setValue("/macros/path", macros.getPath());
@@ -7039,8 +7028,7 @@ void Main::updateActions()
         }
         actionFileExportLast->setText(
             tr("Export in last used format: %1\n%2", "status tip")
-                .arg(desc)
-                .arg(dest));
+                .arg(desc, dest));
 
 
         if (seltis.count() > 0) { // Tree Item selected
@@ -7481,7 +7469,6 @@ void Main::helpDoc()
         docname = "vym.pdf";
 
     QStringList searchList;
-    QDir docdir;
 #if defined(Q_OS_MACX)
     searchList << vymBaseDir.path() + "/doc";
 #elif defined(Q_OS_WIN32)
@@ -7511,8 +7498,7 @@ void Main::helpDoc()
     if (!found) {
         QMessageBox::critical(0, tr("Critcal error"),
                               tr("Couldn't find the documentation %1 in:\n%2")
-                                  .arg(docname)
-                                  .arg(searchList.join("\n")));
+                                  .arg(docname, searchList.join("\n")));
         return;
     }
 
@@ -7682,7 +7668,6 @@ void Main::callMacro()
 void Main::downloadReleaseNotesFinished()
 {
     DownloadAgent *agent = static_cast<DownloadAgent *>(sender());
-    QString s;
 
     if (agent->isSuccess()) {
         QString page;
@@ -7853,7 +7838,6 @@ bool Main::downloadsEnabled(bool userTriggered)
 void Main::downloadUpdatesFinished(bool userTriggered)
 {
     DownloadAgent *agent = static_cast<DownloadAgent *>(sender());
-    QString s;
 
     if (agent->isSuccess()) {
         ShowTextDialog dia;
