@@ -1,8 +1,8 @@
 #ifndef VERSION_H
 #define VERSION_H
 
-#define __VYM_VERSION "2.9.560"
-#define __VYM_BUILD_DATE "2025-01-30"
+#define __VYM_VERSION "2.9.561"
+#define __VYM_BUILD_DATE "2025-01-31"
 
 #define __VYM_NAME "VYMng"     // FIXME "next generation" in in window title
 #define __VYM_HOME "http://www.insilmaril.de/vym"
