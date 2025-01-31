@@ -1167,7 +1167,7 @@ TreeItem* MapEditor::getItemInDirection(TreeItem *ti, RadarDirection radarDir)
 {
     SelectionMode selMode = currentSelectionMode(ti);
 
-    qDebug() << "ME::getItemInDir  selMode=" << selMode;
+    //qDebug() << "ME::getItemInDir  selMode=" << selMode;
     if (selMode == GeometricSelection)
         return getItemFromGeometry(ti, radarDir);
 
