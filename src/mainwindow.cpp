@@ -7622,8 +7622,8 @@ void Main::helpDebugInfo()
 void Main::helpAbout()
 {
     AboutDialog ad;
-    ad.setMinimumSize(900, 700);
-    ad.resize(QSize(900, 700));
+    ad.setMinimumSize(600, 400);
+    ad.resize(QSize(600, 400));
     ad.exec();
 }
 
