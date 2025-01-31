@@ -1868,15 +1868,20 @@ void VymModel::saveStateBeginScript(const QString &comment)
 
 void VymModel::saveStateEndScript()
 {
-    buildingUndoScript = false;
+    if (debug)
+	    std::cout << "VM::saveStateEndScript buildingScript: " << buildingUndoScript << " undo: " << undoScript.toStdString() << endl;
 
-    // Drop whole Script, if empty
-    if (undoScript.isEmpty() && redoScript.isEmpty()) return;
+    if (buildingUndoScript) {
+        buildingUndoScript = false;
 
-    saveState(
-            QString("{%1}").arg(undoScript),
-            QString("{%1}").arg(redoScript),
-            undoScriptComment, nullptr);
+        // Drop whole Script, if empty
+        if (undoScript.isEmpty() && redoScript.isEmpty()) return;
+
+        saveState(
+                QString("{%1}").arg(undoScript),
+                QString("{%1}").arg(redoScript),
+                undoScriptComment, nullptr);
+    }
 }
 
 QGraphicsScene *VymModel::getScene() { return mapEditor->getScene(); }
