@@ -855,8 +855,7 @@ void VymModel::saveMap(const File::SaveMode &savemode)
     else {
         if (useActionLog) {
             QString log = QString("Wrote unzipped map \"%1\" into zipDirInt = %2")
-                .arg(mapFileName)
-                .arg(zipDirInt.path());
+                .arg(mapFileName, zipDirInt.path());
             logInfo(log, __func__);
         }
 
@@ -867,8 +866,7 @@ void VymModel::saveMap(const File::SaveMode &savemode)
             zipAgent = new ZipAgent(zipDirInt, destPath);
             connect(zipAgent, SIGNAL(zipFinished()), this, SLOT(zipFinished()));
             QString log = QString("Starting zipAgent to compress \"%1\" in zipDirInt = %2")
-                .arg(mapFileName)
-                .arg(zipDirInt.path());
+                .arg(mapFileName, zipDirInt.path());
             logInfo(log, __func__);
             zipAgent->startZip();
         } else
@@ -1014,11 +1012,11 @@ void VymModel::importDirInt(QDir d, BranchItem *dst)
         QColor dirColor;
         QColor fileColor;
         if (usingDarkTheme) {
-            dirColor = QColor::fromString("#00aaff");
-            fileColor = QColor::fromString("#ffffff");
+            dirColor = QColor(0, 170, 255); // #00aaff
+            fileColor = QColor(255, 255, 255);
         } else {
-            dirColor = QColor::fromString("#0000ff");
-            fileColor = QColor::fromString("#000000");
+            dirColor = QColor(0, 0, 255);
+            fileColor = QColor(0, 0, 0);
         }
 
         // Traverse directories
@@ -1108,7 +1106,7 @@ bool VymModel::addMapInsert(QString fpath, int insertPos, BranchItem *insertBran
         QString bv = setBranchVar(insertBranch);
         QString uc = bv + QString("map.loadBranchReplace(\"UNDO_PATH\", b);");
         QString rc = bv + QString("b.loadBranchInsert(\"%1\", %2);").arg(fpath).arg(insertPos);
-        QString comment = QString("Add map %1 to \"%2\"").arg(fpath).arg(insertBranch->headingText());
+        QString comment = QString("Add map %1 to \"%2\"").arg(fpath, insertBranch->headingText());
         saveState(uc, rc, comment, insertBranch);
     }
 
@@ -1869,7 +1867,7 @@ void VymModel::saveStateBeginScript(const QString &comment)
 void VymModel::saveStateEndScript()
 {
     if (debug)
-	    std::cout << "VM::saveStateEndScript buildingScript: " << buildingUndoScript << " undo: " << undoScript.toStdString() << endl;
+        std::cout << "VM::saveStateEndScript  buildingScript=" << buildingUndoScript << " undoScript=" << undoScript.toStdString() << endl;
 
     if (buildingUndoScript) {
         buildingUndoScript = false;
@@ -2446,7 +2444,6 @@ bool VymModel::findAll(FindResultModel *rmodel, QString s,
                     }
 
                     // save index of occurence
-                    QString e = n.mid(i - 15, 30);
                     n.replace('\n', ' ');
                     rmodel->addSubItem(
                         lastParent,
@@ -2477,13 +2474,12 @@ void VymModel::setUrl(QString url, bool updateFromCloud, BranchItem *bi)    // F
             QString uc = QString("setUrl(\"%1\");").arg(oldurl);
             QString rc = QString("setUrl(\"%1\");").arg(url);
             saveStateBranch(bi, uc, rc,
-                QString("set URL of %1 to %2").arg(getObjectName(bi)).arg(url));
+                QString("set URL of %1 to %2").arg(getObjectName(bi), url));
         }
         if (!url.isEmpty()) {
             if (updateFromCloud) {    // FIXME-3 use oembed.com also for Youtube and other cloud providers
                 // Check for Jira
                 JiraAgent agent;
-                QString query;
                 if (agent.setTicket(url)) {
                     setAttribute(bi, "Jira.key", agent.key());
 
@@ -3158,7 +3154,7 @@ bool VymModel::setTaskSleep(const QString &s, BranchItem *bi) // FIXME-2 missing
                 ok = task->setSecsSleep(0);
             }
             else {
-                QRegularExpression re("^\\s*(\\d+)\\s*$");
+                static QRegularExpression re("^\\s*(\\d+)\\s*$");
                 re.setPatternOptions(QRegularExpression::InvertedGreedinessOption);
                 QRegularExpressionMatch match = re.match(s);
                 if (match.hasMatch()) {
@@ -4363,9 +4359,6 @@ bool VymModel::relinkBranches(QList <BranchItem*> branches, BranchItem *dst, int
 
             QString postNumString = QString::number(bi->num(), 10);
 
-            QString undoCom;
-            QString redoCom;
-
             QString bv = setBranchVar(bi);
             if (pbi == rootItem)
                 uc = bv + " detach ()";
@@ -4378,8 +4371,7 @@ bool VymModel::relinkBranches(QList <BranchItem*> branches, BranchItem *dst, int
 
             saveState(uc, rc,
                       QString("Relink %1 to %2")
-                          .arg(getObjectName(bi))
-                          .arg(getObjectName(dst)));
+                          .arg(getObjectName(bi), getObjectName(dst)));
 
             if (dstBC && dstBC->hasFloatingBranchesLayout()) {
                 // Save current position for redo
@@ -4534,7 +4526,6 @@ void VymModel::deleteSelection(ulong selID)
         selectedIDs = getSelectedIDs();
 
     unselectAll();
-    QString fn;
 
     mapEditor->stopContainerAnimations();  // FIXME-5 better tell ME about deleted items, so that ME can take care of race conditions, e.g. also deleting while moving objects
 
@@ -4935,12 +4926,14 @@ ItemList VymModel::getLinkedMaps()
     QString s;
 
     while (cur) {
-        if (cur->hasActiveSystemFlag("system-target") &&
-            cur->hasVymLink()) {
+        if (cur->hasActiveSystemFlag("system-target") && cur->hasVymLink()) {
             s = cur->heading().getTextASCII();
-            s.replace(QRegularExpression("\n+"), " ");
-            s.replace(QRegularExpression("\\s+"), " ");
-            s.replace(QRegularExpression("^\\s+"), "");
+            static QRegularExpression re("\n+");
+            s.replace(re, " ");
+            re.setPattern("\\s+");
+            s.replace(re, " ");
+            re.setPattern("\\s+");
+            s.replace(re, "");
 
             QStringList sl;
             sl << s;
@@ -5146,8 +5139,7 @@ void VymModel::colorSubtree(QColor c, BranchItem *bi)
         QString rc = bv + QString("b.colorSubtree (\"%1\")").arg(c.name());
         saveState(uc, rc,
                         QString("Set color of %1 and children to %2")
-                          .arg(getObjectName(bi))
-                          .arg(c.name()),
+                          .arg(getObjectName(bi), c.name()),
                         bi, nullptr);
         BranchItem *prev = nullptr;
         BranchItem *cur = nullptr;
@@ -5193,7 +5185,7 @@ void VymModel::note2URLs() // FIXME-3 No saveState yet
 
         BranchItem *bi;
         int pos = 0;
-        QRegularExpressionMatch match;
+        static QRegularExpressionMatch match;
         while (pos >= 0) {
             match = re.match(n, pos);
             if (match.hasMatch()) {
@@ -5234,13 +5226,10 @@ void VymModel::getJiraData(bool subtree, BranchItem *bi)
     BranchItem *selbi = getSelectedBranch(bi);
 
     if (selbi) {
-        QString url;
         BranchItem *prev = nullptr;
         BranchItem *cur = nullptr;
         nextBranch(cur, prev, true, selbi);
         while (cur) {
-            QString heading = cur->headingPlain();
-
             QString query = cur->attributeValue("Jira.query").toString();
 
             bool startAgent = false;
@@ -5461,7 +5450,7 @@ void VymModel::setVymLink(const QString &s, BranchItem *bi)
         QString uc = QString("setVymLink(\"%1\");").arg(selbi->vymLink());
         QString rc = QString("setVymLink(\"%1\");").arg(s);
         saveStateBranch(selbi, uc, rc,
-            QString("Set vymlink of %1 to %2").arg(getObjectName(selbi)).arg(s));
+            QString("Set vymlink of %1 to %2").arg(getObjectName(selbi), s));
         selbi->setVymLink(s);
         emitDataChanged(selbi);
         reposition();
@@ -5683,7 +5672,7 @@ QPointF VymModel::exportImage(QString fname, bool askName, QString format)  // F
     if (!img.save(fname, format.toLocal8Bit())) {
         QMessageBox::critical(
             0, tr("Critical Error"),
-            tr("Couldn't save QImage %1 in format %2").arg(fname).arg(format));
+            tr("Couldn't save QImage %1 in format %2").arg(fname, format));
         ex.setResult(ExportBase::Failed);
     } else
         ex.setResult(ExportBase::Success);
@@ -5849,7 +5838,6 @@ void VymModel::exportXML(QString fpath, bool useDialog)
         fd.setAcceptMode(QFileDialog::AcceptSave);
         fd.selectFile(mapName + ".xml");
 
-        QString fn;
         if (fd.exec() != QDialog::Accepted || fd.selectedFiles().isEmpty())
             return;
 
@@ -6107,7 +6095,7 @@ bool VymModel::exportLastAvailable(QString &description, QString &command,
 {
     command =
         settings.localValue(filePath, "/export/last/command", "").toString();
-    QRegularExpression re("exportMap\\((\".*)\\)");
+    static QRegularExpression re("exportMap\\((\".*)\\)");
     QRegularExpressionMatch match = re.match(command);
     if (match.hasMatch()) {
         QString matched = match.captured(1); // matched == "23 def"

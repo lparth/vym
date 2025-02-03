@@ -7634,6 +7634,7 @@ void Main::helpAboutQT()
 
 void Main::callMacro()
 {
+    std::cout << __FUNCTION__ << " call macro";
     QAction *action = qobject_cast<QAction *>(sender());
     int i = -1;
     if (action) {
@@ -7654,6 +7655,8 @@ void Main::callMacro()
 
         // Function keys start at "1", not "0"
         i++;
+
+        std::cout << __FUNCTION__ << " i= " << i << endl;
 
         QString s = QString("macro_%1f%2();\n").arg(modifiers).arg(i);
 
