@@ -3154,7 +3154,8 @@ bool VymModel::setTaskSleep(const QString &s, BranchItem *bi) // FIXME-2 missing
                 ok = task->setSecsSleep(0);
             }
             else {
-                static QRegularExpression re("^\\s*(\\d+)\\s*$");
+                static QRegularExpression re;
+                re.setPattern("^\\s*(\\d+)\\s*$");
                 re.setPatternOptions(QRegularExpression::InvertedGreedinessOption);
                 QRegularExpressionMatch match = re.match(s);
                 if (match.hasMatch()) {
@@ -4928,7 +4929,8 @@ ItemList VymModel::getLinkedMaps()
     while (cur) {
         if (cur->hasActiveSystemFlag("system-target") && cur->hasVymLink()) {
             s = cur->heading().getTextASCII();
-            static QRegularExpression re("\n+");
+            static QRegularExpression re;
+            re.setPattern("\n+");
             s.replace(re, " ");
             re.setPattern("\\s+");
             s.replace(re, " ");
@@ -5180,12 +5182,13 @@ void VymModel::note2URLs() // FIXME-3 No saveState yet
         QString n = selbi->getNoteASCII();
         if (n.isEmpty())
             return;
-        QRegularExpression re("(http.*)(\\s|\"|')");
+        static QRegularExpression re;
+        re.setPattern("(http.*)(\\s|\"|')");
         re.setPatternOptions(QRegularExpression::InvertedGreedinessOption);
 
         BranchItem *bi;
         int pos = 0;
-        static QRegularExpressionMatch match;
+        QRegularExpressionMatch match;
         while (pos >= 0) {
             match = re.match(n, pos);
             if (match.hasMatch()) {
@@ -6095,7 +6098,8 @@ bool VymModel::exportLastAvailable(QString &description, QString &command,
 {
     command =
         settings.localValue(filePath, "/export/last/command", "").toString();
-    static QRegularExpression re("exportMap\\((\".*)\\)");
+    static QRegularExpression re;
+    re.setPattern("exportMap\\((\".*)\\)");
     QRegularExpressionMatch match = re.match(command);
     if (match.hasMatch()) {
         QString matched = match.captured(1); // matched == "23 def"
