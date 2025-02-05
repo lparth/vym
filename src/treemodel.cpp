@@ -1,8 +1,6 @@
 #include <QtGui>
 
-#include "attributeitem.h"
 #include "branchitem.h"
-#include "imageitem.h"
 #include "treeitem.h"
 #include "treemodel.h"
 #include "xlinkitem.h"
@@ -104,12 +102,20 @@ QModelIndex TreeModel::index(int row, int column,
         return QModelIndex();
 }
 
+#include <iostream> // FIXME-0
 QModelIndex TreeModel::parent(const QModelIndex &index) const
 {
     if (!index.isValid())
         return QModelIndex();
 
     TreeItem *ti = getItem(index);
+    /*
+    std::cout << "TI::parent ti == " << ti << std::endl;
+    if (!ti)
+        std::cout << "TI::parent Ooops, ti == 0" << std::endl; // FIXME-0
+    else
+        std::cout << "TI::parent ti == " << ti << " " << ti->headingText().toStdString() << std::endl; // FIXME-0
+    */
     TreeItem *parentItem = ti->parent();
     if (parentItem == rootItem)
         return QModelIndex();
