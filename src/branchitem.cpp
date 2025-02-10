@@ -6,7 +6,6 @@
 #include "frame-container.h"
 #include "heading-container.h"
 #include "image-container.h"
-#include "link-container.h"
 #include "task.h"
 #include "taskmodel.h"
 #include "vymmodel.h"
@@ -40,10 +39,9 @@ BranchItem::BranchItem(TreeItem *parent)
     branchContainer = nullptr;
 }
 
-#include <iostream> // FIXME-0
 BranchItem::~BranchItem()
 {
-std::cout << "Destr. BranchItem: this=" << this << "  " << headingPlain().toStdString() << "  branchContainer=" << branchContainer << std::endl;
+    // std::cout << "Destr. BranchItem: this=" << this << "  " << headingPlain().toStdString() << "  branchContainer=" << branchContainer << std::endl;
     if (branchContainer) {
         // This deletes only the first container here.
         // All other containers deeper down in tree will unlink themselves 
