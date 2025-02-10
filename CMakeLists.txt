@@ -34,7 +34,7 @@ set(QtLibraries
     Qt6::Xml
 )
 
-# Switch on Debug mode  on command line with 
+# Switch on Debug mode  on command line with
 # cmake -DCMAKE_BUILD_TYPE=Debug .
 #
 # or uncomment here:
@@ -47,7 +47,7 @@ set(CMAKE_AUTORCC ON)
 # On Linux DBUS is used for IPC with vym
 # On openSUSE install it using:  zypper install dbus-1-devel
 
-if (CMAKE_SYSTEM_NAME STREQUAL Linux)
+if (CMAKE_SYSTEM_NAME EQUAL Linux)
     find_package(DBus1)
 
     if(DBus1_FOUND)
