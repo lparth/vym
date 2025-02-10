@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(ViewYourMind-develop VERSION 2.9.518 LANGUAGES CXX)
+project(ViewYourMind-develop LANGUAGES CXX)
 
 # See also https://doc.qt.io/qt-6.5/cmake-get-started.html
 
@@ -8,7 +8,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if (CMAKE_SYSTEM_NAME STREQUAL Linux)
-    message(STATUS "using UNIX in cmake")
+    message(STATUS "using UNIX in cmake")	# FIXME-0 still required?
 endif()
 
 set(QtComponents
@@ -113,8 +113,8 @@ endif()
 
 # Translations  (release)
 
-    # To update the translation files based on source code changes 
-    # first call manually 
+    # To update the translation files based on source code changes
+    # first call manually
     # lupdate-qt5 src/ -ts lang/*.ts
     #
     # Qt6 will have a dedicated macro:
