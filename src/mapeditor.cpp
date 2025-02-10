@@ -1446,7 +1446,6 @@ void MapEditor::cursorUpToggleSelection()
         return;
 
     QList <TreeItem*> seltis = model->getSelectedItems();
-    TreeItem *selti = model->getSelectedItem();
     TreeItem *ti;
 
     if (seltis.size() == 0)
@@ -2073,9 +2072,10 @@ void MapEditor::moveObject(QMouseEvent *e, const QPointF &p_event)
 
                     // Save position of children branches in case we only want to
                     // move this branch and keep children unchanged using CTRL modifier
-                    if (bc->hasFloatingBranchesLayout())
+                    if (bc->hasFloatingBranchesLayout()) {
                         foreach(BranchContainer *bc2, bc->childBranches())
                             bc2->setOriginalScenePos();
+                    }
                                                                             //
                     bc->setOriginalPos();
                     bc->setOriginalOrientation();   // Also sets originalParentBranchContainer
@@ -2367,12 +2367,6 @@ void MapEditor::mouseReleaseEvent(QMouseEvent *e)
     // Have we been drawing a link?
     if (editorState == CreatingXLink) {
         setState(Neutral);
-
-        TreeItem *seli;
-        if (movingItems.count() > 0)
-            seli = movingItems.first();
-        else
-            seli = nullptr;
 
         // Check if we are over another branch
         if (destinationBranch) {
