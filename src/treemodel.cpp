@@ -1,8 +1,6 @@
 #include <QtGui>
 
-#include "attributeitem.h"
 #include "branchitem.h"
-#include "imageitem.h"
 #include "treeitem.h"
 #include "treemodel.h"
 #include "xlinkitem.h"
@@ -77,8 +75,10 @@ QModelIndex TreeModel::index(TreeItem *ti)
 {
     if (!ti->parent())
         return QModelIndex();
-    else
-        return createIndex(ti->row(), 0, ti);
+    else { // FIXME-0 debugging here...
+        QModelIndex ix = createIndex(ti->row(), 0, ti);
+        return ix;
+    }
 }
 
 QModelIndex TreeModel::index(int row, int column,
@@ -292,7 +292,7 @@ TreeItem *TreeModel::getItem(const QModelIndex &index) const
 {
     if (index.isValid()) {
         TreeItem *item = static_cast<TreeItem *>(index.internalPointer());
-        if (item)
+        if (item)   // FIXME-2 if condition not necessary
             return item;
     }
     return nullptr;

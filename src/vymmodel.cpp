@@ -855,8 +855,7 @@ void VymModel::saveMap(const File::SaveMode &savemode)
     else {
         if (useActionLog) {
             QString log = QString("Wrote unzipped map \"%1\" into zipDirInt = %2")
-                .arg(mapFileName)
-                .arg(zipDirInt.path());
+                .arg(mapFileName, zipDirInt.path());
             logInfo(log, __func__);
         }
 
@@ -867,8 +866,7 @@ void VymModel::saveMap(const File::SaveMode &savemode)
             zipAgent = new ZipAgent(zipDirInt, destPath);
             connect(zipAgent, SIGNAL(zipFinished()), this, SLOT(zipFinished()));
             QString log = QString("Starting zipAgent to compress \"%1\" in zipDirInt = %2")
-                .arg(mapFileName)
-                .arg(zipDirInt.path());
+                .arg(mapFileName, zipDirInt.path());
             logInfo(log, __func__);
             zipAgent->startZip();
         } else
@@ -1014,11 +1012,11 @@ void VymModel::importDirInt(QDir d, BranchItem *dst)
         QColor dirColor;
         QColor fileColor;
         if (usingDarkTheme) {
-            dirColor = QColor::fromString("#00aaff");
-            fileColor = QColor::fromString("#ffffff");
+            dirColor = QColor(0, 170, 255); // #00aaff
+            fileColor = QColor(255, 255, 255);
         } else {
-            dirColor = QColor::fromString("#0000ff");
-            fileColor = QColor::fromString("#000000");
+            dirColor = QColor(0, 0, 255);
+            fileColor = QColor(0, 0, 0);
         }
 
         // Traverse directories
@@ -1108,7 +1106,7 @@ bool VymModel::addMapInsert(QString fpath, int insertPos, BranchItem *insertBran
         QString bv = setBranchVar(insertBranch);
         QString uc = bv + QString("map.loadBranchReplace(\"UNDO_PATH\", b);");
         QString rc = bv + QString("b.loadBranchInsert(\"%1\", %2);").arg(fpath).arg(insertPos);
-        QString comment = QString("Add map %1 to \"%2\"").arg(fpath).arg(insertBranch->headingText());
+        QString comment = QString("Add map %1 to \"%2\"").arg(fpath, insertBranch->headingText());
         saveState(uc, rc, comment, insertBranch);
     }
 
@@ -1869,7 +1867,7 @@ void VymModel::saveStateBeginScript(const QString &comment)
 void VymModel::saveStateEndScript()
 {
     if (debug)
-	    std::cout << "VM::saveStateEndScript buildingScript: " << buildingUndoScript << " undo: " << undoScript.toStdString() << endl;
+        std::cout << "VM::saveStateEndScript  buildingScript=" << buildingUndoScript << " undoScript=" << undoScript.toStdString() << endl;
 
     if (buildingUndoScript) {
         buildingUndoScript = false;
@@ -2446,7 +2444,6 @@ bool VymModel::findAll(FindResultModel *rmodel, QString s,
                     }
 
                     // save index of occurence
-                    QString e = n.mid(i - 15, 30);
                     n.replace('\n', ' ');
                     rmodel->addSubItem(
                         lastParent,
@@ -2477,13 +2474,12 @@ void VymModel::setUrl(QString url, bool updateFromCloud, BranchItem *bi)    // F
             QString uc = QString("setUrl(\"%1\");").arg(oldurl);
             QString rc = QString("setUrl(\"%1\");").arg(url);
             saveStateBranch(bi, uc, rc,
-                QString("set URL of %1 to %2").arg(getObjectName(bi)).arg(url));
+                QString("set URL of %1 to %2").arg(getObjectName(bi), url));
         }
         if (!url.isEmpty()) {
             if (updateFromCloud) {    // FIXME-3 use oembed.com also for Youtube and other cloud providers
                 // Check for Jira
                 JiraAgent agent;
-                QString query;
                 if (agent.setTicket(url)) {
                     setAttribute(bi, "Jira.key", agent.key());
 
@@ -3158,7 +3154,8 @@ bool VymModel::setTaskSleep(const QString &s, BranchItem *bi) // FIXME-2 missing
                 ok = task->setSecsSleep(0);
             }
             else {
-                QRegularExpression re("^\\s*(\\d+)\\s*$");
+                static QRegularExpression re;
+                re.setPattern("^\\s*(\\d+)\\s*$");
                 re.setPatternOptions(QRegularExpression::InvertedGreedinessOption);
                 QRegularExpressionMatch match = re.match(s);
                 if (match.hasMatch()) {
@@ -4259,7 +4256,7 @@ bool VymModel::relinkBranches(QList <BranchItem*> branches, BranchItem *dst, int
                 .arg(branches.count())
                 .arg(dst->headingPlain()));
 
-    BranchItem* bi_prev = nullptr;
+    BranchItem* bi_prev = nullptr;  // FIXME-2 never really set and thus used
     foreach (BranchItem *bi, branches) {
         // Check if we link to ourself
         if (dst == bi) {
@@ -4304,34 +4301,46 @@ bool VymModel::relinkBranches(QList <BranchItem*> branches, BranchItem *dst, int
         // What kind of relinking are we doing? Important for style updates
         MapDesign::UpdateMode updateMode = MapDesign::RelinkedByUser; // FIXME-2 not used later   also not considering detaching
 
-        BranchItem *branchpi = (BranchItem *)bi->parent();
+        BranchItem *branchpi = bi->parentBranch();
 
         // Remove at current position
         int removeRowNum = bi->childNum();
 
-        //qDebug() << "  VM::relink removing at n=" << removeRowNum << bi->headingPlain();
-        emit layoutAboutToBeChanged();
-        beginRemoveRows(index(branchpi), removeRowNum, removeRowNum);
-        branchpi->removeChild(removeRowNum);
-        endRemoveRows();
+        QModelIndex pix = index(branchpi);
+        /* FIXME-2 remove debug stuff
+        std::cout << "  VM::relink removing " << bi << " " << bi->headingPlain().toStdString()
+                  << " at n=" << removeRowNum
+                  << " from " << branchpi << "  " << branchpi->headingPlain().toStdString()
+                  << " to " << dst << " " << dst->headingPlain().toStdString() << endl;
+        std::cout << "      persIxList: " << (this->persistentIndexList()).count() << endl;
+        std::cout << "         num_dst: " << num_dst << endl;
+        */
 
-        // Insert again
-        int insertRowNum;
-        if (bi_prev)
-            // Simply append after previous branch
-            insertRowNum = bi_prev->num() + 1;
-        else {
-            if (dst->branchCount() == 0)
-                // Append as last branch to dst
-                insertRowNum = 0;
-            else
-                insertRowNum = dst->getFirstBranch()->childNumber() + num_dst;
+        QModelIndex dix = index(dst);
+        int dstRowNum = num_dst;
+        if (branchpi == dst && num_dst > removeRowNum) {
+            // When moving down with same parent:
+            // Be careful to insert *before* destination index using beginMoveRows
+            // https://doc.qt.io/qt-6/qabstractitemmodel.html#moveRows
+            dstRowNum = num_dst + 1;
+            if (num_dst > removeRowNum + 1)
+                // if not just moving down one level but further, adapt num_dst
+                num_dst--;
         }
 
-        //qDebug() << "  VM::relink inserting  at " << insertRowNum;
-        beginInsertRows(index(dst), insertRowNum + num_dst, insertRowNum + num_dst);
+        emit layoutAboutToBeChanged();
+        bool b = beginMoveRows(pix, removeRowNum, removeRowNum, dix, dstRowNum);
+        Q_ASSERT(b);
+        /*
+        std::cout << "  beginMoveRows=" << toS(b).toStdString()
+                  << "  removeRowNum=" << removeRowNum
+                  << " num_dst=" << num_dst
+                  << " dstRowNum=" << dstRowNum << endl;
+          */
+        branchpi->removeChild(removeRowNum);
         dst->insertBranch(num_dst, bi);
-        endInsertRows();
+        endMoveRows();
+        emit layoutChanged();
 
         // Update upLink of BranchContainer to *parent* BC of destination
         bc->linkTo(dstBC);
@@ -4342,7 +4351,6 @@ bool VymModel::relinkBranches(QList <BranchItem*> branches, BranchItem *dst, int
         // reset parObj, fonts, frame, etc in related branch-container or other view-objects
         applyDesign(MapDesign::RelinkedByUser, bi);
 
-        emit layoutChanged();
 
         // Keep position when detaching
         if (keepPos) {
@@ -4363,9 +4371,6 @@ bool VymModel::relinkBranches(QList <BranchItem*> branches, BranchItem *dst, int
 
             QString postNumString = QString::number(bi->num(), 10);
 
-            QString undoCom;
-            QString redoCom;
-
             QString bv = setBranchVar(bi);
             if (pbi == rootItem)
                 uc = bv + " detach ()";
@@ -4378,8 +4383,7 @@ bool VymModel::relinkBranches(QList <BranchItem*> branches, BranchItem *dst, int
 
             saveState(uc, rc,
                       QString("Relink %1 to %2")
-                          .arg(getObjectName(bi))
-                          .arg(getObjectName(dst)));
+                          .arg(getObjectName(bi), getObjectName(dst)));
 
             if (dstBC && dstBC->hasFloatingBranchesLayout()) {
                 // Save current position for redo
@@ -4534,7 +4538,6 @@ void VymModel::deleteSelection(ulong selID)
         selectedIDs = getSelectedIDs();
 
     unselectAll();
-    QString fn;
 
     mapEditor->stopContainerAnimations();  // FIXME-5 better tell ME about deleted items, so that ME can take care of race conditions, e.g. also deleting while moving objects
 
@@ -4562,7 +4565,7 @@ void VymModel::deleteSelection(ulong selID)
                 if (pi) {
                     if (pi->isScrolled() && pi->branchCount() == 0)
                         pi->unScroll();
-                    emitDataChanged(pi);
+                    emitDataChanged(pi);    // FIXME-2 duplicate call, already in deleteItem
                     select(pi);
                 }
                 else
@@ -4603,18 +4606,24 @@ void VymModel::deleteSelection(ulong selID)
 void VymModel::deleteKeepChildren(BranchItem *bi)
 {
     QList<BranchItem *> selbis = getSelectedBranches(bi);
+
     foreach (BranchItem *selbi, selbis) {
         if (selbi->depth() < 1) {
             while (selbi->branchCount() > 0)
                 detach(selbi->getBranchNum(0));
 
             deleteSelection(selbi->getID());
-            //saveStateEndScript();
+            //saveStateEndScript(); // FIXME-2 needed?
         } else {
             // Check if we have children at all to keep
             if (selbi->branchCount() == 0)
                 deleteSelection();
             else {
+                unselectAll();
+
+                bool oldSaveState = saveStateBlocked;
+                saveStateBlocked = true;
+
                 BranchItem *pi = (BranchItem *)(selbi->parent());
 
                 QString pbv = setBranchVar(pi, "pb");
@@ -4626,9 +4635,6 @@ void VymModel::deleteKeepChildren(BranchItem *bi)
                     pi);
 
                 QString sel = getSelectString(selbi);
-                unselectAll();
-                bool oldSaveState = saveStateBlocked;
-                saveStateBlocked = true;
                 int num_dst = selbi->num();
                 BranchItem *bi = selbi->getFirstBranch();
                 while (bi) {
@@ -4637,9 +4643,9 @@ void VymModel::deleteKeepChildren(BranchItem *bi)
                     num_dst++;
                 }
                 deleteItem(selbi);
-                reposition();
+                reposition(); //FIXME-2 not necessary, already called above in deleteItem
                 saveStateBlocked = oldSaveState;
-                emitDataChanged(pi);
+                emitDataChanged(pi);    // FIXME-2 probably also not necessary
                 select(sel);
             }
         }
@@ -4711,7 +4717,7 @@ void VymModel::deleteChildrenBranches(BranchItem *bi)
     }
 }
 
-TreeItem *VymModel::deleteItem(TreeItem *ti)
+TreeItem *VymModel::deleteItem(TreeItem *ti)    // FIXME-2 remove debug stuff
 {
     if (ti) {
         TreeItem *pi = ti->parent();
@@ -4724,27 +4730,27 @@ TreeItem *VymModel::deleteItem(TreeItem *ti)
         emit layoutAboutToBeChanged();
 
         int n = ti->childNum();
-        // qDebug() << "TI::deleteItem a) ti=" << ti << headingText(ti) << " pi=" << headingText(pi) << "  n=" << n << " px=" << parentIndex;    // FIXME-2 Debugging
+        //std::cout << "VM::deleteItem a) ti=" << ti << "  " << headingText(ti).toStdString() << " pi=" << headingText(pi).toStdString() << "  n=" << n << endl;    // FIXME-2 Debugging
         beginRemoveRows(parentIndex, n, n);
-        //qDebug() << "TI::deleteItem b) ";
-        removeRows(n, 1, parentIndex);  // Deletes object!
-        //qDebug() << "TI::deleteItem c) ";
+        //qDebug() << "VM::deleteItem b) ";
+        bool r = removeRows(n, 1, parentIndex);  // Deletes object!
+        //qDebug() << "VM::deleteItem c) ";
         endRemoveRows();
-        //qDebug() << "TI::deleteItem d) ";
+        //std::cout << "VM::deleteItem d) r=" << r << endl;
 
         emit layoutChanged();
-        //qDebug() << "TI::deleteItem e) ";
+        //qDebug() << "VM::deleteItem e) ";
 
         emitUpdateQueries();
 
-        //qDebug() << "TI::deleteItem f) ";
+        //qDebug() << "VM::deleteItem f) ";
         if (wasAttribute) {
             updateJiraFlag(parentItem);
             emitDataChanged(parentItem);
         }
-        //qDebug() << "TI::deleteItem g) ";
+        //qDebug() << "VM::deleteItem g) ";
         reposition();
-        //qDebug() << "TI::deleteItem h) ";
+        //std::cout << "VM::deleteItem h) " << endl;
 
         if (pi->depth() >= 0)
             return pi;
@@ -4935,12 +4941,15 @@ ItemList VymModel::getLinkedMaps()
     QString s;
 
     while (cur) {
-        if (cur->hasActiveSystemFlag("system-target") &&
-            cur->hasVymLink()) {
+        if (cur->hasActiveSystemFlag("system-target") && cur->hasVymLink()) {
             s = cur->heading().getTextASCII();
-            s.replace(QRegularExpression("\n+"), " ");
-            s.replace(QRegularExpression("\\s+"), " ");
-            s.replace(QRegularExpression("^\\s+"), "");
+            static QRegularExpression re;
+            re.setPattern("\n+");
+            s.replace(re, " ");
+            re.setPattern("\\s+");
+            s.replace(re, " ");
+            re.setPattern("\\s+");
+            s.replace(re, "");
 
             QStringList sl;
             sl << s;
@@ -5146,8 +5155,7 @@ void VymModel::colorSubtree(QColor c, BranchItem *bi)
         QString rc = bv + QString("b.colorSubtree (\"%1\")").arg(c.name());
         saveState(uc, rc,
                         QString("Set color of %1 and children to %2")
-                          .arg(getObjectName(bi))
-                          .arg(c.name()),
+                          .arg(getObjectName(bi), c.name()),
                         bi, nullptr);
         BranchItem *prev = nullptr;
         BranchItem *cur = nullptr;
@@ -5188,7 +5196,8 @@ void VymModel::note2URLs() // FIXME-3 No saveState yet
         QString n = selbi->getNoteASCII();
         if (n.isEmpty())
             return;
-        QRegularExpression re("(http.*)(\\s|\"|')");
+        static QRegularExpression re;
+        re.setPattern("(http.*)(\\s|\"|')");
         re.setPatternOptions(QRegularExpression::InvertedGreedinessOption);
 
         BranchItem *bi;
@@ -5234,13 +5243,10 @@ void VymModel::getJiraData(bool subtree, BranchItem *bi)
     BranchItem *selbi = getSelectedBranch(bi);
 
     if (selbi) {
-        QString url;
         BranchItem *prev = nullptr;
         BranchItem *cur = nullptr;
         nextBranch(cur, prev, true, selbi);
         while (cur) {
-            QString heading = cur->headingPlain();
-
             QString query = cur->attributeValue("Jira.query").toString();
 
             bool startAgent = false;
@@ -5461,7 +5467,7 @@ void VymModel::setVymLink(const QString &s, BranchItem *bi)
         QString uc = QString("setVymLink(\"%1\");").arg(selbi->vymLink());
         QString rc = QString("setVymLink(\"%1\");").arg(s);
         saveStateBranch(selbi, uc, rc,
-            QString("Set vymlink of %1 to %2").arg(getObjectName(selbi)).arg(s));
+            QString("Set vymlink of %1 to %2").arg(getObjectName(selbi), s));
         selbi->setVymLink(s);
         emitDataChanged(selbi);
         reposition();
@@ -5683,7 +5689,7 @@ QPointF VymModel::exportImage(QString fname, bool askName, QString format)  // F
     if (!img.save(fname, format.toLocal8Bit())) {
         QMessageBox::critical(
             0, tr("Critical Error"),
-            tr("Couldn't save QImage %1 in format %2").arg(fname).arg(format));
+            tr("Couldn't save QImage %1 in format %2").arg(fname, format));
         ex.setResult(ExportBase::Failed);
     } else
         ex.setResult(ExportBase::Success);
@@ -5849,7 +5855,6 @@ void VymModel::exportXML(QString fpath, bool useDialog)
         fd.setAcceptMode(QFileDialog::AcceptSave);
         fd.selectFile(mapName + ".xml");
 
-        QString fn;
         if (fd.exec() != QDialog::Accepted || fd.selectedFiles().isEmpty())
             return;
 
@@ -6107,7 +6112,8 @@ bool VymModel::exportLastAvailable(QString &description, QString &command,
 {
     command =
         settings.localValue(filePath, "/export/last/command", "").toString();
-    QRegularExpression re("exportMap\\((\".*)\\)");
+    static QRegularExpression re;
+    re.setPattern("exportMap\\((\".*)\\)");
     QRegularExpressionMatch match = re.match(command);
     if (match.hasMatch()) {
         QString matched = match.captured(1); // matched == "23 def"
@@ -7127,14 +7133,9 @@ void VymModel::select(QList <TreeItem*> tis)
         selectToggle(ti);
 }
 
-void VymModel::unselectAll() { unselect(selModel->selection()); }
-
-void VymModel::unselect(QItemSelection desel)
-{
-    if (!desel.isEmpty()) {
-        lastSelectString = getSelectString();
-        selModel->clearSelection();
-    }
+void VymModel::unselectAll() {
+    lastSelectString = getSelectString();
+    selModel->clearSelection();
 }
 
 bool VymModel::reselect()

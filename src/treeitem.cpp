@@ -149,24 +149,28 @@ void TreeItem::removeChild(int row)
     if (row < 0 || row > childItems.size() - 1)
         qWarning("TreeItem::removeChild tried to remove non existing item?!");
     else {
-        if (childItems.at(row)->type == Attribute) {
+        bool ok = true;
+        if (childItems.at(row)->hasTypeBranch())
+            branchCounter--;
+        else if (childItems.at(row)->type == Attribute) {
             attributeCounter--;
             xlinkOffset--;
             imageOffset--;
             branchOffset--;
-        }
-        if (childItems.at(row)->type == XLinkItemType) {
+        } else if (childItems.at(row)->type == XLinkItemType) {
             xlinkCounter--;
             imageOffset--;
             branchOffset--;
-        }
-        if (childItems.at(row)->type == Image) {
+        } else if (childItems.at(row)->type == Image) {
             imageCounter--;
             branchOffset--;
-        }
-        if (childItems.at(row)->hasTypeBranch())
-            branchCounter--;
+        } else
+            ok = false;
 
+        if (!ok) {
+            qWarning() << __FUNCTION__ << " unknown type";
+            return;
+        }
         childItems.removeAt(row);
     }
 }

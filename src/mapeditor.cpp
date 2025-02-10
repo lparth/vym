@@ -60,7 +60,7 @@ MapEditor::MapEditor(VymModel *vm)
     useTransformationOrigin = false;
     zoomDelta = 0.20;
 
-    if (debug) {
+    if (false) {
         // Add cross in origin for debugging
         QPointF p;
         qreal size = 100;

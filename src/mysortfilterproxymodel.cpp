@@ -1,6 +1,6 @@
 //#include <QtGui>
 
-#include "mysortfilterproxymodel.h"
+#include "mysortfilterproxymodel.h"	// FIXME-2 Nowhere used???
 
 MySortFilterProxyModel::MySortFilterProxyModel(QObject *parent)
     : QSortFilterProxyModel(parent)
