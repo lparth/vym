@@ -831,7 +831,6 @@ class VymModel : public TreeModel {
     void select(QList <BranchItem*> selbis);//! Used to restore selections
     void select(QList <TreeItem*> tis);     //! Select list of pointers e.g. when relinking
     void unselectAll();
-    void unselect(QItemSelection desel);
     bool reselect();
     bool canSelectPrevious();
     bool selectPrevious();

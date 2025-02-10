@@ -7119,14 +7119,9 @@ void VymModel::select(QList <TreeItem*> tis)
         selectToggle(ti);
 }
 
-void VymModel::unselectAll() { unselect(selModel->selection()); }
-
-void VymModel::unselect(QItemSelection desel)
-{
-    if (!desel.isEmpty()) {
-        lastSelectString = getSelectString();
-        selModel->clearSelection();
-    }
+void VymModel::unselectAll() {
+    lastSelectString = getSelectString();
+    selModel->clearSelection();
 }
 
 bool VymModel::reselect()
