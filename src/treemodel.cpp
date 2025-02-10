@@ -75,8 +75,11 @@ QModelIndex TreeModel::index(TreeItem *ti)
 {
     if (!ti->parent())
         return QModelIndex();
-    else
-        return createIndex(ti->row(), 0, ti);
+    else { // FIXME-0 debugging here...
+        QModelIndex ix = createIndex(ti->row(), 0, ti);
+        qDebug() << "TM::index  ti=" << ti << "  ix=" << ix << " check:" << checkIndex(ix);
+        return ix;
+    }
 }
 
 QModelIndex TreeModel::index(int row, int column,
@@ -111,11 +114,11 @@ QModelIndex TreeModel::parent(const QModelIndex &index) const
     TreeItem *ti = getItem(index);
     /*
     std::cout << "TI::parent ti == " << ti << std::endl;
+    */
     if (!ti)
         std::cout << "TI::parent Ooops, ti == 0" << std::endl; // FIXME-0
     else
         std::cout << "TI::parent ti == " << ti << " " << ti->headingText().toStdString() << std::endl; // FIXME-0
-    */
     TreeItem *parentItem = ti->parent();
     if (parentItem == rootItem)
         return QModelIndex();
@@ -298,7 +301,7 @@ TreeItem *TreeModel::getItem(const QModelIndex &index) const
 {
     if (index.isValid()) {
         TreeItem *item = static_cast<TreeItem *>(index.internalPointer());
-        if (item)
+        if (item)   // FIXME-2 if condition not necessary
             return item;
     }
     return nullptr;

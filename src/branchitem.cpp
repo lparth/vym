@@ -40,9 +40,10 @@ BranchItem::BranchItem(TreeItem *parent)
     branchContainer = nullptr;
 }
 
+#include <iostream> // FIXME-0
 BranchItem::~BranchItem()
 {
-    //qDebug() << "Destr. BranchItem: this=" << this << "  " << headingPlain() << "branchContainer=" << branchContainer;
+std::cout << "Destr. BranchItem: this=" << this << "  " << headingPlain().toStdString() << "  branchContainer=" << branchContainer << std::endl;
     if (branchContainer) {
         // This deletes only the first container here.
         // All other containers deeper down in tree will unlink themselves 
@@ -94,9 +95,9 @@ void BranchItem::insertBranch(int pos, BranchItem *branch)
     branch->rootItem = rootItem;
     branch->setModel(model);
     if (parentItem == rootItem)
-        setType(MapCenter);
+        setType(MapCenter); // FIXME-2 shouldn't this be branch->setType()??
     else
-        setType(Branch);
+        setType(Branch);    // FIXME-2 shouldn't this be branch->setType()??
 
     if (branchCounter == 0)
         branchOffset = childItems.count() - 1;
