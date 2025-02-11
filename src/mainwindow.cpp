@@ -7810,10 +7810,10 @@ bool Main::downloadsEnabled(bool userTriggered)
                    "</ul>"
                    "Please allow vym to check for updates :-)");
             QMessageBox mb(QMessageBox::Information, vymName, infotext);
-            mb.addButton(tr("Allow"), QMessageBox::AcceptRole);
+            QPushButton *allowButton = mb.addButton(tr("Allow"), QMessageBox::AcceptRole);
             mb.addButton(tr("Do not allow"), QMessageBox::RejectRole);
-            mb.exec();
-            if (mb.result() == QMessageBox::AcceptRole) {
+            mb.setDefaultButton(allowButton);
+            if (mb.clickedButton() == allowButton) {
                 result = true;
                 QMessageBox msgBox;
                 msgBox.setText(tr("Thank you for enabling downloads!"));
