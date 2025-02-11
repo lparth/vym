@@ -7813,6 +7813,7 @@ bool Main::downloadsEnabled(bool userTriggered)
             QPushButton *allowButton = mb.addButton(tr("Allow"), QMessageBox::AcceptRole);
             mb.addButton(tr("Do not allow"), QMessageBox::RejectRole);
             mb.setDefaultButton(allowButton);
+            mb.exec();
             if (mb.clickedButton() == allowButton) {
                 result = true;
                 QMessageBox msgBox;
