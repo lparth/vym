@@ -312,7 +312,7 @@ int main(int argc, char *argv[])
     zipToolPath = "tar";
     unzipToolPath = "tar";
 #else
-    zipToolPath = "/usr/bin/zip";
+    zipToolPath = "/usr/bin/zip";       // FIXME-4 no longer installed per default in openSUSE 15.6
     unzipToolPath = "/usr/bin/unzip";
 #endif
     iconPath = vymBaseDir.path() + "/icons/";
@@ -486,11 +486,14 @@ int main(int argc, char *argv[])
                         "or your Windows version is older than Windows 10."));
     }
 #else
-    if (!zipToolAvailable || !unzipToolAvailable) {
+    if (!zipToolAvailable)
         QMessageBox::critical(
             0, QObject::tr("Critical Error"),
-            QObject::tr("Couldn't find tar tool to zip/unzip data. "));
-    }
+            QObject::tr("Couldn't find tar tool to zip data. "));
+    if (!unzipToolAvailable)
+        QMessageBox::critical(
+            0, QObject::tr("Critical Error"),
+            QObject::tr("Couldn't find tar tool to unzip data. "));
 #endif
 
     m.setWindowIcon(QPixmap(":/vym.png"));
