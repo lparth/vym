@@ -47,7 +47,6 @@ class TreeItem : public XMLObj {
 
     virtual TreeItem *child(int row);
     virtual int childCount() const;
-    virtual int childNumber() const;
     virtual int columnCount() const;
     virtual int branchCount() const;
     virtual int branchOffset() const;
@@ -181,7 +180,7 @@ class TreeItem : public XMLObj {
     virtual QUuid getUuid();
 
     // Navigation and selection
-    virtual TreeItem *getChildNum(const int &n);
+    virtual TreeItem *childItemByRow(const int &n);
     virtual BranchItem *getFirstBranch();
     virtual BranchItem *getLastBranch();
     virtual ImageItem *getFirstImage();

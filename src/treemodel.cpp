@@ -113,7 +113,7 @@ QModelIndex TreeModel::parent(const QModelIndex &index) const
     TreeItem *parentItem = ti->parent();
     if (parentItem == rootItem)
         return QModelIndex();
-    return createIndex(parentItem->childNumber(), 0, parentItem);
+    return createIndex(parentItem->row(), 0, parentItem);
 }
 
 int TreeModel::rowCount(const QModelIndex &parent) const
@@ -281,7 +281,7 @@ bool TreeModel::removeRows(int row, int count, const QModelIndex &parent)
     TreeItem *ti;
 
     for (int i = row; i <= last; i++) {
-        ti = pi->getChildNum(row);
+        ti = pi->childItemByRow(row);
         pi->removeChild(row); // does not delete object!
         delete ti;
     }

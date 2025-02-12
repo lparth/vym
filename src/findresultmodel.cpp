@@ -119,7 +119,7 @@ QModelIndex FindResultModel::parent(const QModelIndex &index) const
     if (parentItem == rootItem)
         return QModelIndex();
 
-    return createIndex(parentItem->childNumber(), 0, parentItem);
+    return createIndex(parentItem->row(), 0, parentItem);
 }
 
 bool FindResultModel::removeColumns(int position, int columns,

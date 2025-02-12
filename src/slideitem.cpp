@@ -39,14 +39,6 @@ SlideItem *SlideItem::child(int number) { return childItems.value(number); }
 
 int SlideItem::childCount() const { return childItems.count(); }
 
-int SlideItem::childNumber() const
-{
-    if (parentItem)
-        return parentItem->childItems.indexOf(const_cast<SlideItem *>(this));
-
-    return 0;
-}
-
 int SlideItem::columnCount() const { return itemData.count(); }
 
 QVariant SlideItem::data(int column) const { return itemData.value(column); }
@@ -56,7 +48,7 @@ int SlideItem::row() const
     if (parentItem)
         return parentItem->childItems.indexOf(const_cast<SlideItem *>(this));
 
-    return 0;
+    return -1;
 }
 
 void SlideItem::insertItem(int pos, SlideItem *si)

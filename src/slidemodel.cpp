@@ -118,7 +118,7 @@ QModelIndex SlideModel::parent(const QModelIndex &index) const
     if (parentItem == rootItem)
         return QModelIndex();
 
-    return createIndex(parentItem->childNumber(), 0, parentItem);
+    return createIndex(parentItem->row(), 0, parentItem);
 }
 
 bool SlideModel::removeColumns(int position, int columns,
@@ -213,7 +213,7 @@ void SlideModel::deleteSlide(SlideItem *si)
     QModelIndex ix = index(si);
     if (ix.isValid()) {
         QModelIndex px = ix.parent();
-        int n = si->childNumber();
+        int n = si->row();
         removeRows(n, 1, px);
     }
 }
@@ -225,7 +225,7 @@ bool SlideModel::relinkSlide(SlideItem *si, SlideItem *dst, int pos)
         SlideItem *pi = si->parent();
 
         // Remove at current position
-        int n = si->childNumber();
+        int n = si->row();
 
         beginRemoveRows(index(pi), n, n);
         pi->removeItem(n);

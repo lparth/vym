@@ -25,15 +25,6 @@ FindResultItem *FindResultItem::child(int number)
 
 int FindResultItem::childCount() const { return childItems.count(); }
 
-int FindResultItem::childNumber() const
-{
-    if (parentItem)
-        return parentItem->childItems.indexOf(
-            const_cast<FindResultItem *>(this));
-
-    return 0;
-}
-
 int FindResultItem::columnCount() const { return itemData.count(); }
 
 QVariant FindResultItem::data(int column) const
@@ -47,7 +38,7 @@ int FindResultItem::row() const
         return parentItem->childItems.indexOf(
             const_cast<FindResultItem *>(this));
 
-    return 0;
+    return -1;
 }
 
 bool FindResultItem::insertChildren(int position, int count, int columns)

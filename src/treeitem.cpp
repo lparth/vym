@@ -179,14 +179,6 @@ TreeItem *TreeItem::child(int row) { return childItems.value(row); }
 
 int TreeItem::childCount() const { return childItems.count(); }
 
-int TreeItem::childNumber() const   // FIXME-2 rename to rowNumber or rowNum?
-{
-    if (parentItem)
-        return parentItem->childItems.indexOf(const_cast<TreeItem *>(this));
-
-    return 0;   // FIXME-4 return -1 in case of error?
-}
-
 int TreeItem::columnCount() const { return 1; }
 
 int TreeItem::branchCount() const { return branchCounter; }
@@ -205,7 +197,7 @@ int TreeItem::row() const
         return parentItem->childItems.indexOf(const_cast<TreeItem *>(this));
 
     qDebug() << "TI::row() pI=nullptr this=" << this << "  ***************";
-    return 0;
+    return -1;
 }
 
 int TreeItem::depth()
@@ -585,7 +577,7 @@ void TreeItem::setUuid(const QString &id) { uuid = QUuid(id); }
 
 QUuid TreeItem::getUuid() { return uuid; }
 
-TreeItem *TreeItem::getChildNum(const int &n)
+TreeItem *TreeItem::childItemByRow(const int &n)
 {
     if (n >= 0 && n < childItems.count())
         return childItems.at(n);
@@ -661,7 +653,7 @@ BranchItem *TreeItem::getNextBranch(BranchItem *currentBranch)
 BranchItem *TreeItem::getBranchNum(const int &n)
 {
     if (n >= 0 && n < branchCounter)
-        return (BranchItem *)getChildNum(branchOffsetInt + n);
+        return (BranchItem *)childItemByRow(branchOffsetInt + n);
     else
         return nullptr;
 }
@@ -677,7 +669,7 @@ QList <BranchItem*> TreeItem::getBranches()
 ImageItem* TreeItem::getImageNum(const int &n)
 {
     if (n >= 0 && n < imageCounter)
-        return (ImageItem *)getChildNum(imageOffsetInt + n);
+        return (ImageItem *)childItemByRow(imageOffsetInt + n);
     else
         return nullptr;
 }
@@ -685,7 +677,7 @@ ImageItem* TreeItem::getImageNum(const int &n)
 AttributeItem* TreeItem::getAttributeNum(const int &n)
 {
     if (n >= 0 && n < attributeCounter)
-        return (AttributeItem *)getChildNum(attributeOffsetInt + n);
+        return (AttributeItem *)childItemByRow(attributeOffsetInt + n);
     else
         return nullptr;
 }
@@ -713,7 +705,7 @@ QVariant TreeItem::attributeValue(const QString &k)
 XLinkItem* TreeItem::getXLinkItemNum(const int &n)
 {
     if (n >= 0 && n < xlinkCounter)
-        return (XLinkItem *)getChildNum(xlinkOffsetInt + n);
+        return (XLinkItem *)childItemByRow(xlinkOffsetInt + n);
     else
         return nullptr;
 }
