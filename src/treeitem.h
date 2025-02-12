@@ -50,6 +50,7 @@ class TreeItem : public XMLObj {
     virtual int childNumber() const;
     virtual int columnCount() const;
     virtual int branchCount() const;
+    virtual int branchOffset() const;
     virtual int imageCount() const;
     virtual int xlinkCount() const;
     virtual int attributeCount() const;
@@ -229,15 +230,16 @@ class TreeItem : public XMLObj {
      e.g. if some branch is mapCenter and isChildOf  */
     TreeItem *rootItem;
 
-    int branchOffset;
-    int branchCounter;
-    int imageOffset;
-    int imageCounter;
-
-    int attributeOffset;
+    int attributeOffsetInt;    // Always 0
     int attributeCounter;
 
-    int xlinkOffset;
+    int imageOffsetInt;
+    int imageCounter;
+
+    int branchOffsetInt;
+    int branchCounter;
+
+    int xlinkOffsetInt;
     int xlinkCounter;
 };
 

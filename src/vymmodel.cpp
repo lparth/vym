@@ -4305,6 +4305,7 @@ bool VymModel::relinkBranches(QList <BranchItem*> branches, BranchItem *dst, int
 
         // Remove at current position
         int removeRowNum = bi->childNumber();
+        int dstRowNum = num_dst + dst->branchOffset();
 
         QModelIndex pix = index(branchpi);
         /* FIXME-2 remove debug stuff
@@ -4315,15 +4316,16 @@ bool VymModel::relinkBranches(QList <BranchItem*> branches, BranchItem *dst, int
                   << " to " << dst << " " << dst->headingPlain().toStdString() << endl;
         std::cout << "      persIxList: " << (this->persistentIndexList()).count() << endl;
         std::cout << "         num_dst: " << num_dst << endl;
+        std::cout << "    removeRowNum: " << removeRowNum << endl;
+        std::cout << "       dstRowNum: " << dstRowNum << endl;
 
         QModelIndex dix = index(dst);
-        int dstRowNum = num_dst;
-        if (branchpi == dst && num_dst > removeRowNum) {
+        if (branchpi == dst && dstRowNum > removeRowNum) {
             // When moving down with same parent:
             // Be careful to insert *before* destination index using beginMoveRows
             // https://doc.qt.io/qt-6/qabstractitemmodel.html#moveRows
-            dstRowNum = num_dst + 1;
-            if (num_dst > removeRowNum + 1)
+            dstRowNum = dstRowNum + 1;
+            if (num_dst > bi->num() + 1)
                 // if not just moving down one level but further, adapt num_dst
                 num_dst--;
         }
@@ -4333,10 +4335,10 @@ bool VymModel::relinkBranches(QList <BranchItem*> branches, BranchItem *dst, int
         Q_ASSERT(b);
         /*
           */
-        std::cout << "  beginMoveRows=" << toS(b).toStdString()
-                  << "  removeRowNum=" << removeRowNum
-                  << " num_dst=" << num_dst
-                  << " dstRowNum=" << dstRowNum << endl;
+        std::cout << "beginMoveRows=" << toS(b).toStdString()
+                  << " removeRowNum=" << removeRowNum
+                  << "      num_dst=" << num_dst
+                  << "    dstRowNum=" << dstRowNum << endl;
         branchpi->removeChild(removeRowNum);
         dst->insertBranch(num_dst, bi);
         endMoveRows();
@@ -4415,7 +4417,7 @@ bool VymModel::relinkImage(ImageItem* image, TreeItem *dst_ti, int num_new) {
     return relinkImages(images, dst_ti, num_new);
 }
 
-bool VymModel::relinkImages(QList <ImageItem*> images, TreeItem *dst_ti, int num_new)
+bool VymModel::relinkImages(QList <ImageItem*> images, TreeItem *dst_ti, int num_new) // FIXME-2 Check relinking, if attributes are in dst_ti (*before) image rows
 {
     // Selection is lost when removing rows from model
     QList <TreeItem*> selectedItems = getSelectedItems();

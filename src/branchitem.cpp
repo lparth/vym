@@ -88,7 +88,7 @@ void BranchItem::insertBranch(int pos, BranchItem *branch)
         pos = 0;
     if (pos > branchCounter)
         pos = branchCounter;
-    childItems.insert(pos + branchOffset, branch);
+    childItems.insert(pos + branchOffsetInt, branch);
     branch->parentItem = this;
     branch->rootItem = rootItem;
     branch->setModel(model);
@@ -98,7 +98,7 @@ void BranchItem::insertBranch(int pos, BranchItem *branch)
         setType(Branch);    // FIXME-2 shouldn't this be branch->setType()??
 
     if (branchCounter == 0)
-        branchOffset = childItems.count() - 1;
+        branchOffsetInt = childItems.count() - 1;
     branchCounter++;
 }
 
@@ -108,13 +108,13 @@ void BranchItem::insertImage(int pos, ImageItem *image)
         pos = 0;
     if (pos > imageCounter)
         pos = imageCounter;
-    childItems.insert(pos + imageOffset, image);
+    childItems.insert(pos + imageOffsetInt, image);
 
     // Set parentItem, rootItem and model
     image->setParentBranch(this);
 
     imageCounter++;
-    branchOffset++;
+    branchOffsetInt++;
 }
 
 QString BranchItem::saveToDir(const QString &tmpdir, const QString &prefix,

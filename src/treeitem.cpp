@@ -47,17 +47,17 @@ void TreeItem::init()
     itemID = itemLastID;
     uuid = QUuid::createUuid();
 
-    branchOffset = 0;
+    branchOffsetInt = 0;
     branchCounter = 0;
 
-    imageOffset = 0;
+    imageOffsetInt = 0;
     imageCounter = 0;
 
     attributeCounter = 0;
-    attributeOffset = 0;
+    attributeOffsetInt = 0;    // FIXME-2 will always be 0, never incremented
 
     xlinkCounter = 0;
-    xlinkOffset = 0;
+    xlinkOffsetInt = 0;
 
     target = false;
 
@@ -89,15 +89,15 @@ int TreeItem::getRowNumAppend(TreeItem *item)
 {
     switch (item->type) {
         case Attribute:
-            return attributeOffset + attributeCounter;
+            return attributeOffsetInt + attributeCounter;
         case XLinkItemType:
-            return xlinkOffset + xlinkCounter;
+            return xlinkOffsetInt + xlinkCounter;
         case Image:
-            return imageOffset + imageCounter;
+            return imageOffsetInt + imageCounter;
         case MapCenter:
-            return branchOffset + branchCounter;
+            return branchOffsetInt + branchCounter;
         case Branch:
-            return branchOffset + branchCounter;
+            return branchOffsetInt + branchCounter;
         default:
             return -1;
     }
@@ -113,22 +113,22 @@ void TreeItem::appendChild(TreeItem *item)
         // attribute are on top of list
         childItems.insert(attributeCounter, item);
         attributeCounter++;
-        xlinkOffset++;
-        imageOffset++;
-        branchOffset++;
+        xlinkOffsetInt++;
+        imageOffsetInt++;
+        branchOffsetInt++;
     }
 
     if (item->type == XLinkItemType) {
-        childItems.insert(xlinkCounter + xlinkOffset, item);
+        childItems.insert(xlinkCounter + xlinkOffsetInt, item);
         xlinkCounter++;
-        imageOffset++;
-        branchOffset++;
+        imageOffsetInt++;
+        branchOffsetInt++;
     }
 
     if (item->type == Image) {
-        childItems.insert(imageCounter + imageOffset, item);
+        childItems.insert(imageCounter + imageOffsetInt, item);
         imageCounter++;
-        branchOffset++;
+        branchOffsetInt++;
     }
 
     if (item->hasTypeBranch()) {
@@ -154,16 +154,16 @@ void TreeItem::removeChild(int row)
             branchCounter--;
         else if (childItems.at(row)->type == Attribute) {
             attributeCounter--;
-            xlinkOffset--;
-            imageOffset--;
-            branchOffset--;
+            xlinkOffsetInt--;
+            imageOffsetInt--;
+            branchOffsetInt--;
         } else if (childItems.at(row)->type == XLinkItemType) {
             xlinkCounter--;
-            imageOffset--;
-            branchOffset--;
+            imageOffsetInt--;
+            branchOffsetInt--;
         } else if (childItems.at(row)->type == Image) {
             imageCounter--;
-            branchOffset--;
+            branchOffsetInt--;
         } else
             ok = false;
 
@@ -190,6 +190,8 @@ int TreeItem::childNumber() const   // FIXME-2 rename to rowNumber or rowNum?
 int TreeItem::columnCount() const { return 1; }
 
 int TreeItem::branchCount() const { return branchCounter; }
+
+int TreeItem::branchOffset() const { return branchOffsetInt; }
 
 int TreeItem::imageCount() const { return imageCounter; }
 
@@ -250,11 +252,11 @@ int TreeItem::num(TreeItem *item)
     if (!childItems.contains(item))
         return -1;
     switch (item->getType()) {
-        case MapCenter: return childItems.indexOf(item) - branchOffset;
-        case Branch: return childItems.indexOf(item) - branchOffset;
-        case Image: return childItems.indexOf(item) - imageOffset;
-        case Attribute: return childItems.indexOf(item) - attributeOffset;
-        case XLinkItemType: return childItems.indexOf(item) - xlinkOffset;
+        case MapCenter: return childItems.indexOf(item) - branchOffsetInt;
+        case Branch: return childItems.indexOf(item) - branchOffsetInt;
+        case Image: return childItems.indexOf(item) - imageOffsetInt;
+        case Attribute: return childItems.indexOf(item) - attributeOffsetInt;
+        case XLinkItemType: return childItems.indexOf(item) - xlinkOffsetInt;
         default: return -1;
     }
 }
@@ -651,7 +653,7 @@ BranchItem *TreeItem::getNextBranch(BranchItem *currentBranch)
         return nullptr;
     int n = num(currentBranch) + 1;
     if (n < branchCounter)
-        return getBranchNum(branchOffset + n);
+        return getBranchNum(branchOffsetInt + n);
     else
         return nullptr;
 }
@@ -659,7 +661,7 @@ BranchItem *TreeItem::getNextBranch(BranchItem *currentBranch)
 BranchItem *TreeItem::getBranchNum(const int &n)
 {
     if (n >= 0 && n < branchCounter)
-        return (BranchItem *)getChildNum(branchOffset + n);
+        return (BranchItem *)getChildNum(branchOffsetInt + n);
     else
         return nullptr;
 }
@@ -675,7 +677,7 @@ QList <BranchItem*> TreeItem::getBranches()
 ImageItem* TreeItem::getImageNum(const int &n)
 {
     if (n >= 0 && n < imageCounter)
-        return (ImageItem *)getChildNum(imageOffset + n);
+        return (ImageItem *)getChildNum(imageOffsetInt + n);
     else
         return nullptr;
 }
@@ -683,7 +685,7 @@ ImageItem* TreeItem::getImageNum(const int &n)
 AttributeItem* TreeItem::getAttributeNum(const int &n)
 {
     if (n >= 0 && n < attributeCounter)
-        return (AttributeItem *)getChildNum(attributeOffset + n);
+        return (AttributeItem *)getChildNum(attributeOffsetInt + n);
     else
         return nullptr;
 }
@@ -711,7 +713,7 @@ QVariant TreeItem::attributeValue(const QString &k)
 XLinkItem* TreeItem::getXLinkItemNum(const int &n)
 {
     if (n >= 0 && n < xlinkCounter)
-        return (XLinkItem *)getChildNum(xlinkOffset + n);
+        return (XLinkItem *)getChildNum(xlinkOffsetInt + n);
     else
         return nullptr;
 }
