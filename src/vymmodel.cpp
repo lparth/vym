@@ -4304,17 +4304,17 @@ bool VymModel::relinkBranches(QList <BranchItem*> branches, BranchItem *dst, int
         BranchItem *branchpi = bi->parentBranch();
 
         // Remove at current position
-        int removeRowNum = bi->childNum();
+        int removeRowNum = bi->childNumber();
 
         QModelIndex pix = index(branchpi);
         /* FIXME-2 remove debug stuff
+        */
         std::cout << "  VM::relink removing " << bi << " " << bi->headingPlain().toStdString()
                   << " at n=" << removeRowNum
                   << " from " << branchpi << "  " << branchpi->headingPlain().toStdString()
                   << " to " << dst << " " << dst->headingPlain().toStdString() << endl;
         std::cout << "      persIxList: " << (this->persistentIndexList()).count() << endl;
         std::cout << "         num_dst: " << num_dst << endl;
-        */
 
         QModelIndex dix = index(dst);
         int dstRowNum = num_dst;
@@ -4332,11 +4332,11 @@ bool VymModel::relinkBranches(QList <BranchItem*> branches, BranchItem *dst, int
         bool b = beginMoveRows(pix, removeRowNum, removeRowNum, dix, dstRowNum);
         Q_ASSERT(b);
         /*
+          */
         std::cout << "  beginMoveRows=" << toS(b).toStdString()
                   << "  removeRowNum=" << removeRowNum
                   << " num_dst=" << num_dst
                   << " dstRowNum=" << dstRowNum << endl;
-          */
         branchpi->removeChild(removeRowNum);
         dst->insertBranch(num_dst, bi);
         endMoveRows();
@@ -4456,7 +4456,7 @@ bool VymModel::relinkImages(QList <ImageItem*> images, TreeItem *dst_ti, int num
 
         BranchItem *pi = (BranchItem *)(ii->parent());
         // Remove at current position
-        int n = ii->childNum();
+        int n = ii->childNumber();
         beginRemoveRows(index(pi), n, n);
         pi->removeChild(n);
         endRemoveRows();
@@ -4688,8 +4688,8 @@ void VymModel::deleteChildrenBranches(BranchItem *bi)
     QList<BranchItem *> selbis = getSelectedBranches(bi);
     foreach (BranchItem *selbi, selbis) {
         if (selbi->branchCount() > 0) {
-            int n_first = selbi->getFirstBranch()->childNum();
-            int n_last  = selbi->getLastBranch()->childNum();
+            int n_first = selbi->getFirstBranch()->childNumber();
+            int n_last  = selbi->getLastBranch()->childNumber();
 
             QString bv = setBranchVar(selbi);
             QString uc = bv + "map.loadBranchReplace(\"UNDO_PATH\", b);";
@@ -4729,7 +4729,7 @@ TreeItem *VymModel::deleteItem(TreeItem *ti)    // FIXME-2 remove debug stuff
 
         emit layoutAboutToBeChanged();
 
-        int n = ti->childNum();
+        int n = ti->childNumber();
         //std::cout << "VM::deleteItem a) ti=" << ti << "  " << headingText(ti).toStdString() << " pi=" << headingText(pi).toStdString() << "  n=" << n << endl;    // FIXME-2 Debugging
         beginRemoveRows(parentIndex, n, n);
         //qDebug() << "VM::deleteItem b) ";

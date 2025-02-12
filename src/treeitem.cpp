@@ -179,12 +179,12 @@ TreeItem *TreeItem::child(int row) { return childItems.value(row); }
 
 int TreeItem::childCount() const { return childItems.count(); }
 
-int TreeItem::childNumber() const
+int TreeItem::childNumber() const   // FIXME-2 rename to rowNumber or rowNum?
 {
     if (parentItem)
         return parentItem->childItems.indexOf(const_cast<TreeItem *>(this));
 
-    return 0;
+    return 0;   // FIXME-4 return -1 in case of error?
 }
 
 int TreeItem::columnCount() const { return 1; }
@@ -235,8 +235,6 @@ bool TreeItem::isChildOf(TreeItem *ti)
         return false;
     return parentItem->isChildOf(ti);
 }
-
-int TreeItem::childNum() { return parentItem->childItems.indexOf(this); }
 
 int TreeItem::num()
 {

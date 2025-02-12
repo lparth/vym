@@ -61,7 +61,6 @@ class TreeItem : public XMLObj {
 
     /*! Return number of item in parent by type,
     e.g. first branch has number 0           */
-    virtual int childNum(); //! Return number of item in list of all children
     virtual int num();      //! Return number of item by type
     virtual int num(TreeItem *item); //! Return number of item by type
 
