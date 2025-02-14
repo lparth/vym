@@ -62,6 +62,7 @@
 #include "xlinkitem.h"
 #include "xlinkobj.h"
 #include "xml-freeplane.h"
+#include "xml-ithoughts.h"
 #include "xml-vym.h"
 #include "xmlobj.h"
 #include "zip-agent.h"
@@ -492,6 +493,9 @@ File::ErrorCode VymModel::loadMap(QString fname, const File::LoadMode &lmode,
         case File::FreemindMap:
             reader = new FreeplaneReader(this);
             break;
+        case File::IThoughtsMap:
+            reader = new IThoughtsReader(this);
+            break;
         default:
             QMessageBox::critical(0, tr("Critical Parse Error"),
                                   "Unknown FileType in VymModel::load()");
@@ -563,12 +567,22 @@ File::ErrorCode VymModel::loadMap(QString fname, const File::LoadMode &lmode,
                 // Only one entry, take this one
                 xmlfile = tmpZipDir + "/" + flist.first();
             } else {
-
                 // FIXME-5 Multiple entries, load all (but only the first one
                 // into this ME)
                 // mainWindow->fileLoadFromTmp (flist);
                 // returnCode = 1;	// Silently forget this attempt to load
-                qWarning() << "VymModel::loadMap multimap found " << flist;
+                if (fileType == File::IThoughtsMap) {
+                    if (!flist.contains("mapdata.xml")) {
+                        QMessageBox::critical(
+                            0, tr("Critical Load Error"),
+                            tr("Couldn't find %1 in map file.\n").arg("mapdata.xml"));
+                        err = File::Aborted;
+                    }
+                    else
+                        xmlfile = tmpZipDir + "/mapdata.xml";
+                }
+                else
+                    qWarning() << "VymModel::loadMap multimap found " << flist;
             }
 
             if (flist.isEmpty()) {
@@ -675,7 +689,7 @@ File::ErrorCode VymModel::loadMap(QString fname, const File::LoadMode &lmode,
     }
 
     // If required, fix positions when importing from old versions
-    if (versionLowerOrEqual(mapVersionInt, "2.9.500")) {
+    if (fileType == File::VymMap && versionLowerOrEqual(mapVersionInt, "2.9.500")) {
         foreach (BranchItem *center, rootItem->getBranches()) {
             foreach (BranchItem *mainBranch, center->getBranches()) {
                 BranchContainer *bc = mainBranch->getBranchContainer();
@@ -684,12 +698,11 @@ File::ErrorCode VymModel::loadMap(QString fname, const File::LoadMode &lmode,
                 offset.setX(rb.width() / 2);
                 offset.setY(rb.height() / 2);
                 bc->setPos(bc->x() + offset.x(), bc->y() + offset.y());
-                qDebug() << "VymModel::loadMap adjusting legacy position of " << mainBranch->headingPlain() << "  offset: " << toS(offset);
+                qDebug() << "VymModel::loadMap() adjusting legacy position of " << mainBranch->headingPlain() << "  offset: " << toS(offset);
             }
         }
         reposition();
     }
-
 
     // Cleanup
     removeDir(QDir(tmpZipDir));

@@ -8,7 +8,7 @@ namespace File {
 
     enum LoadMode { NewMap, DefaultMap, ImportAdd, ImportReplace };
     enum SaveMode { PartOfMap, CompleteMap, CodeBlock };
-    enum FileType { VymMap, FreemindMap, UnknownMap };
+    enum FileType { VymMap, FreemindMap, IThoughtsMap, UnknownMap };
 }
 
 /////////////////////////////////////////////////////////////////////////////
