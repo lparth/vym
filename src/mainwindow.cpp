@@ -1581,7 +1581,7 @@ void Main::setupFileActions()
     fileImportMenu->addSeparator();
 
     a = new QAction( tr("Firefox Bookmarks", "Import filters") +
-                        tr("(experimental)"),
+                        tr("(still experimental)"),
                     this);
     connect(a, SIGNAL(triggered()), this,
             SLOT(fileImportFirefoxBookmarks()));
@@ -1595,7 +1595,7 @@ void Main::setupFileActions()
     connect(a, SIGNAL(triggered()), this, SLOT(fileImportIThoughts()));
     fileImportMenu->addAction(a);
 
-    a = new QAction("Mind Manager...", this);
+    a = new QAction("Mind Manager..." + tr("(still experimental)"), this);
     connect(a, SIGNAL(triggered()), this, SLOT(fileImportMM()));
     fileImportMenu->addAction(a);
 
