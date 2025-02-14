@@ -1587,11 +1587,11 @@ void Main::setupFileActions()
             SLOT(fileImportFirefoxBookmarks()));
     fileImportMenu->addAction(a);
 
-    a = new QAction("Freemind...", this);
+    a = new QAction("Freemind..." + tr("(still experimental)"), this);
     connect(a, SIGNAL(triggered()), this, SLOT(fileImportFreemind()));
     fileImportMenu->addAction(a);
 
-    a = new QAction("IThoughts...", this);
+    a = new QAction("IThoughts..." + tr("(still experimental"), this);
     connect(a, SIGNAL(triggered()), this, SLOT(fileImportIThoughts()));
     fileImportMenu->addAction(a);
 
