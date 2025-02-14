@@ -13,6 +13,7 @@ class IThoughtsReader : public BaseReader {
 
   private:
     void readIThoughtsMap();
+    void readTopics(File::LoadMode loadModeBranch, int insertPosBranch);
     void readBranchOrMapCenter(File::LoadMode loadModeBranch, int insertPosBranch);
 
     void readMapAttr();

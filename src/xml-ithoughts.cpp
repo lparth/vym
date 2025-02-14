@@ -89,10 +89,8 @@ void IThoughtsReader::readIThoughtsMap()
 
 
     while (xml.readNextStartElement()) {
-        if (xml.name() == QLatin1String("topics") || 
-            xml.name() == QLatin1String("mapcenter") ||
-            xml.name() == QLatin1String("branch")) {
-            readBranchOrMapCenter(loadMode, insertPos);
+        if (xml.name() == QLatin1String("topics") ) {
+            readTopics(loadMode, insertPos);
             insertPos++;
         } else {
             raiseUnknownElementError();
@@ -101,14 +99,28 @@ void IThoughtsReader::readIThoughtsMap()
     }
 }
 
+void IThoughtsReader::readTopics(File::LoadMode loadModeBranch, int insertPosBranch)
+{
+    Q_ASSERT(xml.isStartElement() && xml.name() == QLatin1String("topics"));
+
+    // While going deeper, no longer "import" but just load as usual
+    while (xml.readNextStartElement()) {
+        if (xml.name() == QLatin1String("topic")) {
+            readBranchOrMapCenter(loadModeBranch, insertPosBranch);
+        } else {
+            raiseUnknownElementError();
+            return;
+        }
+    }
+
+}
+
 void IThoughtsReader::readBranchOrMapCenter(File::LoadMode loadModeBranch, int insertPosBranch)
 {
-    Q_ASSERT(xml.isStartElement() &&
-            (xml.name() == QLatin1String("topics") ||
-             xml.name() == QLatin1String("topic")));
+    Q_ASSERT(xml.isStartElement() && xml.name() == QLatin1String("topic"));
 
-    // Create branch or mapCenter
-    if (loadModeBranch == File::NewMap || loadModeBranch == File::DefaultMap)
+    // Create branch or mapCenter (but only for <topic>)
+    if (loadModeBranch == File::NewMap)
         lastBranch = model->createBranchWhileLoading(lastBranch);
     else {
         // For Imports create branch at insertPos
@@ -165,9 +177,7 @@ void IThoughtsReader::readMapAttr()
 
 void IThoughtsReader::readBranchAttr()
 {
-    Q_ASSERT(xml.isStartElement() && (
-            xml.name() == QLatin1String("branch") ||
-            xml.name() == QLatin1String("mapcenter")));
+    Q_ASSERT(xml.isStartElement() && xml.name() == QLatin1String("topic"));
 
     branchesCounter++;
     if (useProgress)
@@ -206,18 +216,25 @@ void IThoughtsReader::readBranchAttr()
 
 void IThoughtsReader::readOrnamentsAttr()
 {
-    Q_ASSERT(xml.isStartElement() && (
-            xml.name() == QLatin1String("topic") ||
-            xml.name() == QLatin1String("topics")));
+    Q_ASSERT(xml.isStartElement() && 
+            xml.name() == QLatin1String("topic"));
 
     float x, y;
     bool okx, oky;
 
-    QString s = attributeToString("posX");
-    QString t = attributeToString("posY");
-    if (!s.isEmpty() || !t.isEmpty()) {
-        x = s.toFloat(&okx);
-        y = t.toFloat(&oky);
+    QString s = attributeToString("position");
+    if (!s.isEmpty()) {
+        // Get coordinates from "{x,y}"
+        s.replace("{", "");
+        s.replace("}", "");
+        QStringList sl = s.split(",");
+        if (sl.size() < 2) {
+            xml.raiseError("Couldn't split position string of item");
+            return;
+        }
+
+        x = sl[0].toFloat(&okx);
+        y = sl[1].toFloat(&oky);
         if (okx && oky)
             lastMI->setPos(QPointF(x, y));
         else {
@@ -225,58 +242,6 @@ void IThoughtsReader::readOrnamentsAttr()
             return;
         }
     }
-
-    // Only left for compatibility with versions < 2.9.500
-    s = attributeToString("relPosX");
-    t = attributeToString("relPosY");
-    if (!s.isEmpty() || !t.isEmpty()) {
-        x = s.toFloat(&okx);
-        y = t.toFloat(&oky);
-        if (okx && oky)
-            lastMI->setPos(QPointF(x, y));
-        else {
-            xml.raiseError("Couldn't read relative position of item");
-            return;
-        }
-    }
-
-    // Only left for compatibility with versions < 2.9.500
-    s = attributeToString("absPosX");
-    t = attributeToString("absPosY");
-    if (!s.isEmpty() || !t.isEmpty()) {
-        x = s.toFloat(&okx);
-        y = t.toFloat(&oky);
-        if (okx && oky)
-            lastMI->setPos(QPointF(x, y));
-        else {
-            xml.raiseError("Couldn't read absolute position of item");
-            return;
-        }
-    }
-
-    s = attributeToString("url");
-    if (!s.isEmpty())
-        lastMI->setUrl(s);
-    s = attributeToString("vymLink");
-    if (!s.isEmpty())
-        lastMI->setVymLink(s);
-    s = attributeToString("hideInExport");
-    if (!s.isEmpty())
-        if (s == "true")
-            lastMI->setHideTemporary(true);
-
-    s = attributeToString("hideLink");
-    if (!s.isEmpty()) {
-        if (s == "true")
-            lastMI->setHideLinkUnselected(true);
-        else
-            lastMI->setHideLinkUnselected(false);
-    }
-
-    s = attributeToString("localTarget");
-    if (!s.isEmpty())
-        if (s == "true")
-            lastMI->toggleTarget();
 
     s = attributeToString("uuid");
     if (!s.isEmpty()) {
@@ -289,18 +254,6 @@ void IThoughtsReader::readOrnamentsAttr()
                 lastMI->setUuid(s);
         } else
             lastMI->setUuid(s);
-    }
-
-    s = attributeToString("colWidth");
-    if (!s.isEmpty()) {
-        int i = s.toInt(&okx);
-        if (okx) {
-            lastBranch->getBranchContainer()->setColumnWidthAutoDesign(false);
-            lastBranch->getBranchContainer()->setColumnWidth(i);
-        } else {
-            xml.raiseError("Couldn't read colWidth of branch");
-            return;
-        }
     }
 }
 

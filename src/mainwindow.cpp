@@ -4878,7 +4878,6 @@ void Main::fileImportIThoughts()
             fn = *it;
             if (File::Success == fileLoad(fn, File::NewMap, File::IThoughtsMap)) {
                 currentMapEditor()->getModel()->setFilePath("");
-                qDebug() << "Setting fp = '' for " << fn;
             }
             ++it;
         }
@@ -7391,7 +7390,7 @@ QObject *Main::getCurrentModelWrapper()
 {
     // Called from VymWrapper to find out current model in a script
     VymModel *m = currentModel();
-    std:cout << "Main::getCurrentModelWrapper  mw=" << m->getWrapper() << endl;
+    //std:cout << "Main::getCurrentModelWrapper  mw=" << m->getWrapper() << endl;
     if (m)
         return m->getWrapper();
     else
@@ -7666,7 +7665,6 @@ void Main::helpAboutQT()
 
 void Main::callMacro()
 {
-    std::cout << __FUNCTION__ << " call macro";
     QAction *action = qobject_cast<QAction *>(sender());
     int i = -1;
     if (action) {
@@ -7687,8 +7685,6 @@ void Main::callMacro()
 
         // Function keys start at "1", not "0"
         i++;
-
-        std::cout << __FUNCTION__ << " i= " << i << endl;
 
         QString s = QString("macro_%1f%2();\n").arg(modifiers).arg(i);
 
