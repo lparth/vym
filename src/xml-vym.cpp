@@ -169,7 +169,6 @@ void VymReader::readMapDesignElement()
 
     readMapDesignCompatibleAttributes();
 
-    bool ok;
     QString k = xml.attributes().value("key").toString();
     QString v = xml.attributes().value("val").toString();
     QString d = xml.attributes().value("d").toString();
