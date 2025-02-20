@@ -139,6 +139,7 @@ class Main : public QMainWindow {
     void fileSaveAsDefault();
     void fileImportFirefoxBookmarks();
     void fileImportFreemind();
+    void fileImportIThoughts();
     void fileImportMM();
     void fileImportDir();
     void fileExportAO();

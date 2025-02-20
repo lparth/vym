@@ -1581,17 +1581,21 @@ void Main::setupFileActions()
     fileImportMenu->addSeparator();
 
     a = new QAction( tr("Firefox Bookmarks", "Import filters") +
-                        tr("(experimental)"),
+                        tr("(still experimental)"),
                     this);
     connect(a, SIGNAL(triggered()), this,
             SLOT(fileImportFirefoxBookmarks()));
     fileImportMenu->addAction(a);
 
-    a = new QAction("Freemind...", this);
+    a = new QAction("Freemind..." + tr("(still experimental)"), this);
     connect(a, SIGNAL(triggered()), this, SLOT(fileImportFreemind()));
     fileImportMenu->addAction(a);
 
-    a = new QAction("Mind Manager...", this);
+    a = new QAction("IThoughts..." + tr("(still experimental"), this);
+    connect(a, SIGNAL(triggered()), this, SLOT(fileImportIThoughts()));
+    fileImportMenu->addAction(a);
+
+    a = new QAction("Mind Manager..." + tr("(still experimental)"), this);
     connect(a, SIGNAL(triggered()), this, SLOT(fileImportMM()));
     fileImportMenu->addAction(a);
 
@@ -4446,13 +4450,13 @@ File::ErrorCode Main::fileLoad(QString fn, const File::LoadMode &lmode,
                 updateTabName(vm);
                 actionFilePrint->setEnabled(true);
                 addRecentMap(fn);
+
+                lastMapDir.setPath(vm->getFileDir());
             }
             else if (lmode == File::DefaultMap) {
                 vm->makeDefault();
                 updateTabName(vm);
             }
-	    lastMapDir.setPath(vm->getFileDir());
-        // FIXME-2 lastMapDir might be empty after loading default map  qDebug() << __FILE_NAME__ << "Loaded fn=" << fn << "setting lastMapDIr="<< lastMapDir;
 
             editorChanged();
             vm->emitShowSelection();
@@ -4834,7 +4838,7 @@ void Main::fileImportFreemind()
     fd.setDirectory(lastMapDir);
     fd.setFileMode(QFileDialog::ExistingFiles);
     fd.setNameFilters(filters);
-    fd.setWindowTitle(vymName + " - " + tr("Open Freemind map"));
+    fd.setWindowTitle(vymName + " - " + tr("Open %1 map").arg("Freeplane"));
     fd.setAcceptMode(QFileDialog::AcceptOpen);
 
     QString fn;
@@ -4845,6 +4849,34 @@ void Main::fileImportFreemind()
         while (it != flist.end()) {
             fn = *it;
             if (fileLoad(fn, File::NewMap, File::FreemindMap)) {
+                currentMapEditor()->getModel()->setFilePath("");
+            }
+            ++it;
+        }
+    }
+}
+
+void Main::fileImportIThoughts()
+{
+    QStringList filters;
+    filters << "IThoughts map (*.itmz)"
+            << "All files (*)";
+
+    QFileDialog fd;
+    fd.setDirectory(lastMapDir);
+    fd.setFileMode(QFileDialog::ExistingFiles);
+    fd.setNameFilters(filters);
+    fd.setWindowTitle(vymName + " - " + tr("Open %1 map").arg("IThoughts"));
+    fd.setAcceptMode(QFileDialog::AcceptOpen);
+
+    QString fn;
+    if (fd.exec() == QDialog::Accepted) {
+        lastMapDir = fd.directory();
+        QStringList flist = fd.selectedFiles();
+        QStringList::Iterator it = flist.begin();
+        while (it != flist.end()) {
+            fn = *it;
+            if (File::Success == fileLoad(fn, File::NewMap, File::IThoughtsMap)) {
                 currentMapEditor()->getModel()->setFilePath("");
             }
             ++it;
@@ -4873,8 +4905,7 @@ void Main::fileImportMM()
         while (it != flist.end()) {
             im.setFile(*it);
             if (im.transform() &&
-                File::Success ==
-                    fileLoad(im.getTransformedFile(), File::NewMap, File::VymMap) &&
+                File::Success == fileLoad(im.getTransformedFile(), File::NewMap, File::VymMap) &&
                 currentMapEditor())
                 currentMapEditor()->getModel()->setFilePath("");
             ++it;
@@ -7359,7 +7390,7 @@ QObject *Main::getCurrentModelWrapper()
 {
     // Called from VymWrapper to find out current model in a script
     VymModel *m = currentModel();
-    std:cout << "Main::getCurrentModelWrapper  mw=" << m->getWrapper() << endl;
+    //std:cout << "Main::getCurrentModelWrapper  mw=" << m->getWrapper() << endl;
     if (m)
         return m->getWrapper();
     else
@@ -7634,7 +7665,6 @@ void Main::helpAboutQT()
 
 void Main::callMacro()
 {
-    std::cout << __FUNCTION__ << " call macro";
     QAction *action = qobject_cast<QAction *>(sender());
     int i = -1;
     if (action) {
@@ -7655,8 +7685,6 @@ void Main::callMacro()
 
         // Function keys start at "1", not "0"
         i++;
-
-        std::cout << __FUNCTION__ << " i= " << i << endl;
 
         QString s = QString("macro_%1f%2();\n").arg(modifiers).arg(i);
 
