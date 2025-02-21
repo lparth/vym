@@ -162,7 +162,6 @@ bool ScriptEditor::loadScript(QString fn)
 {
     if (fn.isEmpty()) {
         QString filter("VYM scripts (*.vys);;All (*)");
-        qDebug() << "SE::loadScript lastScriptDir=" << lastScriptDir;  // FIXME-2 debugging...
         fn = QFileDialog::getOpenFileName(this,
                                           vymName + " - " + tr("Load script"),
                                           lastScriptDir.path(), filter);

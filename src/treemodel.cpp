@@ -189,7 +189,7 @@ void TreeModel::nextBranch(BranchItem *&current, BranchItem *&previous,
 
             int n_prev = previous->num();
             if (n_prev < 0)
-                qWarning() << __func__ << " deep levels first: index previous branch < 0";  // FIXME-2 Debugging  
+                qWarning() << __func__ << " deep levels first: index previous branch < 0";  // FIXME-3 Debugging  
             BranchItem *sibling = current->getBranchNum(previous->num() + 1);
             if (sibling) {
                 // Found sibling of previous, go there
@@ -245,7 +245,7 @@ void TreeModel::nextBranch(BranchItem *&current, BranchItem *&previous,
 
             int n_prev = previous->num();
             if (n_prev < 0)
-                qWarning() << __func__ << " deep levels last: index previous branch < 0";   // FIXME-2 Debugging
+                qWarning() << __func__ << " deep levels last: index previous branch < 0";   // FIXME-3 Debugging
             BranchItem *sibling = current->getBranchNum(previous->num() + 1);
             if (sibling) {
                 // Found sibling of previous, go there
