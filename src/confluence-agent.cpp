@@ -317,7 +317,7 @@ void ConfluenceAgent::continueJob(int nextStep)
 
         case DeletePageLabel:
             if (jobStep == 1) {
-                // FIXME-2 check if pageID is set
+                // FIXME-4 check if pageID is set
                 startDeleteLabelRequest();
                 return;
             }
