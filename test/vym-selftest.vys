@@ -1538,7 +1538,7 @@ test_adding_branches();
 //test_adding_maps();
   //test_attributes();        // FIXME not ported yet
 //test_copy_paste();
-//test_delete_parts();
+test_delete_parts();
   //test_export();            // FIXME WIP
 //test_extrainfo();
 //test_frames();

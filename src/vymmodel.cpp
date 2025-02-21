@@ -2474,7 +2474,7 @@ bool VymModel::findAll(FindResultModel *rmodel, QString s,
     return hit;
 }
 
-void VymModel::setUrl(QString url, bool updateFromCloud, BranchItem *bi)    // FIXME-2 does not update flag when unsetting Url
+void VymModel::setUrl(QString url, bool updateFromCloud, BranchItem *bi)
 {
     if (!bi) bi = getSelectedBranch();
     if (bi->url() == url)
@@ -4321,7 +4321,7 @@ bool VymModel::relinkBranches(QList <BranchItem*> branches, BranchItem *dst, int
         int dstRowNum = num_dst + dst->branchOffset();
 
         QModelIndex pix = index(branchpi);
-        /* FIXME-2 remove debug stuff
+        /* FIXME-4 remove debug stuff
         std::cout << "  VM::relink removing " << bi << " " << bi->headingPlain().toStdString()
                   << " at n=" << removeRowNum
                   << " from " << branchpi << "  " << branchpi->headingPlain().toStdString()
@@ -4580,7 +4580,7 @@ void VymModel::deleteSelection(ulong selID)
                 if (pi) {
                     if (pi->isScrolled() && pi->branchCount() == 0)
                         pi->unScroll();
-                    emitDataChanged(pi);    // FIXME-2 duplicate call, already in deleteItem
+                    emitDataChanged(pi);
                     select(pi);
                 }
                 else
@@ -4622,7 +4622,7 @@ void VymModel::deleteKeepChildren(BranchItem *bi)
 {
     QList<BranchItem *> selbis = getSelectedBranches(bi);
 
-    foreach (BranchItem *selbi, selbis) {
+    foreach (BranchItem *selbi, selbis) {//FIXME-2 Improve unselecting/reselecting...
         if (selbi->depth() < 1) {
             while (selbi->branchCount() > 0)
                 detach(selbi->getBranchNum(0));
@@ -4636,9 +4636,6 @@ void VymModel::deleteKeepChildren(BranchItem *bi)
             else {
                 unselectAll();
 
-                bool oldSaveState = saveStateBlocked;
-                saveStateBlocked = true;
-
                 BranchItem *pi = (BranchItem *)(selbi->parent());
 
                 QString pbv = setBranchVar(pi, "pb");
@@ -4649,6 +4646,9 @@ void VymModel::deleteKeepChildren(BranchItem *bi)
                     QString("Remove branch \"%1\" and keep children").arg(selbi->headingText()),
                     pi);
 
+                bool oldSaveState = saveStateBlocked;
+                saveStateBlocked = true;
+
                 QString sel = getSelectString(selbi);
                 int num_dst = selbi->num();
                 BranchItem *bi = selbi->getFirstBranch();
@@ -4657,9 +4657,10 @@ void VymModel::deleteKeepChildren(BranchItem *bi)
                     bi = selbi->getFirstBranch();
                     num_dst++;
                 }
+                saveStateBlocked = oldSaveState;
+
                 deleteItem(selbi);
                 reposition(); //FIXME-2 not necessary, already called above in deleteItem
-                saveStateBlocked = oldSaveState;
                 emitDataChanged(pi);    // FIXME-2 probably also not necessary
                 select(sel);
             }
@@ -4732,7 +4733,7 @@ void VymModel::deleteChildrenBranches(BranchItem *bi)
     }
 }
 
-TreeItem *VymModel::deleteItem(TreeItem *ti)    // FIXME-2 remove debug stuff
+TreeItem *VymModel::deleteItem(TreeItem *ti)
 {
     if (ti) {
         TreeItem *pi = ti->parent();
@@ -4745,27 +4746,19 @@ TreeItem *VymModel::deleteItem(TreeItem *ti)    // FIXME-2 remove debug stuff
         emit layoutAboutToBeChanged();
 
         int n = ti->row();
-        //std::cout << "VM::deleteItem a) ti=" << ti << "  " << headingText(ti).toStdString() << " pi=" << headingText(pi).toStdString() << "  n=" << n << endl;    // FIXME-2 Debugging
         beginRemoveRows(parentIndex, n, n);
-        //qDebug() << "VM::deleteItem b) ";
         bool r = removeRows(n, 1, parentIndex);  // Deletes object!
-        //qDebug() << "VM::deleteItem c) ";
         endRemoveRows();
-        //std::cout << "VM::deleteItem d) r=" << r << endl;
 
         emit layoutChanged();
-        //qDebug() << "VM::deleteItem e) ";
 
         emitUpdateQueries();
 
-        //qDebug() << "VM::deleteItem f) ";
         if (wasAttribute) {
             updateJiraFlag(parentItem);
             emitDataChanged(parentItem);
         }
-        //qDebug() << "VM::deleteItem g) ";
         reposition();
-        //std::cout << "VM::deleteItem h) " << endl;
 
         if (pi->depth() >= 0)
             return pi;
