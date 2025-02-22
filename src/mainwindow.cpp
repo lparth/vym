@@ -857,7 +857,7 @@ void Main::setupAPI()
     c = new Command("selectToggle", Command::BranchOrImageSel, Command::BoolPar);
     modelCommands.append(c);
 
-    c = new Command("setHeadingConfluencePageName", Command::BranchSel);    // FIXME-2 adapt name and add recursie command
+    c = new Command("setHeadingConfluencePageName", Command::BranchSel);    // FIXME-3 adapt name and add recursie command
     modelCommands.append(c);
 
     c = new Command("setAnimCurve", Command::AnySel);
@@ -1785,7 +1785,7 @@ void Main::setupEditActions()
     actionRedo = a;
 
     editMenu->addSeparator();
-    a = new QAction(QPixmap(QString(":/edit-copy-%1.svg").arg(iconTheme)), tr("&Copy", "Edit menu"), this);    // FIXME-2 breeze icon not committed yet!
+    a = new QAction(QPixmap(QString(":/edit-copy-%1.svg").arg(iconTheme)), tr("&Copy", "Edit menu"), this);
     a->setShortcut(Qt::CTRL | Qt::Key_C);
     ADD_SHORTCUT
     a->setShortcutContext(Qt::WidgetShortcut);

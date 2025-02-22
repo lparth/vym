@@ -92,10 +92,10 @@ void BranchItem::insertBranch(int pos, BranchItem *branch)
     branch->parentItem = this;
     branch->rootItem = rootItem;
     branch->setModel(model);
-    if (parentItem == rootItem)
-        setType(MapCenter); // FIXME-2 shouldn't this be branch->setType()??
+    if (this == rootItem)
+        branch->setType(MapCenter);
     else
-        setType(Branch);    // FIXME-2 shouldn't this be branch->setType()??
+        branch->setType(Branch);
 
     if (branchCounter == 0)
         branchOffsetInt = childItems.count() - 1;

@@ -45,7 +45,7 @@ set(CMAKE_AUTORCC ON)
 # On Linux DBUS is used for IPC with vym
 # On openSUSE install it using:  zypper install dbus-1-devel
 
-if (CMAKE_SYSTEM_NAME EQUAL Linux)
+if (CMAKE_SYSTEM_NAME STREQUAL Linux)
     find_package(DBus1)
 
     if(DBus1_FOUND)

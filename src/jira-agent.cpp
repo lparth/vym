@@ -444,7 +444,7 @@ void JiraAgent::startQueryRequest()
     if (debug) {
         qDebug() << "JA::startQueryRequest: url = " + request.url().toString();
         qDebug() << "s=" << s;
-        std::cout << doc.toJson(QJsonDocument::Indented).toStdString() << Qt::endl;
+        std::cout << doc.toJson(QJsonDocument::Indented).toStdString() << std::endl;
     }
 
     killTimer->start();
