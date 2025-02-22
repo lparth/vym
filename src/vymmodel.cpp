@@ -4618,11 +4618,12 @@ void VymModel::deleteSelection(ulong selID)
     reposition();
 }
 
-void VymModel::deleteKeepChildren(BranchItem *bi)
+void VymModel::deleteKeepChildren(BranchItem *bi)   // FIXME-3 does not work really with MapCenters. Floating positions also not saved for undo
 {
     QList<BranchItem *> selbis = getSelectedBranches(bi);
+    unselectAll();
 
-    foreach (BranchItem *selbi, selbis) {//FIXME-2 Improve unselecting/reselecting...
+    foreach (BranchItem *selbi, selbis) {
         if (selbi->depth() < 1) {
             while (selbi->branchCount() > 0)
                 detach(selbi->getBranchNum(0));
@@ -4632,9 +4633,8 @@ void VymModel::deleteKeepChildren(BranchItem *bi)
         } else {
             // Check if we have children at all to keep
             if (selbi->branchCount() == 0)
-                deleteSelection();
+                deleteSelection(selbi->getID());
             else {
-                unselectAll();
 
                 BranchItem *pi = (BranchItem *)(selbi->parent());
 
@@ -4660,6 +4660,8 @@ void VymModel::deleteKeepChildren(BranchItem *bi)
                 saveStateBlocked = oldSaveState;
 
                 deleteItem(selbi);
+
+                // Select the "new" branch  // FIXME-4 not really working with multiple selected branches...
                 select(sel);
             }
         }
@@ -4756,7 +4758,7 @@ TreeItem *VymModel::deleteItem(TreeItem *ti)
             updateJiraFlag(parentItem);
 
         emitDataChanged(parentItem);
-        reposition();
+        reposition();   // FIXME-2 Maybe move reposition back to calling functions and call less
 
         if (pi->depth() >= 0)
             return pi;
