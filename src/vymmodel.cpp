@@ -4660,8 +4660,6 @@ void VymModel::deleteKeepChildren(BranchItem *bi)
                 saveStateBlocked = oldSaveState;
 
                 deleteItem(selbi);
-                reposition(); //FIXME-2 not necessary, already called above in deleteItem
-                emitDataChanged(pi);    // FIXME-2 probably also not necessary
                 select(sel);
             }
         }
@@ -4754,10 +4752,10 @@ TreeItem *VymModel::deleteItem(TreeItem *ti)
 
         emitUpdateQueries();
 
-        if (wasAttribute) {
+        if (wasAttribute)
             updateJiraFlag(parentItem);
-            emitDataChanged(parentItem);
-        }
+
+        emitDataChanged(parentItem);
         reposition();
 
         if (pi->depth() >= 0)
